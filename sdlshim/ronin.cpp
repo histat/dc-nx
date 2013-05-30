@@ -1,0 +1,79 @@
+#include "shim.h"
+
+
+uint16_t *vram = NULL;
+
+static unsigned char dc_screen[VRAM_SIZE] __attribute__((aligned (32)));
+
+bool ronin_init()
+{
+	memset(dc_screen, 0, sizeof(dc_screen));
+	
+	vram = (uint16_t *)dc_screen;
+
+	// to get vmu_avail before reading vmu
+	int mask = getimask();
+	setimask(15);
+	handleInput(locked_get_pads());
+	setimask(mask);
+
+	return 0;
+}
+
+void ronin_close()
+{
+}
+
+// ---
+
+int gettimeofday(struct timeval *tp, struct timezone *tz)
+{
+  static unsigned long last_tm = 0;
+  static unsigned long tmhi = 0;
+  unsigned long tmlo = Timer();
+  if (tmlo < last_tm)
+    tmhi++;
+
+  unsigned long long usecs = 
+    ((((unsigned long long)tmlo)<<11)|
+     (((unsigned long long)tmhi)<<43))/100;
+
+  tp->tv_usec = usecs % 1000000;
+  tp->tv_sec = usecs / 1000000;
+
+  last_tm = tmlo;
+  return 0;
+}
+
+int system(const char *command)
+{
+	return -1;
+}
+
+int remove(const char *pathname)
+{
+	return -1;
+}
+
+
+int unlink(char *pathname)
+{
+	
+	return -1; 
+}
+
+
+int rename(const char *oldpath, const char *newpath){
+	
+	return -1;
+}
+
+char* tmpnam(const char *s)
+{
+	return NULL;
+}
+
+clock_t clock()
+{
+	return 0;
+}

@@ -1,0 +1,3 @@
+send sdlshim.exe \Temp\sdlshim.exe
+exec \Temp\sdlshim.exe
+exit

@@ -1,0 +1,5 @@
+
+nx: completely remove dependency on SDL_ttf when compiled for 240x320 mode
+
+SDL_GetVideoInfo()
+SDL_SetColors	- or investigate whether we remove this from nx?

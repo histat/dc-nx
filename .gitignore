@@ -1,0 +1,9 @@
+*.o
+.elf
+.BIN
+.bin
+nxdc
+*.txt
+*.fdh
+Makefile
+disttmp

@@ -1,0 +1,39 @@
+0 : VERSION
+4 : RESERVED
+/home/katy/dev/sdlshim/makelist.ml
+0 : active
+37 : nlines
+0 : scroll_y
+0 : cursor_x
+21 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+/home/katy/dev/sdlshim/main.cpp
+0 : active
+98 : nlines
+17 : scroll_y
+5 : cursor_x
+17 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+/home/katy/dev/sdlshim/SDL/screen.cpp
+0 : active
+404 : nlines
+115 : scroll_y
+0 : cursor_x
+143 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+/home/katy/dev/sdlshim/gapi.cpp
+1 : active
+95 : nlines
+50 : scroll_y
+9 : cursor_x
+58 : cursor_y
+0 : cursor_mode
+0 : selection_present
+-
+*END*

@@ -1,0 +1,76 @@
+
+#ifndef _SDL_KEYSYM_H
+#define _SDL_KEYSYM_H
+
+
+
+typedef enum
+{
+	SDLK_UNKNOWN = 0,
+	SDLK_FIRST = 0,
+	
+	SDLK_UP,
+	SDLK_DOWN,
+	SDLK_RIGHT,
+	SDLK_LEFT,
+	
+	SDLK_1,
+	SDLK_2,
+	SDLK_3,
+	SDLK_4,
+	SDLK_5,
+	SDLK_6,
+	SDLK_7,
+	SDLK_8,
+	SDLK_9,
+	SDLK_0,
+	
+	SDLK_a,
+	SDLK_b,
+	SDLK_c,
+	SDLK_d,
+	SDLK_e,
+	SDLK_f,
+	SDLK_g,
+	SDLK_h,
+	SDLK_i,
+	SDLK_j,
+	SDLK_k,
+	SDLK_l,
+	SDLK_m,
+	SDLK_n,
+	SDLK_o,
+	SDLK_p,
+	SDLK_q,
+	SDLK_r,
+	SDLK_s,
+	SDLK_t,
+	SDLK_u,
+	SDLK_v,
+	SDLK_w,
+	SDLK_x,
+	SDLK_y,
+	SDLK_z,
+
+	SDLK_ESCAPE,
+	SDLK_SPACE,
+	
+	SDLK_F1,
+	SDLK_F2,
+	SDLK_F3,
+	SDLK_F4,
+	SDLK_F5,
+	SDLK_F6,
+	SDLK_F7,
+	SDLK_F8,
+	SDLK_F9,
+	SDLK_F10,
+	SDLK_F11,
+	SDLK_F12,
+
+	SDLK_LAST
+} SDLKey;
+
+
+
+#endif

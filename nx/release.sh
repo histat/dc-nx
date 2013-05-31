@@ -4,6 +4,7 @@
 CMDNAME=`basename $0`
 BASE=`pwd`
 VER=$(date '+0.%y.%m.%d')
+DATE=$(date '+%Y%m%d')
 #-----------------------------------------------------------------
 BINDIR="nxdc-$VER-plainfiles"
 SOURCEDIR="nxdc-$VER-source"
@@ -19,7 +20,7 @@ make_bin() {
 	sh-elf-objcopy -S -R .stack -O binary nxdc NXDC.BIN
 	scramble NXDC.BIN 1ST_READ.BIN
 
-	sed -e 's/[@]DATE[@]/$(shell date '+%Y%m%d')/' < ip.txt.in > ip.txt 
+	sed -e 's/[@]DATE[@]/$DATE/' < ip.txt.in > ip.txt 
 	
 	makeip ip.txt IP.BIN
 

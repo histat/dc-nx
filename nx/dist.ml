@@ -1,6 +1,6 @@
 
 <DEFAULT
-COMPILE=sh-elf-gcc -ml -m4-single-only -fno-exceptions -fno-rtti -I/usr/local/ronin/include -DNOSERIAL  -O4 -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
+COMPILE=sh-elf-gcc -ml -m4-single-only -fno-exceptions -fno-rtti -I/usr/local/ronin/include -DNOSERIAL -O4 -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
 LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/lib/crt0.o -o %OUTPUT%
 LSUFFIX=-lstdc++ -L/usr/local/ronin/lib -lronin-noserial -lz -lm
 OBJ_EXT=o
@@ -160,12 +160,12 @@ common/StringList.cpp
 common/DBuffer.cpp
 common/DString.cpp
 common/bufio.cpp
-common/stat.cpp
 common/misc.cpp
 
-
+../sdlshim/support.cpp
 ../sdlshim/ronin.cpp
-
+../sdlshim/console.cpp
+../sdlshim/file.cpp
 
 ../sdlshim/SDL/init.cpp
 ../sdlshim/SDL/screen.cpp
@@ -174,12 +174,8 @@ common/misc.cpp
 ../sdlshim/SDL/audio.cpp
 ../sdlshim/SDL/misc.cpp
 
-
 ../sdlshim/asm.s : ASM
-
-../sdlshim/file.cpp
 ../sdlshim/dcevent.cpp
-
 ../sdlshim/vmu.cpp
 <<
 

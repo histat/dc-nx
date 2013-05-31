@@ -49,7 +49,7 @@ bool vmfile_search(const char *fname, int *vm)
 					if (vmsfs_get_superblock(&info, &super))
 						if (vmsfs_open_file(&super, fname, &file)) {
 #ifndef NOSERIAL
-							printf("%s Found on %c%d\n", fname, 'A'+res/4,res%4);
+							printf("%s Found on %c%d\n", fname, 'A'+res/6,res%6);
 #endif
 							check_audio();
 							
@@ -253,7 +253,7 @@ bool rename_vmu_file(const char *oldpath, const char *newpath)
 	strncpy(dst, newpath, 12);
 	
 #ifndef NOSERIAL
-	printf("Rename: %s -> %s on %c%d\n", oldpath, newpath, 'A'+ vm/4, vm%4);
+	printf("Rename: %s -> %s on %c%d\n", oldpath, newpath, 'A'+ vm/6, vm%6);
 #endif
 	
 	return true;

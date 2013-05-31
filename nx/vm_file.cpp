@@ -97,7 +97,7 @@ void vm_fclose(VMFILE *fp)
 
 	if (fp->_vm > 0)
 		if (save_to_vmu(fp->_vm, fp->filename, fp->_base, fp->_cnt)) {
-			stat("SUCCESS port %c%d", 'A'+ fp->_vm/4, fp->_vm%4);
+			stat("SUCCESS port %c%d", 'A'+ fp->_vm/6, fp->_vm%6);
 
 			goto _exit;
 		}
@@ -106,7 +106,7 @@ void vm_fclose(VMFILE *fp)
 
 	for (i=0; i<24; i++)
 		if (save_to_vmu(i, fp->filename, fp->_base, fp->_cnt)) {
-			stat("SUCCESS port %c%d", 'A'+ i/4, i%4);
+			stat("SUCCESS port %c%d", 'A'+ i/6, i%6);
 			break;
 		}
 

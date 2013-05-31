@@ -39,11 +39,13 @@ VMFILE *vm_fileopen(const char *fname, const char *mode)
 
 		if (!vmfile_search(fname, &vm)) {
 			stat("Can't open %s", fname);
-			return NULL;
+
+			goto _exit;
 		}
 		if (!load_from_vmu(vm, fname, _buffer, &size)) {
 			stat("load failed rb %s", fname);
-			return NULL;
+
+			goto _exit;
 		}
 
 		stat("%s rb %s",__func__, fname);
@@ -58,11 +60,12 @@ VMFILE *vm_fileopen(const char *fname, const char *mode)
 
 		if (!vmfile_search(fname, &vm)) {
 			stat("Can't open %s", fname);
-			return NULL;
+
+			goto _exit;
 		}
 
 		if (!load_from_vmu(vm, fname, _buffer, &size)) {
-			return NULL;
+			goto _exit;
 		}
 		
 		cnt = size;
@@ -70,7 +73,7 @@ VMFILE *vm_fileopen(const char *fname, const char *mode)
 		stat("%s r+ %s", __func__, fname);
 	} else {
 		staterr("vmu error");
-		return NULL;
+		goto _exit;
 	}
 
 	ret = &fh[i]._iob;
@@ -85,6 +88,9 @@ VMFILE *vm_fileopen(const char *fname, const char *mode)
 	ret->_vm = vm;
 
 	return ret;
+_exit:
+	fh[i].used = 0;
+	return NULL;
 }
 
 void vm_fclose(VMFILE *fp)

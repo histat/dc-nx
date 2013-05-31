@@ -6,9 +6,6 @@ static bool quitting = false;
 
 int SDL_main(int argc, char *argv[])
 {
-
-	SetLogFilename("debug.txt");
-	
 	stat("Entering main loop");
 	testblit();
 	
@@ -35,8 +32,8 @@ SDL_Surface *screen, *image;
 	screen = SDL_SetVideoMode(320, 240, 16, SDL_SWSURFACE);
 	if (!screen) return;
 #if 1	
-//	image = SDL_LoadBMP("data/MyChar.pbm");
-	image = SDL_LoadBMP("smalfont.bmp");
+	image = SDL_LoadBMP("data/MyChar.pbm");
+//	image = SDL_LoadBMP("smalfont.bmp");
 //	image = SDL_LoadBMP("data/bkBlack.pbm");
 #else
 	// w=244 h=144 bpp=4
@@ -49,7 +46,7 @@ SDL_Surface *screen, *image;
 	stat("Blitting...");
 	
 	SDL_Rect srcrect;
-#if 0
+#if 1
 	srcrect.x = 0;
 	srcrect.y = 0;
 	srcrect.w = 16;
@@ -62,11 +59,11 @@ SDL_Surface *screen, *image;
 #endif
 	
 	SDL_Rect dstrect;
-	dstrect.x = 0;
-	dstrect.y = 0;
+//	dstrect.x = 0;
+//	dstrect.y = 0;
 
-//	dstrect.x = 100;
-//	dstrect.y = 100;
+	dstrect.x = 100;
+	dstrect.y = 100;
 	
 	SDL_BlitSurface(image, &srcrect, screen, &dstrect);
 	SDL_Flip(screen);

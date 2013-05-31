@@ -27,15 +27,15 @@ void SDL_Quit(void)
 		
 		SDLS_EventQuit();
 		SDLS_CloseScreen();
-		//console_close();
+		console_close();
 		ronin_close();
 	} 
 
-	//printf("%s\n", __func__);
-	
 #ifdef NOSERIAL
 	(*(void(**)(int))0x8c0000e0)(1);
 	while (1) { }
+#else
+	printf("call %s\n", __func__);
 #endif
 }
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
 	if (SDLS_EventInit()) return 1;
 	if (ronin_init()) return 1;
-	//if (console_init()) return 1;
+	if (console_init()) return 1;
 	
 	atexit(SDL_Quit);
 #if 0

@@ -29,14 +29,12 @@ SDL/misc.cpp
 
 asm.s : ASM
 
-
 common/misc.cpp
 common/DBuffer.cpp
 common/BList.cpp
 
 dcevent.cpp
 vmu.cpp
-
 <<
 
 hacks.cpp

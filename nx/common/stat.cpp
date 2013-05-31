@@ -14,15 +14,12 @@ void writelog(const char *buf, bool append_cr);
 
 void SetLogFilename(const char *fname)
 {
-#if 0	
 	maxcpy(logfilename, fname, sizeof(logfilename));
 	remove(logfilename);
-#endif
 }
 
 void writelog(const char *buf, bool append_cr)
 {
-#if 0
 FILE *fp;
 
 	fp = fileopen(logfilename, "a+");
@@ -33,7 +30,6 @@ FILE *fp;
 		
 		fclose(fp);
 	}
-#endif
 }
 
 /*
@@ -42,7 +38,6 @@ void c------------------------------() {}
 
 void stat(const char *fmt, ...)
 {
-#ifndef NOSERIAL
 va_list ar;
 char buffer[MAXBUFSIZE];
 
@@ -52,16 +47,13 @@ char buffer[MAXBUFSIZE];
 	
 	puts(buffer);
 	fflush(stdout);
-#endif
-#if 0	
+	
 	if (logfilename[0])
 		writelog(buffer, true);
-#endif
 }
 
 void staterr(const char *fmt, ...)
 {
-#ifndef NOSERIAL	
 va_list ar;
 char buffer[MAXBUFSIZE];
 
@@ -71,15 +63,13 @@ char buffer[MAXBUFSIZE];
 	
 	printf(" error << %s >> \n", buffer);
 	fflush(stdout);
-#endif
-#if 0	
+	
 	if (logfilename[0])
 	{
 		writelog(" error << ", false);
 		writelog(buffer, false);
 		writelog(" >>\n", false);
 	}
-#endif
 }
 
 

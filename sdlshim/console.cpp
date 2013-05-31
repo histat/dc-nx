@@ -2,9 +2,12 @@
 #include "shim.h"
 #include "console.fdh"
 
+//#include "font.cpp"
+//#define ENABLE_SCROLL
 
 bool console_init(void)
 {
+	stat("Console initilized.");
 	return 0;
 }
 
@@ -17,55 +20,53 @@ void set_console_visible(bool enable)
 {
 }
 
-
 /*
 void c------------------------------() {}
 */
 
-static char logfilename[64] = { 0 };
-
-
 void stat(const char *str, ...)
 {
+#ifndef NOSERIAL	
 va_list ar;
 char buffer[256];
 
 	va_start(ar, str);
 	vsnprintf(buffer, sizeof(buffer), str, ar);
 	va_end(ar);
-	
-	if (logfilename[0])
-		writelog(buffer, true);
+
+	puts(buffer);
+	fflush(stdout);
+#endif
 }
 
 void statnocr(const char *str, ...)
 {
+#ifndef NOSERIAL
 va_list ar;
 char buffer[256];
 
 	va_start(ar, str);
 	vsnprintf(buffer, sizeof(buffer), str, ar);
 	va_end(ar);
-	
-	if (logfilename[0])
-		writelog(buffer, false);
+
+	puts(buffer);
+	fflush(stdout);
+#endif
 }
 
 void staterr(const char *str, ...)
 {
+#ifndef NOSERIAL	
 va_list ar;
 char buffer[256];
 
 	va_start(ar, str);
 	vsnprintf(buffer, sizeof(buffer), str, ar);
 	va_end(ar);
-	
-	if (logfilename[0])
-	{
-		writelog(" error << ", false);
-		writelog(buffer, false);
-		writelog(" >>\n", false);
-	}
+
+	puts(buffer);
+	fflush(stdout);
+#endif
 }
 
 /*
@@ -74,28 +75,10 @@ void c------------------------------() {}
 
 void SetLogFilename(const char *fname)
 {
-	maxcpy(logfilename, fname, sizeof(logfilename));
-	remove(logfilename);
-	
-	stat("Log set %d", SDL_GetTicks());
 }
 
 void writelog(const char *buf, bool append_cr)
 {
-#if 0
-	FILE *fp;
-
-	fp = SDLS_fopen(logfilename, "a+");
-	if (fp)
-	{
-		fputs(buf, fp);
-		if (append_cr) fputc('\n', fp);
-		
-		fclose(fp);
-	}
-#else
-	fprintf(stderr, "%s\n", buf);
-#endif
 }
 
 

@@ -160,12 +160,12 @@ common/StringList.cpp
 common/DBuffer.cpp
 common/DString.cpp
 common/bufio.cpp
-common/stat.cpp
 common/misc.cpp
 
-
+../sdlshim/support.cpp
 ../sdlshim/ronin.cpp
-
+../sdlshim/console.cpp
+../sdlshim/file.cpp
 
 ../sdlshim/SDL/init.cpp
 ../sdlshim/SDL/screen.cpp
@@ -174,12 +174,8 @@ common/misc.cpp
 ../sdlshim/SDL/audio.cpp
 ../sdlshim/SDL/misc.cpp
 
-
 ../sdlshim/asm.s : ASM
-
-../sdlshim/file.cpp
 ../sdlshim/dcevent.cpp
-
 ../sdlshim/vmu.cpp
 <<
 

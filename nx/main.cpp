@@ -108,7 +108,7 @@ bool freshstart;
 	
 	stat("Entering main loop...");
 	#ifdef __SDLSHIM__
-	//set_console_visible(false);
+	set_console_visible(false);
 	#endif
 	
 	//speed_test();

@@ -43,8 +43,8 @@ bool freshstart;
 	settings_load();
 #endif
 
-	setfile->resolution = 2;
-	setfile->files_extracted = false;
+	settings->resolution = 2;
+	settings->files_extracted = false;
 	
 	if (Graphics::init(settings->resolution)) { staterr("Failed to initialize graphics."); return 1; }
 	if (font_init()) { staterr("Failed to load font."); return 1; }

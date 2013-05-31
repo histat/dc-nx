@@ -6,4 +6,6 @@ nxdc
 *.txt
 *.fdh
 Makefile
+nxextract
+nxextract.exe
 disttmp

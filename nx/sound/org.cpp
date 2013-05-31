@@ -117,7 +117,7 @@ uint16_t version;
 	#ifndef DRUM_PXT
 		for(d=0;d<NUM_DRUMS;d++)
 		{
-			sprintf(fname, "./drums/%s.wav", drum_names[d]);
+			sprintf(fname, "/drums/%s.wav", drum_names[d]);
 			if (load_drum(fname, d)) return 1;
 		}
 	#else

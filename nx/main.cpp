@@ -5,10 +5,10 @@
 #include "graphics/safemode.h"
 #include "main.fdh"
 
-const char *data_dir = "data";
-const char *stage_dir = "data/Stage";
-const char *pic_dir = "endpic";
-const char *nxdata_dir = ".";
+const char *data_dir = "/data";
+const char *stage_dir = "/data/Stage";
+const char *pic_dir = "/endpic";
+const char *nxdata_dir = "/";
 
 int fps = 0;
 static int fps_so_far = 0;

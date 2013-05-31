@@ -1,7 +1,7 @@
 *.o
-.elf
-.BIN
-.bin
+*.elf
+*.BIN
+*.bin
 nxdc
 *.txt
 *.fdh

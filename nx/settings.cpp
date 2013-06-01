@@ -48,9 +48,6 @@ bool settings_load(Settings *setfile)
 		// down. This goes against established wisdom so if you want it back on,
 		// run "displayformat 1" in the console and restart.
 		//setfile->displayformat = false;
-#ifndef NOSERIAL
-		settings->show_fps = true;
-#endif
 		
 		return 1;
 	}
@@ -59,9 +56,7 @@ bool settings_load(Settings *setfile)
 		#ifdef __SDLSHIM__
 			stat("settings_load(): Done");
 
-#ifndef NOSERIAL			
-			settings->show_fps = true;
-#endif
+			//settings->show_fps = true;
 
 			input_set_mappings(settings->input_mappings);
 		#else

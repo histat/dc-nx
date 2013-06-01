@@ -24,6 +24,7 @@ make_bin() {
 	
 	makeip ip.txt IP.BIN
 
+	cp LICENSE disttmp/$BINDIR/
 	cp README disttmp/$BINDIR/
 	cp IP.BIN disttmp/$BINDIR/
 	cp 1ST_READ.BIN disttmp/$BINDIR/

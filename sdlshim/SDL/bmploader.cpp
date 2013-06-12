@@ -16,7 +16,7 @@ uint8_t ch;
 uint16_t palette[256];
 
 	stat("bmp_load: opening '%s'", fname);
-	fp = SDLS_fopen(fname, "rb");
+	fp = fopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("bmp_load: failed open of %s", fname);

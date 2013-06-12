@@ -178,7 +178,7 @@ bool file_exists(const char *filename)
 {
 FILE *fp;
 
-	fp = SDLS_fopen(filename, "rb");
+	fp = fopen(filename, "rb");
 	if (fp)
 	{
 		fclose(fp);

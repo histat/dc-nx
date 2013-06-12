@@ -28,14 +28,14 @@ char fname[MAXPATHLEN];
 
 	stat(" >> Entering stage %d: '%s'.", stage_no, stages[stage_no].stagename);
 	game.curmap = stage_no;		// do it now so onspawn events will have it
-	
+#ifndef __SDLSHIM__	
 	if (use_palette)
 	{
 		palette_reset();
 		Sprites::FlushSheets();
 		map_flush_graphics();
 	}
-
+#endif
 	if (Tileset::Load(stages[stage_no].tileset))
 		return 1;
 	
@@ -73,7 +73,7 @@ bool load_map(const char *fname)
 FILE *fp;
 int x, y;
 
-	fp = fileopen(fname, "rb");
+	fp = fopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("load_map: no such file: '%s'", fname);
@@ -132,7 +132,7 @@ int nEntities;
 	
 	stat("load_entities: reading in %s", fname);
 	// now we can load in the new objects
-	fp = fileopen(fname, "rb");
+	fp = fopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("load_entities: no such file: '%s'", fname);
@@ -244,7 +244,7 @@ unsigned char tc;
 	map.nmotiontiles = 0;
 	
 	stat("load_pxa: reading in %s", fname);
-	fp = fileopen(fname, "rb");
+	fp = fopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("load_pxa: no such file: '%s'", fname);
@@ -283,7 +283,7 @@ bool load_stages(void)
 {
 FILE *fp;
 
-	fp = fileopen("stage.dat", "rb");
+	fp = fopen("stage.dat", "rb");
 	if (!fp)
 	{
 		staterr("%s(%d): failed to open stage.dat", __FILE__, __LINE__);
@@ -305,7 +305,7 @@ FILE *fp;
 int i;
 
 	stat("initmapfirsttime: loading tilekey.dat.");
-	if (!(fp = fileopen("tilekey.dat", "rb")))
+	if (!(fp = fopen("tilekey.dat", "rb")))
 	{
 		staterr("tilekey.dat is missing!");
 		return 1;

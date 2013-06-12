@@ -15,7 +15,9 @@
 
 NXSurface *screen = NULL;				// created from SDL's screen
 static NXSurface *drawtarget = NULL;	// target of DrawRect etc; almost always screen
+#ifndef __SDLSHIM__
 bool use_palette = false;				// true if we are in an indexed-color video mode
+#endif
 int screen_bpp;
 
 const NXColor DK_BLUE(0, 0, 0x21);		// the popular dk blue backdrop color
@@ -27,11 +29,13 @@ static int current_res = -1;
 
 bool Graphics::init(int resolution)
 {
+#ifndef __SDLSHIM__
 	if (use_palette)
 	{
 		screen_bpp = 8;
 	}
 	else
+#endif
 	{
 		screen_bpp = 16;	// the default
 		
@@ -48,9 +52,9 @@ bool Graphics::init(int resolution)
 		}
 		#endif
 	}
-	
+#ifndef __SDLSHIM__	
 	palette_reset();
-	
+#endif	
 	if (SetResolution(resolution, false))
 		return 1;
 	
@@ -94,13 +98,13 @@ SDL_Surface *sdl_screen;
 		staterr("Graphics::InitVideo: error setting video mode");
 		return 1;
 	}
-	
+#ifndef __SDLSHIM__	
 	if (use_palette && !(sdl_screen->flags & SDL_HWPALETTE))
 	{
 		staterr("Graphics::InitVideo: failed to obtain exclusive access to hardware palette");
 		exit(1);
 	}
-	
+#endif	
 	SDL_WM_SetCaption("NXEngine", NULL);
 	SDL_ShowCursor(is_fullscreen == false);
 	
@@ -112,7 +116,9 @@ SDL_Surface *sdl_screen;
 bool Graphics::FlushAll()
 {
 	stat("Graphics::FlushAll()");
+#ifndef __SDLSHIM__
 	palette_reset();
+#endif
 	Sprites::FlushSheets();
 	Tileset::Reload();
 	map_flush_graphics();

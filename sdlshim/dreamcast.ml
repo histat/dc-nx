@@ -33,6 +33,5 @@ common/DBuffer.cpp
 common/BList.cpp
 
 dcevent.cpp
-
-../sdlshim/sdfs.c
+sdfs.c
 <<

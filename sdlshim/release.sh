@@ -15,7 +15,7 @@ make_src() {
 
 	cd $BASE
 
-	cp *.cpp *.h *.s *.fdh dreamcast.ml disttmp/$SOURCEDIR/
+	cp *.cpp *.h *.s *.c *.fdh dreamcast.ml disttmp/$SOURCEDIR/
 	cp -r SDL disttmp/$SOURCEDIR/
 	
 	cd $BASE/disttmp/

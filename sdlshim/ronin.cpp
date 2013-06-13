@@ -1,5 +1,5 @@
 #include "shim.h"
-
+#include "sdfs.h"
 
 uint16_t *vram = NULL;
 
@@ -11,17 +11,28 @@ bool ronin_init()
 	
 	vram = (uint16_t *)dc_screen;
 
+#ifdef __SDCARD__
+	sdfs_init();
+
+	chdir("NX");
+	
+	mkdir("replay", 0);
+#else
 	// to get vmu_avail before reading vmu
 	int mask = getimask();
 	setimask(15);
 	handleInput(locked_get_pads());
 	setimask(mask);
+#endif
 
 	return 0;
 }
 
 void ronin_close()
 {
+#ifdef __SDCARD__
+	sdfs_exit();
+#endif
 }
 
 // ---
@@ -49,7 +60,7 @@ int system(const char *command)
 {
 	return -1;
 }
-
+#ifndef __SDCARD__
 int remove(const char *pathname)
 {
 	return -1;
@@ -67,7 +78,7 @@ int rename(const char *oldpath, const char *newpath){
 	
 	return -1;
 }
-
+#endif
 char* tmpnam(const char *s)
 {
 	return NULL;

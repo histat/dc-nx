@@ -212,8 +212,9 @@ void handleMouse(struct mapledev *pad)
 		state.button = button;
 	}
 }
-
+#ifndef __SDCARD__
 int vmu_present[4];
+#endif
 
 void handleInput(struct mapledev *pad)
 {
@@ -237,8 +238,9 @@ void handleInput(struct mapledev *pad)
 			handleMouse(pad);
 			++MouseCount;
 		}
-
+#ifndef __SDCARD__
 		vmu_present[i] = pad[i].present;
+#endif
 	}
 }
 

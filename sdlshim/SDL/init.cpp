@@ -51,7 +51,10 @@ int main(int argc, char *argv[])
 	printf("Serial OK\n");
 #endif
 
+#ifndef __SDCARD__	
 	cdfs_init();
+#endif
+	
 	maple_init();
 	dc_setup_ta();
 	init_arm();

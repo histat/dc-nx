@@ -1,8 +1,8 @@
 
 <DEFAULT
-COMPILE=sh-elf-gcc -ml -m4-single-only -fno-exceptions -fno-rtti -I/usr/local/ronin/include -ISDL -O4 -c %SRCFILE% -Wreturn-type -Wunused-variable -Wno-multichar -o %MODULE%.%OBJ_EXT%
+COMPILE=sh-elf-gcc -ml -m4-single-only -fno-exceptions -I/usr/local/ronin/include -D__SDCARD__ -ISDL -Os -c %SRCFILE% -Wreturn-type -Wunused-variable -Wno-multichar -o %MODULE%.%OBJ_EXT%
 LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/lib/crt0.o -o %OUTPUT%
-LSUFFIX=-lstdc++ -L/usr/local/ronin/lib -lronin -lz -lm
+LSUFFIX=-lstdc++ -L../lib -lsd -L/usr/local/ronin/lib -lronin-sd -lz -lm
 OBJ_EXT=o
 OUTPUT=sdlshim
 
@@ -18,7 +18,6 @@ main.cpp
 support.cpp
 ronin.cpp
 console.cpp
-file.cpp
 
 SDL/init.cpp
 SDL/screen.cpp
@@ -34,7 +33,6 @@ common/DBuffer.cpp
 common/BList.cpp
 
 dcevent.cpp
-vmu.cpp
-<<
 
-hacks.cpp
+../sdlshim/sdfs.c
+<<

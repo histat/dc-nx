@@ -1,0 +1,105 @@
+NXEngine for DC
+===============
+
+About
+-----
+
+A complete open-source clone/rewrite of the masterpiece jump-and-run platformer Doukutsu Monogatari (also known as Cave Story).
+
+<http://nxengine.sourceforge.net>
+
+
+Installation
+------------
+
+download Cave Story 1.0.0.6 with Aeon Genesis English translation
+(e.g cavestory.zip) and extract it
+
+download nxextract.zip and extract it
+This contain these files.
+1. nxextract.exe
+2. smalfont.bmp
+3. sprites.sif
+4. tilekey.dat
+
+and SDL.dll if you havn't
+
+put above files to doukutsu data directorty(e.g cavestory)
+
+change the directory 
+and open nxextract.exe
+
+press key
+
+press key
+
+you get "Done" message
+
+press key to close the programme.
+
+you don't need nxextract.exe (and SDL.dll)
+
+put the data to a directory named NX
+
+SD card structure
+ROOT
+|
+NX-
+data/
+drum.pcm
+endpic/
+org/
+pxt/
+smalfont.bmp
+sndcache.pcm
+sprite.sif
+stage.dat
+tilekey.dat
+wavetable.dat
+
+
+1ST_READ.BIN scrambled binary
+NXDC.BIN unscrambled binary
+
+Controls
+--------
+
+Dreamcast controller:
+D-pad:	left,right,down,up
+A:		jump
+B:		fire
+X:		inventory
+Y:		mapsystem
+L trigger:	prev wepon
+R trigger:	next wepon
+Start:	F3
+
+Dreamcast keyboard:
+arrow, f1 - f12, esc, 0 - 9, a - z
+
+Credits
+-------
+
+- original NXEngine
+
+NXEngine by Caitlin Shaw (rogueeve)
+
+- Dreamcast Library
+
+Libronin - A Dreamcast development library
+by Marcus Comstedt, Peter Bortas and Per Hedbor
+
+- FAT file system
+
+ FatFs by ChaN
+
+- SD card support
+
+ SD Card interface for DC Serial by jj1odm
+
+Contact
+-------
+histat@users.sourceforge.net
+http://twitter.com/histat
+
+

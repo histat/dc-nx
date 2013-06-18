@@ -28,7 +28,7 @@ case $1 in
 		do_upload
 		;;
     *)
-    echo "USAGE: $CMDNAME (dump/upload|strip/all)" 1>&2
+    echo "USAGE: $CMDNAME (dump|upload|strip|all)" 1>&2
     ;;
 esac
 

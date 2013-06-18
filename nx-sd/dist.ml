@@ -1,6 +1,6 @@
 
 <DEFAULT
-COMPILE=sh-elf-gcc -ml -m4-single-only -fno-exceptions -I/usr/local/ronin/include -D__SDCARD__ -DNOSERIAL -Os -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
+COMPILE=sh-elf-gcc -ml -m4-single-only -fomit-frame-pointer -fno-exceptions -I/usr/local/ronin/include -D__SDCARD__ -DNOSERIAL -O8 -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
 LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/lib/crt0.o -o %OUTPUT%
 LSUFFIX=-lstdc++ -L../lib -lsd -L/usr/local/ronin/lib -lronin-sd-noserial -lz -lm
 OBJ_EXT=o

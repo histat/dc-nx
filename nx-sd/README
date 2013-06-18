@@ -39,24 +39,7 @@ press key to close the programme.
 
 you don't need nxextract.exe (and SDL.dll)
 
-put the data to a directory named NX
-
-SD card structure
-ROOT
-|
-NX-
-data/
-drum.pcm
-endpic/
-org/
-pxt/
-smalfont.bmp
-sndcache.pcm
-sprite.sif
-stage.dat
-tilekey.dat
-wavetable.dat
-
+copy the data to a directory named "NX"
 
 1ST_READ.BIN scrambled binary
 NXDC.BIN unscrambled binary

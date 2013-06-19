@@ -86,7 +86,6 @@ _fcopy32:
 	    fmov	dr0,@-r5
 		
 		.end
-		
 
 
 

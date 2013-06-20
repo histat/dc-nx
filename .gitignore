@@ -7,5 +7,5 @@ nxdc
 *.fdh
 Makefile
 nxextract
-nxextract.exe
-disttmp
+*.exe
+disttmp/

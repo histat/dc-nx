@@ -1,5 +1,6 @@
 
 #include "SDL.h"
+#include "../dcsound.h"
 #include "misc.fdh"
 
 uint32_t SDL_GetTicks()

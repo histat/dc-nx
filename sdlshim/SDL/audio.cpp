@@ -1,5 +1,6 @@
 
 #include "../shim.h"
+#include "../dcsound.h"
 #include "audio.fdh"
 
 #define ADJUST_VOLUME(s, v)		(s = ((s*v) / SDL_MIX_MAXVOLUME))

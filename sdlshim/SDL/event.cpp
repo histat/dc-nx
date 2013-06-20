@@ -1,5 +1,6 @@
 
 #include "../shim.h"
+#include "../dcsound.h"
 #include "event.fdh"
 
 char caption[32];
@@ -82,6 +83,11 @@ static int key_to_sdlk(int key)
 //	case 0x2c: return SDLK_SPACE;
 	case 0x3a ... 0x45:	return sdl_func[key - 0x3a];
 	}
+
+#if !defined(NOSERIAL) && defined(__SDCARD__)
+	if(key == 0x46)
+		screensave();
+#endif
 
 	return SDLK_UNKNOWN;
 }

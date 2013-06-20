@@ -3,8 +3,11 @@
 #include "sdfs.h"
 #include <ronin/dc_time.h>
 #include <ronin/notlibc.h>
+#include <ronin/report.h>
 #include <ronin/serial.h>
 #include "../lib/ff.h"
+#include "dcsound.h"
+#include "sdfs.fdh"
 
 
 static FATFS Fatfs;
@@ -21,6 +24,8 @@ static struct {
 	int used;
 	FIL fil;
 }fh[MAX_OPEN_FILES];
+
+#define check_audio() update_audio()
 
 
 int sdfs_init(void) {
@@ -74,6 +79,8 @@ int open(const char *path, int oflag, ...)
 		return -1;
 	}
 	else {
+
+		check_audio();
 		
 		fp = &fh[fd].fil;
 
@@ -98,7 +105,9 @@ int open(const char *path, int oflag, ...)
 
 		fh[fd].used = 1;
 	}
-  
+
+	check_audio();
+	
 	return fd+MIN_FD;
 }
 
@@ -127,6 +136,8 @@ int read(int fd, void *ptr, unsigned int nbyte)
 	if(fd<MIN_FD || fd>=MAX_OPEN_FILES+MIN_FD)
 		return -1;
 
+	check_audio();
+	
 	fp = &fh[fd-MIN_FD].fil;
 
 	if(f_read (fp, ptr, nbyte, &readsize) == FR_OK)
@@ -144,6 +155,8 @@ long int lseek(int fd, long int offset, int whence)
 	if(fd<MIN_FD || fd>=MAX_OPEN_FILES+MIN_FD)
 		return -1;
 
+	check_audio();
+	
 	fp = &fh[fd-MIN_FD].fil;
 
 	ret = 0;
@@ -194,6 +207,8 @@ int write(int fd, const char *ptr, int len)
 	if(fd>=MAX_OPEN_FILES+MIN_FD)
 		return -1;
 
+	check_audio();
+
 	fp = &fh[fd-MIN_FD].fil;
 	
 	if (f_write (fp, ptr, len, &writesize) == FR_OK)
@@ -228,6 +243,8 @@ int unlink(const char *path)
 
 int remove(const char *path)
 {
+	check_audio();
+	
 	return unlink(path);
 }
 
@@ -235,6 +252,8 @@ int rename(const char *oldpath, const char *newpath){
 
 	FRESULT res;
 
+	check_audio();
+	
 	res = f_rename(oldpath, newpath);
 
 	return (res == FR_OK)? 0:-1;
@@ -256,6 +275,9 @@ int mkdir(const char *path, mode_t mode)
 #ifndef NOSERIAL
 	reportf("%s: %s\n", __func__, path);
 #endif
+
+	check_audio();
+	
 	res = f_mkdir(path);
 
 	if(res != FR_OK)
@@ -275,3 +297,4 @@ int chdir(const char *path)
 	
 	return 0;
 }
+

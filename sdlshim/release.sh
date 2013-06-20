@@ -13,10 +13,13 @@ make_src() {
 		mkdir -p disttmp/$SOURCEDIR
 	fi
 
-	cd $BASE
-
-	cp *.cpp *.h *.s *.c *.fdh dreamcast.ml disttmp/$SOURCEDIR/
-	cp -r SDL disttmp/$SOURCEDIR/
+	if [ ! -d $SOURCEDIR/sdlshim ];then
+		mkdir -p disttmp/$SOURCEDIR/sdlshim
+	fi
+	
+	cp *.cpp *.h *.s *.c *fdh dreamcast.ml disttmp/$SOURCEDIR/sdlshim/
+	cp -r ../lib disttmp/$SOURCEDIR/
+	cp -r SDL disttmp/$SOURCEDIR/sdlshim/
 	
 	cd $BASE/disttmp/
 	tar jcvf $SOURCEDIR.tar.bz2 $SOURCEDIR

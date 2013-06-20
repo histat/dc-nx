@@ -84,11 +84,6 @@ static int key_to_sdlk(int key)
 	case 0x3a ... 0x45:	return sdl_func[key - 0x3a];
 	}
 
-#if !defined(NOSERIAL) && defined(__SDCARD__)
-	if(key == 0x46)
-		screensave();
-#endif
-
 	return SDLK_UNKNOWN;
 }
 
@@ -120,7 +115,7 @@ int SDL_PollEvent(SDL_Event *event)
 		case EVENT_JOYBUTTONDOWN:
 		{
 			int sdlk = joy_to_sdlk(ev.jbutton.button);
-						
+
 			if (sdlk != SDLK_UNKNOWN)
 			{
 				event->type = SDL_KEYDOWN;
@@ -150,6 +145,11 @@ int SDL_PollEvent(SDL_Event *event)
 		case EVENT_KEYDOWN:
 		{
 			int sdlk = key_to_sdlk(ev.key.keycode);
+
+#if !defined(NOSERIAL) && defined(__SDCARD__)
+			if(ev.key.keycode == 0x46)
+				screensave();
+#endif
 			
 			if (sdlk != SDLK_UNKNOWN)
 			{

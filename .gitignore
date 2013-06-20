@@ -8,4 +8,5 @@ nxdc
 Makefile
 nxextract
 nxextract.exe
-disttmp
+disttmp/
+sdlshim

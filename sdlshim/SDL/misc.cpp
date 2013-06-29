@@ -15,7 +15,6 @@ void SDL_Delay(int ms)
 	unsigned int t0 = SDL_GetTicks();
 
 	while((SDL_GetTicks()-t0) < ms) {
-		update_audio();
 	}
 }
 

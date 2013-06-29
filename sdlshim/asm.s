@@ -14,60 +14,47 @@
  parm4 = source pitch minus (copy width * 2)
  parm5 = dest pitch minus (copy width * 2) */
 _asm_do_blit_transparent:
-		mov.l	r8,@-r15
-		mov.l	r9,@-r15
-		mov.l	r10,@-r15
-		mov.l	r11,@-r15
-		mov.l	@(16,r15) ,r8		! load source pitch
-		mov.l	@(20,r15) ,r9		! load dest pitch
+		mov.l	@(0,r15) ,r0		! load source pitch
+		mov.l	@(4,r15) ,r1		! load dest pitch
 	
 heightLoop:
-		mov	r6,r10	!X pixels remaining
+		mov		r6,r2	!X pixels remaining
+		pref	@r4
 widthLoop:
-		mov.w	@r4+, r11
-		tst		r11,r11
+		mov.w	@r4+, r3
+		tst		r3,r3
 		bt		1f
-		mov.w	r11,@r5
+		mov.w	r3,@r5
 1:		
-		dt		r10
+		dt		r2
 		bf/s	widthLoop
 		add		#2,r5
 		dt		r7
-		add		r8,r4		! add source pitch
+		add		r0,r4		! add source pitch
 		bf/s	heightLoop
-		add		r9,r5       ! add dest pitch
-		mov.l	@r15+,r11
-		mov.l	@r15+,r10
-		mov.l	@r15+,r9
+		add		r1,r5       ! add dest pitch
 		rts
-		mov.l	@r15+,r8
+		nop
 
 		.align	5
 _asm_do_blit_nontransparent:
-		mov.l	r8,@-r15
-		mov.l	r9,@-r15
-		mov.l	r10,@-r15
-		mov.l	r11,@-r15
-		mov.l	@(16,r15) ,r8		! load source pitch
-		mov.l	@(20,r15) ,r9		! load dest pitch
+		mov.l	@(0,r15) ,r0		! load source pitch
+		mov.l	@(4,r15) ,r1		! load dest pitch
 heightLoop2:
-		mov		r6,r10	! X pixels remaining
+		mov		r6,r2		! X pixels remaining
+		pref	@r4
 widthLoop2:
-		mov.w	@r4+, r11
-		mov.w	r11,@r5
-		dt		r10
+		mov.w	@r4+, r3
+		dt		r2
+		mov.w	r3,@r5
 		bf/s 	widthLoop2
 		add		#2,r5
 		dt	 	r7
-		add		r8,r4		! add source pitch
+		add		r0,r4		! add source pitch
 		bf/s	heightLoop2
-		add		r9,r5       ! add dest pitch
-		mov.l	@r15+,r11
-		mov.l	@r15+,r10
-		mov.l	@r15+,r9
+		add		r1,r5       ! add dest pitch
 		rts
-		mov.l	@r15+,r8
-
+		nop
 
 		.align	5
 		.globl _fcopy32

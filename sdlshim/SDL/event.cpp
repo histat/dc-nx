@@ -94,13 +94,9 @@ int SDL_PollEvent(SDL_Event *event)
 	if (tm < USEC_TO_TIMER(1000000/60)) {
 		return 0;
 	}
-#if 0
-	update_polygon();
-#endif
 	
 	int mask = getimask();
 	setimask(15);
-	update_audio();
 	handleInput(locked_get_pads());
 	setimask(mask);
 	
@@ -215,7 +211,7 @@ void SDL_WM_SetCaption(const char *title, const char *icon)
 
 uint8_t SDL_GetAppState(void)
 {
-	return (SDL_APPACTIVE | SDL_APPINPUTFOCUS /*| SDL_APPMOUSEFOCUS*/);
+	return (SDL_APPACTIVE | SDL_APPINPUTFOCUS | SDL_APPMOUSEFOCUS);
 }
 
 /*

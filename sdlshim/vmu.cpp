@@ -16,7 +16,8 @@ extern int vmu_present[4];
 static int vm_file;
 
 
-#define check_audio() update_audio()
+#define check_audio()
+
 
 bool vmfile_search(const char *fname, int *vm)
 {

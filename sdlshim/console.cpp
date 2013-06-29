@@ -2,12 +2,8 @@
 #include "shim.h"
 #include "console.fdh"
 
-//#include "font.cpp"
-//#define ENABLE_SCROLL
-
 bool console_init(void)
 {
-	stat("Console initilized.");
 	return 0;
 }
 

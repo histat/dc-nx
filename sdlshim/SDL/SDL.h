@@ -56,10 +56,6 @@ uint32_t SDL_GetTicks();
 void SDL_Delay(int ms);
 const char *SDL_GetError(void);
 
-// SDLS
-//FILE *SDLS_fopen(const char *filename, const char *mode);
-
-
 int SDL_main(int argc, char *argv[]);
 #define main	SDL_main
 

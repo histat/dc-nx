@@ -25,8 +25,7 @@ static struct {
 	FIL fil;
 }fh[MAX_OPEN_FILES];
 
-#define check_audio() update_audio()
-
+#define check_audio()
 
 int sdfs_init(void) {
 

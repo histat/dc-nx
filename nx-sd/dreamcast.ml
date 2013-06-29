@@ -1,8 +1,8 @@
 
 <DEFAULT
 COMPILE=sh-elf-gcc -ml -m4-single-only -fomit-frame-pointer -fno-exceptions -I/usr/local/ronin/include -D__SDCARD__ -Os -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
-LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/lib/crt0.o -o %OUTPUT%
-LSUFFIX=-lstdc++ -L../lib -lsd -L/usr/local/ronin/lib -lronin-sd -lz -lm
+LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles ../ronin/lib/crt0.o -o %OUTPUT%
+LSUFFIX=-lstdc++ -L../lib -lsd -L../ronin/lib -lronin-sd -lz -lm
 OBJ_EXT=o
 OUTPUT=nxdc
 
@@ -160,17 +160,15 @@ common/misc.cpp
 
 ../sdlshim/ronin.cpp
 ../sdlshim/console.cpp
-../sdlshim/dcevent.cpp
 
 ../sdlshim/SDL/init.cpp
 ../sdlshim/SDL/screen.cpp
+../sdlshim/asm.s : ASM
 ../sdlshim/SDL/bmploader.cpp
 ../sdlshim/SDL/event.cpp
+../sdlshim/dcevent.cpp
 ../sdlshim/SDL/audio.cpp
 ../sdlshim/SDL/misc.cpp
-
-../sdlshim/asm.s : ASM
-
 ../sdlshim/sdfs.c
 
 ../sdlshim/scrnsave.cpp

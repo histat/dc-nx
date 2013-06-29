@@ -1,8 +1,8 @@
 
 <DEFAULT
 COMPILE=sh-elf-gcc -ml -m4-single-only -fomit-frame-pointer -fno-exceptions -I/usr/local/ronin/include -Os -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
-LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/lib/crt0.o -o %OUTPUT%
-LSUFFIX=-lstdc++ -L/usr/local/ronin/lib -lronin -lz -lm
+LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles ../ronin/lib/crt0.o -o %OUTPUT%
+LSUFFIX=-lstdc++ -L../ronin/lib -lronin -lz -lm
 OBJ_EXT=o
 OUTPUT=nxdc
 
@@ -162,23 +162,14 @@ common/misc.cpp
 
 ../sdlshim/ronin.cpp
 ../sdlshim/console.cpp
+../sdlshim/vmu.cpp
 
 ../sdlshim/SDL/init.cpp
 ../sdlshim/SDL/screen.cpp
+../sdlshim/asm.s : ASM
 ../sdlshim/SDL/bmploader.cpp
 ../sdlshim/SDL/event.cpp
+../sdlshim/dcevent.cpp
 ../sdlshim/SDL/audio.cpp
 ../sdlshim/SDL/misc.cpp
-
-../sdlshim/asm.s : ASM
-../sdlshim/dcevent.cpp
-../sdlshim/vmu.cpp
 <<
-
-extract/extract.cpp
-extract/extractpxt.cpp
-extract/extractfiles.cpp
-extract/extractstages.cpp
-extract/crc.cpp
-
-

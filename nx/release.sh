@@ -20,7 +20,7 @@ make_bin() {
 	sh-elf-objcopy -S -R .stack -O binary nxdc NXDC.BIN
 	scramble NXDC.BIN 1ST_READ.BIN
 
-	sed -e 's/[@]DATE[@]/$DATE/' < ip.txt.in > ip.txt 
+	sed -e "s/[@]DATE[@]/$DATE/" < ip.txt.in > ip.txt 
 	
 	makeip ip.txt IP.BIN
 
@@ -28,6 +28,7 @@ make_bin() {
 	cp README disttmp/$BINDIR/
 	cp IP.BIN disttmp/$BINDIR/
 	cp 1ST_READ.BIN disttmp/$BINDIR/
+	cp NXDC.BIN disttmp/$BINDIR/
 	cd $BASE/disttmp/
 	zip -r $BINDIR.zip $BINDIR
 	cd $BASE

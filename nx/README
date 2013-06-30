@@ -59,6 +59,9 @@ stage.dat
 tilekey.dat
 wavetable.dat
 
+1ST_READ.BIN scrambled binary
+NXDC.BIN unscrambled binary
+
 Controls
 --------
 

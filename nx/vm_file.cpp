@@ -38,28 +38,34 @@ VMFILE *vm_fileopen(const char *fname, const char *mode)
 	if (!strncmp(mode, "rb", 2)) {
 
 		if (!vmfile_search(fname, &vm)) {
-			stat("Can't open %s", fname);
+#ifndef NOSERIAL
+			printf("Can't open %s", fname);
+#endif
 
 			goto _exit;
 		}
 		if (!load_from_vmu(vm, fname, _buffer, &size)) {
-			stat("load failed rb %s", fname);
+#ifndef NOSERIAL
+			printf("load failed rb %s", fname);
+#endif
 
 			goto _exit;
 		}
 
-		stat("%s rb %s",__func__, fname);
 	} else if (!strncmp(mode, "wb", 2)) {
 
 		if (!vmfile_search(fname, &vm)) {
-			stat("Create %s", fname);
+#ifndef NOSERIAL
+			printf("Create %s", fname);
+#endif
 		}
 
-		stat("%s wb  %s\n", __func__, fname);
 	} else if (!strncmp(mode, "r+", 2)) {
 
 		if (!vmfile_search(fname, &vm)) {
-			stat("Can't open %s", fname);
+#ifndef NOSERIAL
+			printf("Can't open %s", fname);
+#endif
 
 			goto _exit;
 		}
@@ -70,9 +76,10 @@ VMFILE *vm_fileopen(const char *fname, const char *mode)
 		
 		cnt = size;
 
-		stat("%s r+ %s", __func__, fname);
 	} else {
-		staterr("vmu error");
+#ifndef NOSERIAL
+		fprintf(stderr,"vmu error");
+#endif
 		goto _exit;
 	}
 
@@ -103,21 +110,25 @@ void vm_fclose(VMFILE *fp)
 
 	if (fp->_vm > 0)
 		if (save_to_vmu(fp->_vm, fp->filename, fp->_base, fp->_cnt)) {
-			stat("SUCCESS port %c%d", 'A'+ fp->_vm/6, fp->_vm%6);
+#ifndef NOSERIAL
+			printf("SUCCESS port %c%d", 'A'+ fp->_vm/6, fp->_vm%6);
+#endif
 
 			goto _exit;
 		}
 
-	stat("Try another vmu or Create");
-
 	for (i=0; i<24; i++)
 		if (save_to_vmu(i, fp->filename, fp->_base, fp->_cnt)) {
-			stat("SUCCESS port %c%d", 'A'+ i/6, i%6);
+#ifndef NOSERIAL
+			printf("SUCCESS port %c%d", 'A'+ i/6, i%6);
+#endif
 			break;
 		}
 
 	if (i>=24) {
-		staterr("no available vmu\n");
+#ifndef NOSERIAL			
+		fprintf(stderr,"no available vmu\n");
+#endif
 	}
 
 _exit:
@@ -142,7 +153,9 @@ size_t vm_fwrite(const void *buf, int size, int n, VMFILE *fp)
 	fp->_cnt += size;
 
 	if(fp->_cnt > MAX_SIZE) {
-		staterr("*** 0x%x > 0x%x in %s***", fp->_cnt, MAX_SIZE,__func__);
+#ifndef NOSERIAL
+		fprintf(stderr,"*** 0x%x > 0x%x in %s***", fp->_cnt, MAX_SIZE,__func__);
+#endif
 		return 0;
 	}
 	
@@ -180,21 +193,14 @@ void vm_remove(const char *fname)
 	if (!vmfile_search(fname, &vm))
 		return;
 	
-	if (!delete_file_vmu(vm, fname)) {
-		stat("failed to delete %s", fname);
-	}
-
-	stat("Removed %s", fname);
+	delete_file_vmu(vm, fname);
 }
 
 int vm_rename(const char *oldpath, const char *newpath)
 {
 	if (!rename_vmu_file(oldpath, newpath)) {
-		stat("Failed to reame from %s to %s", oldpath, newpath);
 		return -1;
 	}
-
-	stat("Renamed %s -> %s", oldpath, newpath);
 	
 	return 0;
 }
@@ -339,13 +345,13 @@ VMFileBuffer::VMFileBuffer()
 	fFP = NULL;
 
 	memset(fbuffer, 0, sizeof(fbuffer));
-	stat("%s", __func__);
+	//printf("%s", __func__);
 }
 
 void VMFileBuffer::SetBufferSize(int maxsize)
 {
 	fMaxSize = maxsize;
-	stat("%s %d", __func__, fMaxSize);
+	//printf("%s %d", __func__, fMaxSize);
 }
 
 void VMFileBuffer::SetFile(VMFILE *fp)

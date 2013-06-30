@@ -598,12 +598,12 @@ SDL_Surface *sfc;
 	
 	return sfc;
 }
-
+/*
 void SDLS_DumpRect(SDL_Rect *rect)
 {
 	stat("<%d, %d, %d, %d>", rect->x, rect->y, rect->w, rect->h);
 }
-
+*/
 void SDL_ShowCursor(int enable)	{ }
 int SDL_SetAlpha(SDL_Surface *surface, uint32_t flag, uint8_t alpha) {
 
@@ -618,12 +618,10 @@ void c------------------------------() {}
 
 void SDL_GetRGB(uint32_t pixel, SDL_PixelFormat *fmt, uint8_t *r, uint8_t *g, uint8_t *b)
 {
-	//printf("%s\n", __func__);
 }
 
 int SDL_SetColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors)
 {
-	//printf("%s\n", __func__);
 	return 0;
 }
 

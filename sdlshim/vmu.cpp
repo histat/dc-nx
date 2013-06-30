@@ -88,7 +88,7 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 	}
 
 	sprintf(shortdesc,"%s %s",caption, "save");
-	sprintf(longdesc,"%s", caption);
+	sprintf(longdesc,"%s v1.0.0.4", caption);
 
 	if (!vmsfs_check_unit(unit, 0, &info)) {
 		return false;
@@ -190,6 +190,10 @@ bool delete_file_vmu(int unit, const char *filename)
 		return false;
 	}
 
+#ifndef NOSERIAL
+	printf("delete %s on %d", filename,unit);
+#endif
+	
 	return true;
 }
 

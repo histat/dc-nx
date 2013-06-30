@@ -215,7 +215,6 @@ int file_size( int fd )
 
 int creat(const char *path, mode_t mode)
 {
-	//reportf("%s\n", __func__);
 	return open(path,O_WRONLY|O_TRUNC);
 }
 

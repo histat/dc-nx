@@ -15,7 +15,7 @@ int i, x, y;
 uint8_t ch;
 uint16_t palette[256];
 
-	stat("bmp_load: opening '%s'", fname);
+//stat("bmp_load: opening '%s'", fname);
 	fp = fopen(fname, "rb");
 	if (!fp)
 	{
@@ -70,7 +70,7 @@ uint16_t palette[256];
 		else
 			topcolor = hdr->biColorsUsed;
 		
-		stat("Reading %d palette entries...", topcolor);
+		//stat("Reading %d palette entries...", topcolor);
 		for(i=0; i<topcolor; i++)
 		{
 			uint8_t b = fgetc(fp);
@@ -84,29 +84,6 @@ uint16_t palette[256];
 
 		}
 	}
-#if 0	
-	// calculate the padded width of the BMP on disk, since each line is padded to 4 pixels
-	int bmp_pad_width = Pad4(hdr->bmWidth);
-	int bmp_size_bytes = (bmp_pad_width * hdr->bmHeight);
-	
-	switch(hdr->bpp)
-	{
-		case 1: bmp_size_bytes /= 8; break;
-		case 4: bmp_size_bytes /= 2; break;
-		case 8: break;
-		//case 16: bmp_size_bytes *= 2; break;
-		//case 24: bmp_size_bytes *= 3; break;
-		//case 32: bmp_size_bytes *= 4; break;
-		
-		default:
-		{
-			staterr("bmp_load: unsupported bitmap bpp %d", hdr->bpp);
-			fclose(fp);
-			return NULL;
-		}
-		break;
-	}
-#endif
 
 	int bmpPitch;
 	int pad;
@@ -142,15 +119,13 @@ uint16_t palette[256];
 	fread(inbuffer, bmp_size_bytes, 1, fp);
 	fclose(fp);
 
-	stat("Converting image data...");
+	//stat("Converting image data...");
 	
 	// allocate space for the final 16bpp image after conversion
 	// place lineptr starting at bottom line as image is stored upside-down in file
 	uint16_t *outbuffer = (uint16_t *)malloc(hdr->bmWidth * hdr->bmHeight * 2);
 	uint16_t *lineptr = &outbuffer[(hdr->bmHeight - 1) * hdr->bmWidth];
 
-	//memset(outbuffer, 0, hdr->bmWidth * hdr->bmHeight * 2);
-	
 	switch(hdr->bpp)
 	{
 		case 1:					// monochrome (bitmap) mode--each pixel is one bit
@@ -178,7 +153,7 @@ uint16_t palette[256];
 				if(pad) {
 					sub_pointer += pad;
 				}
-				//while(sub_pointer & 3) sub_pointer++;
+
 				lineptr -= hdr->bmWidth;
 			}
 		}
@@ -203,7 +178,7 @@ uint16_t palette[256];
 				if(pad) {
 					sub_pointer += pad;
 				}		
-				//while(sub_pointer & 3) sub_pointer++;
+
 				lineptr -= hdr->bmWidth;
 			}
 		}
@@ -211,16 +186,15 @@ uint16_t palette[256];
 		
 		case 8:		// 256-color
 		{
-			i = 0;
+			int sub_pointer = 0;
 			for(y=0;y<hdr->bmHeight;y++)
 			{
 				uint16_t *outptr = lineptr;
 				for(x=0;x<hdr->bmWidth;x++)
-					*(outptr++) = palette[inbuffer[i++]];
+					*(outptr++) = palette[inbuffer[sub_pointer++]];
 				
-				//while(i & 3) i++;
 				if(pad) {
-					i += pad;
+					sub_pointer += pad;
 				}
 				lineptr -= hdr->bmWidth;
 			}
@@ -231,101 +205,5 @@ uint16_t palette[256];
 	free(inbuffer);
 	return outbuffer;
 }
-#if 0
-// pads it's input value to a multiple of 4 bytes
-static int Pad4(int invalue)
-{
-	int b = (invalue & 3);
-	return b ? (invalue + (4 - b)) : invalue;
-}
-#endif
-
-/*static uint16_t *convert_to_16bpp(uint8_t *inbuffer, int width, int height)
-{
-int npixels = (width * height);
-uint16_t *outbuffer, *outptr;
-uint8_t *inptr;
-int outsize;
-
-	outsize = (npixels * 2);
-	outbuffer = (uint16_t *)malloc(outsize);
-	
-	inptr = inbuffer;
-	outptr = outbuffer;
-	
-	for(int i=0;i<npixels;i++)
-	{
-		uint8_t r = *(inptr++);
-		uint8_t g = *(inptr++);
-		uint8_t b = *(inptr++);
-		
-		uint16_t color = ((r & 0xf8) << 8) | \
-						 ((g & 0xfc) << 3) | \
-						 ((b & 0xf8) >> 3);
-		
-		*(outptr++) = color;
-	}
-	
-	return outbuffer;
-}
-*/
-
-/*
-	case 1:					// monochrome (bitmap) mode--each pixel is one bit
-	{
-		int sub_pointer = 0;
-		
-		for(y=0;y<hdr->bmHeight;y++)
-		{
-			uint8_t *outptr = lineptr;
-			int sub_portion = 7;
-			
-			ch = inbuffer[sub_pointer];
-			for(x=0;x<hdr->bmWidth;x++)
-			{
-				uint8_t pixel = (ch & (1 << sub_portion)) >> sub_portion;
-				*(outptr++) = hdr->palette.entries[pixel].r;
-				*(outptr++) = hdr->palette.entries[pixel].g;
-				*(outptr++) = hdr->palette.entries[pixel].b;
-				
-				if (!sub_portion)
-				{
-					sub_portion = 7;
-					ch = inbuffer[++sub_pointer];
-				}
-				else sub_portion--;
-			}
-			
-			while(sub_pointer & 3) sub_pointer++;	// DWORD-align
-			lineptr -= outpitch;
-		}
-	}
-	break;
-
-	case 24:	// 24-bpp
-	case 32:	// 32-bpp
-	{
-		i = 0;
-		for(y=0;y<hdr->bmHeight;y++)
-		{
-			uint8_t *outptr = lineptr;
-			
-			for(x=0;x<hdr->bmWidth;x++)
-			{
-				uint8_t b = inbuffer[i++];
-				uint8_t g = inbuffer[i++];
-				uint8_t r = inbuffer[i++];
-				if (hdr->bpp == 32) i++;
-				
-				*(outptr++) = r;
-				*(outptr++) = g;
-				*(outptr++) = b;
-			}
-			
-			while(i & 3) i++;
-			lineptr -= outpitch;
-		}
-	}
-*/
 
 

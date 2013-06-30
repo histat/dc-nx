@@ -122,18 +122,18 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 	stamp.minute = now_time->tm_min;
 	stamp.second = now_time->tm_sec;
 
-	vmsfs_beep(&info, 1);
+	//vmsfs_beep(&info, 1);
 	
 	if (!vmsfs_create_file(&super, filename, &header, cave_icon+sizeof(header.palette), NULL, compressed_buf, compressed_len, &stamp)) {
 		
-		vmsfs_beep(&info, 0);
+		//vmsfs_beep(&info, 0);
 #ifndef NOSERIAL
 		fprintf(stderr,"%s",vmsfs_describe_error());
 #endif
 		return false;
 	}
 
-	vmsfs_beep(&info, 0);
+	//vmsfs_beep(&info, 0);
 
 	return true;
 }

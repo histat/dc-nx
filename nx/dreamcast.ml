@@ -1,7 +1,7 @@
 
 <DEFAULT
 COMPILE=sh-elf-gcc -ml -m4-single-only -fomit-frame-pointer -fno-exceptions -I/usr/local/ronin/include -Os -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
-LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/ronin/lib/crt0.o -o %OUTPUT%
+LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/lib/crt0.o -o %OUTPUT%
 LSUFFIX=-lstdc++ -L../ronin/lib -lronin -L/usr/local/ronin/lib -lz -lm
 OBJ_EXT=o
 OUTPUT=nxdc

@@ -17,7 +17,7 @@ make_src() {
 		mkdir -p disttmp/$SOURCEDIR/sdlshim
 	fi
 	
-	cp *.cpp *.h *.s *.c dreamcast.ml disttmp/$SOURCEDIR/sdlshim/
+	cp *.cpp *.h *.s *.c disttmp/$SOURCEDIR/sdlshim/
 	cp -r ../lib disttmp/$SOURCEDIR/
 	cp -r SDL disttmp/$SOURCEDIR/sdlshim/
 	

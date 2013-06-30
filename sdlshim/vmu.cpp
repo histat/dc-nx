@@ -16,9 +16,6 @@ extern int vmu_present[4];
 static int vm_file;
 
 
-#define check_audio()
-
-
 bool vmfile_search(const char *fname, int *vm)
 {
 	struct vmsinfo info;
@@ -38,8 +35,6 @@ bool vmfile_search(const char *fname, int *vm)
 		}
 	}
 
-	check_audio();
-
 	for (int x=0; x<4; x++) {
 		for (int y=0; y<2; y++) {
 			
@@ -53,16 +48,12 @@ bool vmfile_search(const char *fname, int *vm)
 #ifndef NOSERIAL
 							printf("%s Found on %c%d\n", fname, 'A'+res/6,res%6);
 #endif
-							check_audio();
-							
 							*vm = res;
 						return true;
 					}
 			}
 		}
 	}
-
-	check_audio();
 	
 	return false;
 }
@@ -84,7 +75,7 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 	struct timestamp stamp;
 	char shortdesc[16];
 	char longdesc[32];
-	unsigned char compressed_buf[MAX_VMU_SIZE];
+	static unsigned char compressed_buf[MAX_VMU_SIZE];
 	int compressed_len;
 
 	memset(compressed_buf, 0, sizeof(compressed_buf));
@@ -96,8 +87,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 		return false;
 	}
 
-	check_audio();
-	
 	sprintf(shortdesc,"%s %s",caption, "save");
 	sprintf(longdesc,"%s", caption);
 
@@ -133,8 +122,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 	stamp.minute = now_time->tm_min;
 	stamp.second = now_time->tm_sec;
 
-	check_audio();
-	
 	vmsfs_beep(&info, 1);
 	
 	if (!vmsfs_create_file(&super, filename, &header, cave_icon+sizeof(header.palette), NULL, compressed_buf, compressed_len, &stamp)) {
@@ -148,8 +135,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 
 	vmsfs_beep(&info, 0);
 
-	check_audio();
-	
 	return true;
 }
 
@@ -158,7 +143,7 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
 	struct vmsinfo info;
 	struct superblock super;
 	struct vms_file file;
-	unsigned char compressed_buf[MAX_VMU_SIZE];
+	static unsigned char compressed_buf[MAX_VMU_SIZE];
 	unsigned int compressed_len;
 
 	if (!vmsfs_check_unit(unit, 0, &info)) {
@@ -171,8 +156,6 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
 		return false;
 	}
 
-	check_audio();
-	
 	memset(compressed_buf, 0, sizeof(compressed_buf));
 	compressed_len = file.size;
   
@@ -189,8 +172,6 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
 		return false;
 	}
 
-	check_audio();
-	
 	return true;
 }
 
@@ -199,8 +180,6 @@ bool delete_file_vmu(int unit, const char *filename)
 	struct vmsinfo info;
 	struct superblock super;
 
-	check_audio();
-	
 	if (!vmsfs_check_unit(unit, 0, &info)) {
 		return false;
 	}
@@ -211,8 +190,6 @@ bool delete_file_vmu(int unit, const char *filename)
 		return false;
 	}
 
-	check_audio();
-	
 	return true;
 }
 
@@ -245,8 +222,6 @@ bool rename_vmu_file(const char *oldpath, const char *newpath)
 			break;
 		}
 
-	check_audio();
-	
 	if (!result)
 		return false;
 

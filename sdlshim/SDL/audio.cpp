@@ -108,11 +108,6 @@ static void streamwrite(uint32_t pos) {
 
 void update_audio()
 {
-#if 0	
-	if (read_sound_int(&SOUNDSTATUS->mode) == MODE_PAUSE)
-		return;
-#endif
-
 	uint32_t pos = read_sound_int(&SOUNDSTATUS->samplepos);
   
 	if (pos >= dsstreambytes) {

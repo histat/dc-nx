@@ -29,12 +29,13 @@ make_src() {
 
 case $1 in
     all)
-    make_src
-    ;;
+		rm -rf disttmp
+		make_src
+		;;
     src)
-    make_src
-    ;;
+		make_src
+		;;
     *)
-    echo "USAGE: $CMDNAME (all|src)" 1>&2
-    ;;
+		echo "USAGE: $CMDNAME (all|src)" 1>&2
+		;;
 esac

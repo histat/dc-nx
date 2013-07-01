@@ -35,26 +35,24 @@ void ronin_close()
 #endif
 }
 
-// ---
-
-int gettimeofday(struct timeval *tp, struct timezone *tz)
+unsigned int ronin_gettick()
 {
-  static unsigned long last_tm = 0;
-  static unsigned long tmhi = 0;
-  unsigned long tmlo = Timer();
-  if (tmlo < last_tm)
-    tmhi++;
-
-  unsigned long long usecs = 
-    ((((unsigned long long)tmlo)<<11)|
-     (((unsigned long long)tmhi)<<43))/100;
-
-  tp->tv_usec = usecs % 1000000;
-  tp->tv_sec = usecs / 1000000;
-
-  last_tm = tmlo;
-  return 0;
+	static unsigned int count = 0;
+	static unsigned int old = 0;
+	unsigned int now = Timer();
+  
+	if (now != old) {
+		unsigned int diff = now - old;
+		unsigned int steps = (diff<<6) / (100000>>5);
+		diff -= (steps*(100000>>5))>>6;
+		old = now - diff;
+		return (count += steps);
+	}
+  
+	return count;
 }
+
+// ---
 
 int system(const char *command)
 {

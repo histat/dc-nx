@@ -5,9 +5,7 @@
 
 uint32_t SDL_GetTicks()
 {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (uint32_t)(tv.tv_sec*1000 + tv.tv_usec/1000);
+	return ronin_gettick();
 }
 
 void SDL_Delay(int ms)

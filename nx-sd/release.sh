@@ -44,7 +44,7 @@ make_src() {
 	cd $BASE
 
 	cp LICENSE disttmp/$SOURCEDIR/
-	cp *.cpp *.h disttmp/$SOURCEDIR/
+	cp *.cpp *.h dist.ml disttmp/$SOURCEDIR/
 	cp smalfont.bmp sprites.sif tilekey.dat dreamcast.ml disttmp/$SOURCEDIR/
 	mkdir -p disttmp/$SOURCEDIR/TextBox
 	mkdir -p disttmp/$SOURCEDIR/ai

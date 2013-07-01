@@ -1,5 +1,6 @@
 #include "shim.h"
 #include "sdfs.h"
+#include "ronin.fdh"
 
 uint16_t *vram = NULL;
 
@@ -18,11 +19,7 @@ bool ronin_init()
 	
 	mkdir("replay", 0);
 #else
-	// to get vmu_avail before reading vmu
-	int mask = getimask();
-	setimask(15);
-	handleInput(locked_get_pads());
-	setimask(mask);
+	vmu_init();
 #endif
 
 	return 0;

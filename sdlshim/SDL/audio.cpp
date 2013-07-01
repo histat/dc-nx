@@ -108,6 +108,8 @@ static void streamwrite(uint32_t pos) {
 
 void update_audio()
 {
+	handleInput(locked_get_pads());
+	
 	uint32_t pos = read_sound_int(&SOUNDSTATUS->samplepos);
   
 	if (pos >= dsstreambytes) {

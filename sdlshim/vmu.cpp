@@ -11,11 +11,23 @@
 
 extern char caption[];
 
-extern int vmu_present[4];
+static int vmu_present[4];
 
 static int vm_file;
 
+void vmu_init()
+{
+	// to get vmu_avail before reading vmu
+	int mask = getimask();
+	setimask(15);
+	struct mapledev *pad=locked_get_pads();
+	for (int i=0; i<4; ++i, ++pad) {
+		vmu_present[i] = pad[i].present;
+	}
+	setimask(mask);
+}
 
+			  
 bool vmfile_search(const char *fname, int *vm)
 {
 	struct vmsinfo info;

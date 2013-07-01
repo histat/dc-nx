@@ -89,19 +89,20 @@ static int key_to_sdlk(int key)
 
 int SDL_PollEvent(SDL_Event *event)
 {
+/*	
 	static  unsigned int tick = 0;
 	unsigned int  tm = Timer() - tick;
 	if (tm < USEC_TO_TIMER(1000000/60)) {
 		return 0;
 	}
-	
+
 	int mask = getimask();
 	setimask(15);
 	handleInput(locked_get_pads());
 	setimask(mask);
-	
+
 	tick += tm;
-	
+*/
 	
 	Event ev;
 

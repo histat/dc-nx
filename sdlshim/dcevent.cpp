@@ -212,9 +212,6 @@ void handleMouse(struct mapledev *pad)
 		state.button = button;
 	}
 }
-#ifndef __SDCARD__
-int vmu_present[4];
-#endif
 
 void handleInput(struct mapledev *pad)
 {
@@ -238,26 +235,11 @@ void handleInput(struct mapledev *pad)
 			handleMouse(pad);
 			++MouseCount;
 		}
-#ifndef __SDCARD__
-		vmu_present[i] = pad[i].present;
-#endif
 	}
 }
 
 bool PollEvent(Event& ev)
 {
-#if 0
-	static  unsigned int tick = 0;
-	unsigned int  tm = Timer() - tick;
-	if (tm >= USEC_TO_TIMER(1000000/60)) {
-		int mask = getimask();
-		setimask(15);
-		handleInput(locked_get_pads());
-		setimask(mask);
-		tick += tm;
-	}
-#endif
-  
 	if (event->empty())
 		return false;
   

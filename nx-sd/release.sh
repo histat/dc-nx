@@ -76,16 +76,17 @@ make_src() {
 
 case $1 in
     all)
-    make_src
-    make_bin
-    ;;
+		rm -rf disttmp
+		make_src
+		make_bin
+		;;
     src)
-    make_src
-    ;;
+		make_src
+		;;
     bin)
-    make_bin
-    ;;
+		make_bin
+		;;
     *)
-    echo "USAGE: $CMDNAME (all|src|bin)" 1>&2
-    ;;
+		echo "USAGE: $CMDNAME (all|src|bin)" 1>&2
+		;;
 esac

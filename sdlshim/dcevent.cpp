@@ -240,6 +240,16 @@ void handleInput(struct mapledev *pad)
 
 bool PollEvent(Event& ev)
 {
+	static  unsigned int tick = 0;
+	unsigned int  tm = Timer() - tick;
+	if (tm >= USEC_TO_TIMER(1000000/60)) {
+		int mask = getimask();
+		setimask(15);
+		handleInput(locked_get_pads());
+		setimask(mask);
+		tick += tm;
+	}
+  
 	if (event->empty())
 		return false;
   

@@ -83,9 +83,50 @@ bool result = 1;
 	return result;
 }
 
-// read data from a file until CR
-void fgetline(FILE *fp, char *str, int maxlen)
+
+// read data from a file until ',' or CR
+void fgetcsv(FILE *fp, char *str, int maxlen)
 {
+int i, j;
+char ch;
+
+	maxlen--;
+	for(i=j=0;i<maxlen;i++)
+	{
+		ch = fgetc(fp);
+		
+		if (ch==13 || ch==',' || ch=='}' || ch==-1)
+		{
+			break;
+		}
+		
+		if (ch != 10)
+		{
+			str[j++] = ch;
+		}
+	}
+	
+	str[j] = 0;
+}
+
+// read a number from a CSV'd list in a file
+int fgeticsv(FILE *fp)
+{
+char buffer[80];
+	fgetcsv(fp, buffer, sizeof(buffer));
+	return atoi(buffer);
+}
+
+double fgetfcsv(FILE *fp)
+{
+char buffer[80];
+	fgetcsv(fp, buffer, sizeof(buffer));
+	return atof(buffer);
+}
+
+
+// read data from a file until CR
+void fgetline(FILE *fp, char *str, int maxlen){
 int k;
 	str[0] = 0;
 	fgets(str, maxlen - 1, fp);
@@ -111,6 +152,7 @@ int cp, sz;
 	return sz;
 }
 
+/*
 // return a random number between min and max inclusive
 int randrange(int min, int max)
 {
@@ -135,6 +177,46 @@ int range, val;
 	
 	val = rand() % (range + 1);
 	return val + min;
+}
+*/
+
+
+static uint32_t seed = 0;
+
+// return a random number between min and max inclusive
+int random(int min, int max)
+{
+int range, val;
+	
+	if (max < min)
+	{
+		staterr("random(): warning: max < min [%d, %d]", min, max);
+		min ^= max;
+		max ^= min;
+		min ^= max;
+	}
+	
+	range = (max - min);
+	
+	if (range >= RAND_MAX)
+	{
+		staterr("random(): range > RAND_MAX", min, max);
+		return 0;
+	}
+	
+	val = getrand() % (range + 1);
+	return val + min;
+}
+
+uint32_t getrand()
+{
+	seed = (seed * 0x343FD) + 0x269EC3;
+	return seed;
+}
+
+void seedrand(uint32_t newseed)
+{
+	seed = newseed;
 }
 
 

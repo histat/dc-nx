@@ -1,6 +1,5 @@
 
 #include "../shim.h"
-#include "../dcsound.h"
 #include "event.fdh"
 
 char caption[32];
@@ -13,7 +12,9 @@ static const char *key_names[] =
 	"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
 	"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
 	"esc", "spc",
-	"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"
+	"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
+	"btn A", "btn B", "btn C", "btn X", "btn Y", "btn Z",
+	"rtrig", "ltrig"
 };
 
 bool SDLS_EventInit(void)
@@ -57,16 +58,15 @@ static int joy_to_sdlk(int key)
 	case JOY_DOWN: return SDLK_DOWN;
 	case JOY_RIGHT: return SDLK_RIGHT;
 	case JOY_LEFT: return SDLK_LEFT;
-	case JOY_RTRIGGER: return SDLK_a;
-	case JOY_LTRIGGER: return SDLK_s;
-	case JOY_A: return SDLK_z;
-	case JOY_B: return SDLK_x;
-	case JOY_X: return SDLK_q;
-	case JOY_Y: return SDLK_w;
-	case JOY_START: return SDLK_F3;
-	case JOY_C: return SDLK_c;
-	case JOY_Z: return SDLK_v;
-	case JOY_D: return SDLK_d;
+	case JOY_RTRIGGER: return SDLK_RTRIG;
+	case JOY_LTRIGGER: return SDLK_LTRIG;
+	case JOY_A: return SDLK_BTN_A;
+	case JOY_B: return SDLK_BTN_B;
+	case JOY_C: return SDLK_BTN_C;		
+	case JOY_X: return SDLK_BTN_X;
+	case JOY_Y: return SDLK_BTN_Y;
+	case JOY_Z: return SDLK_BTN_Z;
+	case JOY_START: return SDLK_F3; //fixed for menu
 	}
 	
 	return SDLK_UNKNOWN;
@@ -80,7 +80,7 @@ static int key_to_sdlk(int key)
 	case 0x4f ... 0x52:	return sdl_key[key - 0x4f];
 	case 0x59 ... 0x62:	return sdl_num[key - 0x59];
 	case 0x29: return SDLK_ESCAPE;
-//	case 0x2c: return SDLK_SPACE;
+	case 0x2c: return SDLK_SPACE;
 	case 0x3a ... 0x45:	return sdl_func[key - 0x3a];
 	}
 
@@ -89,21 +89,6 @@ static int key_to_sdlk(int key)
 
 int SDL_PollEvent(SDL_Event *event)
 {
-/*	
-	static  unsigned int tick = 0;
-	unsigned int  tm = Timer() - tick;
-	if (tm < USEC_TO_TIMER(1000000/60)) {
-		return 0;
-	}
-
-	int mask = getimask();
-	setimask(15);
-	handleInput(locked_get_pads());
-	setimask(mask);
-
-	tick += tm;
-*/
-	
 	Event ev;
 
 	if (PollEvent(ev))	{

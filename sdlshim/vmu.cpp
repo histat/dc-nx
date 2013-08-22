@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
-#include "dcsound.h"
 #include "vmu.fdh"
 #include "cave_icon.h"
 

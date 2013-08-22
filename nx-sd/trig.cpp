@@ -5,14 +5,14 @@
 
 #include "sintan.cpp"
 
-#if 0
+/*
 signed int sin_table[256];
 signed int tan_table[64];
-#endif
+*/
 
 char trig_init(void)
 {
-#if 0	
+/*
 int degrees;
 
 // converts from 0-256 scale to 0-360 scale, then from degrees to radians
@@ -27,7 +27,7 @@ int degrees;
 	{
 		tan_table[degrees] = (int)(tan((double)degrees * PIBT) * (1 << 13));
 	}
-#endif	
+*/
 	//SetFullscreen(1);
 	return 0;
 }

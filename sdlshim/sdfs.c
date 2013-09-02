@@ -6,8 +6,6 @@
 #include <ronin/report.h>
 #include <ronin/serial.h>
 #include "../lib/ff.h"
-#include "dcsound.h"
-#include "sdfs.fdh"
 
 
 static FATFS Fatfs;
@@ -277,4 +275,3 @@ int chdir(const char *path)
 	
 	return 0;
 }
-

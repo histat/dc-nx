@@ -1,5 +1,8 @@
 
 #include <ronin/ronin.h>
+#ifdef __SDCARD__
+#include "../sdfs.h"
+#endif
 #include "SDL.h"
 #include "init.fdh"
 
@@ -29,7 +32,12 @@ void SDL_Quit(void)
 		SDLS_CloseScreen();
 		console_close();
 		ronin_close();
-	} 
+	}
+
+#ifdef __SDCARD__
+	sdfs_exit();
+#endif
+
 
 #ifdef NOSERIAL
 	(*(void(**)(int))0x8c0000e0)(1);
@@ -51,7 +59,9 @@ int main(int argc, char *argv[])
 	printf("Serial OK\n");
 #endif
 
-#ifndef __SDCARD__	
+#ifdef __SDCARD__
+	sdfs_init();
+#else
 	cdfs_init();
 #endif
 	

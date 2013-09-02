@@ -69,7 +69,7 @@ bool freshstart;
 		return 1;
 	}
 	
-	//Graphics::ShowLoadingScreen();
+	Graphics::ShowLoadingScreen();
 	if (sound_init()) { fatal("Failed to initialize sound."); return 1; }
 	if (trig_init()) { fatal("Failed trig module init."); return 1; }
 	
@@ -232,13 +232,14 @@ int32_t nexttick = 0;
 				game.ffwdtime--;
 			
 			nexttick = curtime + GAME_WAIT;
-			
+/*			
 			// pause game if window minimized
 			if ((SDL_GetAppState() & VISFLAGS) != VISFLAGS)
 			{
 				AppMinimized();
 				nexttick = 0;
 			}
+*/
 		}
 		else
 		{
@@ -405,7 +406,7 @@ void InitNewGame(bool with_intro)
 	fade.set_full(FADE_OUT);
 }
 
-
+/*
 void AppMinimized(void)
 {
 	stat("Game minimized or lost focus--pausing...");
@@ -425,7 +426,7 @@ void AppMinimized(void)
 	SDL_PauseAudio(0);
 	stat("Focus regained, resuming play...");
 }
-
+*/
 
 /*
 void c------------------------------() {}
@@ -488,7 +489,7 @@ void c------------------------------() {}
 */
 
 #ifdef __SDLSHIM__
-
+/*
 void speed_test(void)
 {
 	SDL_Rect textrect;
@@ -524,7 +525,7 @@ void speed_test(void)
 		fps++;
 	}
 }
-
+*/
 #else
 
 void speed_test(void)
@@ -562,7 +563,7 @@ void speed_test(void)
 #endif
 
 
-
+/*
 void org_test_miniloop(void)
 {
 uint32_t start = 0, curtime;
@@ -600,7 +601,7 @@ uint32_t counter;
 		}
 	}
 }
-
+*/
 #if 0
 void SDL_Delay(int ms)
 {

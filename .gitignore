@@ -5,7 +5,7 @@
 nxdc
 *.txt
 *.fdh
-Makefile
 nxextract
 *.exe
+sdlshim
 disttmp/

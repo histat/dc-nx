@@ -7,7 +7,7 @@
 #include "tsc.h"
 #include "tsc.fdh"
 
-#define TRACE_SCRIPT
+//#define TRACE_SCRIPT
 
 // which textbox options are enabled by the "<TUR" script command.
 #define TUR_PARAMS		(TB_LINE_AT_ONCE | TB_VARIABLE_WIDTH_CHARS | TB_CURSOR_NEVER_SHOWN)

@@ -13,12 +13,13 @@ bool ronin_init()
 	vram = (uint16_t *)dc_screen;
 
 #ifdef __SDCARD__
-	sdfs_init();
-
-	chdir("NX");
 	
+	chdir("NX");
+
 	mkdir("replay", 0);
+	
 #else
+	
 	vmu_init();
 #endif
 
@@ -27,9 +28,13 @@ bool ronin_init()
 
 void ronin_close()
 {
-#ifdef __SDCARD__
-	sdfs_exit();
-#endif
+}
+
+// ---
+
+extern "C" void vsync_event()
+{
+	SSRunMixer();
 }
 
 // ---

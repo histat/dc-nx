@@ -2,7 +2,7 @@
 <DEFAULT
 COMPILE=sh-elf-gcc -ml -m4-single-only -fomit-frame-pointer -fno-exceptions -I/usr/local/ronin/include -D__SDCARD__ -DNOSERIAL -Os -I../sdlshim -I../sdlshim/SDL -Wreturn-type -Wformat -Wno-multichar -c %SRCFILE% -o %MODULE%.%OBJ_EXT%
 LPREFIX=sh-elf-gcc -ml -m4-single-only -Wl,-Ttext,0x8c010000 -nostartfiles /usr/local/ronin/lib/crt0.o -o %OUTPUT%
-LSUFFIX=-lstdc++ -L../lib -lsd -L../ronin/lib -lronin-sd-noserial -L/usr/local/ronin/lib -lz -lm
+LSUFFIX=-lstdc++ -L../lib -lsd -L../ronin/lib -lronin-sd-noserial -lz -lm
 OBJ_EXT=o
 OUTPUT=nxdc
 
@@ -136,9 +136,9 @@ graphics/font.cpp
 graphics/safemode.cpp
 
 sound/sound.cpp
-sound/sslib.cpp
-sound/org.cpp
-sound/pxt.cpp
+../sdlshim/sound/sslib.cpp
+../sdlshim/sound/pxt.cpp
+../sdlshim/sound/org.cpp
 
 siflib/sif.cpp
 siflib/sifloader.cpp
@@ -167,8 +167,13 @@ common/misc.cpp
 ../sdlshim/SDL/bmploader.cpp
 ../sdlshim/SDL/event.cpp
 ../sdlshim/dcevent.cpp
-../sdlshim/SDL/audio.cpp
 ../sdlshim/SDL/misc.cpp
+
 ../sdlshim/sdfs.c
 <<
+../sdlshim/SDL/audio.cpp
+
+sound/sslib.cpp
+sound/org.cpp
+sound/pxt.cpp
 

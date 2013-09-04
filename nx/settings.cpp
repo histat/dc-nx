@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-/*#include "settings.h"*/
-#include "replay.h"
+#include "settings.h"
+/*#include "replay.h"*/
 #include "vm_file.h"
 #include "settings.fdh"
 

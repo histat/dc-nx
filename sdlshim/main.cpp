@@ -1,14 +1,23 @@
 
 #include "SDL/SDL.h"
+#include <ronin/sound.h>
+#include <ronin/soundcommon.h>
 #include "main.fdh"
 
 static bool quitting = false;
 
+
+static const char *org_dir = "org/";
+static const char *pxt_dir = "pxt/";
+static const char *sndcache = "sndcache.pcm";
+static const char *org_wavetable = "wavetable.dat";
+
+#if 0
 int SDL_main(int argc, char *argv[])
 {
 	stat("Entering main loop");
 	testblit();
-	
+
 	while(!quitting)
 	{
 		SDL_Event pie;
@@ -17,13 +26,11 @@ int SDL_main(int argc, char *argv[])
 			stat("Got event %d", pie.type);
 			quitting = true;
 		}
-		
-		SDL_Delay(10);
 	}
 	
 	return 0;
 }
-
+#endif
 
 void testblit(void)
 {
@@ -103,6 +110,103 @@ uint32_t color = SDL_MapRGB(screen->format, 0, 255, 0);
 	SDL_FillRect(screen, &rect, color);
 }
 
+
+
+#define NUM_SOUNDS		0x75
+#define ORG_VOLUME		75
+
+const char *org_names[] =
+{
+	NULL,
+	"egg", "safety", "gameover", "gravity", "grasstown", "meltdown2", "eyesofflame",
+	"gestation", "town", "fanfale1", "balrog", "cemetary", "plant", "pulse", "fanfale2",
+	"fanfale3", "tyrant", "run", "jenka1", "labyrinth", "access", "oppression", "geothermal",
+	"theme", "oside", "heroend", "scorching", "quiet", "lastcave", "balcony", "charge",
+	"lastbattle", "credits", "zombie", "breakdown", "hell", "jenka2", "waterway", "seal",
+	"toroko", "white", "azarashi", NULL
+};
+
+static void start_track(int songno)
+{
+char fname[MAXPATHLEN];
+
+	if (songno == 0)
+	{
+		org_stop();
+		return;
+	}
+	
+	strcpy(fname, org_dir);
+	strcat(fname, org_names[songno]);
+	strcat(fname, ".org");
+	
+	if (!org_load(fname))
+	{
+		org_start(0);
+	}
+}
+
+void music(int songno)
+{
+	org_stop();
+
+	start_track(songno);
+}
+
+
+int SDL_main(int argc, char *argv[])
+{
+	stat("Entering main loop");
+	testblit();
+
+	if (SSInit()) return 1;
+	if (pxt_init()) return 1;
+	
+	if (pxt_LoadSoundFX(pxt_dir, sndcache, 0x75)) {
+		printf("Can't load\n");
+		return 1;
+	}
+
+	if (org_init(org_wavetable, pxt_dir, ORG_VOLUME))
+	{
+		staterr("Music failed to initialize");
+		return 1;
+	}
+
+	
+//	pxt_Play(-1, 1, 1);
+//	pxt_Play(-1, 0x16, 2);
+
+	
+	music(19);
+
+	while(!quitting)
+	{
+		org_run();
+		
+		SDL_Event pie;
+		if (SDL_PollEvent(&pie))
+		{
+			if (pie.type == SDL_KEYDOWN) {
+				
+				if(pie.key.keysym.sym == SDLK_F3)
+					quitting = true;
+				else if(pie.key.keysym.sym == SDLK_BTN_A)
+					pxt_Play(-1, 1, 1);
+				else if(pie.key.keysym.sym == SDLK_BTN_B)
+					org_stop();
+				else if(pie.key.keysym.sym == SDLK_BTN_Y)
+					music(random(1,42));
+			}
+		}
+	}
+
+
+	pxt_freeSoundFX();
+	SSClose();
+
+	return 0;
+}
 
 
 

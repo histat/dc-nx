@@ -137,11 +137,12 @@ bool freshstart;
 				goto ingame_error;
 			}
 			
-			Replay::OnGameStarting();
+			/*Replay::OnGameStarting();*/
 			
 			if (!inhibit_loadfade) fade.Start(FADE_IN, FADE_CENTER);
 			else inhibit_loadfade = false;
 		}
+/*		
 		else if (game.switchstage.mapno == START_REPLAY)
 		{
 			stat(">> beginning replay '%s'", GetReplayName(game.switchstage.param));
@@ -153,6 +154,7 @@ bool freshstart;
 				goto ingame_error;
 			}
 		}
+*/		
 		else
 		{
 			if (game.switchstage.mapno == NEW_GAME || \
@@ -188,7 +190,7 @@ bool freshstart;
 	}
 	
 shutdown: ;
-	Replay::close();
+	/*Replay::close();*/
 	game.close();
 	Carets::close();
 	
@@ -304,7 +306,7 @@ static int frameskip = 0;
 	}
 	
 	// fast-forward key (F5)
-	if (inputs[FFWDKEY] && (settings->enable_debug_keys || Replay::IsPlaying()))
+	if (inputs[FFWDKEY] && (settings->enable_debug_keys /*|| Replay::IsPlaying()*/))
 	{
 		game.ffwdtime = 2;
 	}
@@ -320,10 +322,12 @@ static int frameskip = 0;
 			font_draw_shaded(4, (SCREEN_HEIGHT-GetFontHeight()-4), buf, 0, &greenfont);
 			can_tick = false;
 		}
+/*		
 		else
 		{
 			Replay::DrawStatus();
 		}
+*/		
 		
 		if (settings->show_fps)
 		{

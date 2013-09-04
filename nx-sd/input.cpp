@@ -198,6 +198,7 @@ int ino, key;
 					
 					if (evt.type == SDL_KEYDOWN)
 					{
+/*						
 						if (Replay::IsPlaying() && ino <= LASTCONTROLKEY)
 						{
 							stat("user interrupt - stopping playback of replay");
@@ -205,7 +206,7 @@ int ino, key;
 							memset(inputs, 0, sizeof(inputs));
 							inputs[ino] = true;
 						}
-						
+*/						
 						#ifndef __SDLSHIM__
 						if (key == '`')		// bring up console
 						{

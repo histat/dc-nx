@@ -5,14 +5,14 @@
 #include <stdint.h>
 #include <string.h>
 #include "settings.h"
-#include "replay.h"
+/*#include "replay.h"*/
 #include "settings.fdh"
 
 const char *setfilename = "settings.dat";
 const uint16_t SETTINGS_VERSION = 0x1602;		// serves as both a version and magic
 
 Settings normal_settings;
-Settings replay_settings;
+/*Settings replay_settings;*/
 Settings *settings = &normal_settings;
 
 
@@ -47,8 +47,6 @@ bool settings_load(Settings *setfile)
 		// down. This goes against established wisdom so if you want it back on,
 		// run "displayformat 1" in the console and restart.
 		//setfile->displayformat = false;
-
-		//settings->show_fps = true;
 		
 		return 1;
 	}
@@ -56,6 +54,8 @@ bool settings_load(Settings *setfile)
 	{
 		#ifdef __SDLSHIM__
 			stat("settings_load()");
+
+			//settings->show_fps = true;
 
 			input_set_mappings(settings->input_mappings);
 		#else

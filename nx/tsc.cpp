@@ -927,7 +927,7 @@ int cmdip;
 			{
 				if (!settings->multisave)
 				{
-					if (!Replay::IsPlaying())
+					/*if (!Replay::IsPlaying())*/
 						game_save(settings->last_save_slot);
 				}
 				else

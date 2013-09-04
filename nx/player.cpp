@@ -1213,8 +1213,8 @@ void hurtplayer(int damage)
 // set the player state to "dead" and execute script "script"
 void killplayer(int script)
 {
-	Replay::end_record();
-	Replay::end_playback();
+/*	Replay::end_record();
+	Replay::end_playback();*/
 	
 	player->hp = 0;
 	player->dead = true;

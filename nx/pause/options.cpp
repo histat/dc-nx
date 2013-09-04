@@ -1,6 +1,6 @@
 
 #include "../nx.h"
-#include "../replay.h"
+/*#include "../replay.h"*/
 #include "options.h"
 #include "dialog.h"
 #include "message.h"
@@ -265,7 +265,7 @@ void c------------------------------() {}
 static void EnterReplayMenu(ODItem *item, int dir)
 {
 Dialog *dlg = opt.dlg;
-ReplaySlotInfo slot;
+/*ReplaySlotInfo slot;*/
 bool have_replays = false;
 
 	dlg->Clear();
@@ -273,7 +273,7 @@ bool have_replays = false;
 	
 	for(int i=0;i<MAX_REPLAYS;i++)
 	{
-		Replay::GetSlotInfo(i, &slot);
+/*		Replay::GetSlotInfo(i, &slot);
 		
 		if (slot.status != RS_UNUSED)
 		{
@@ -281,6 +281,7 @@ bool have_replays = false;
 			dlg->AddItem(mapname, EnterReplaySubmenu, _upd_replay, i);
 			have_replays = true;
 		}
+*/
 	}
 	
 	if (!have_replays)
@@ -292,18 +293,19 @@ bool have_replays = false;
 
 void _upd_replay(ODItem *item)
 {
-ReplaySlotInfo slot;
+/*ReplaySlotInfo slot;
 
 	Replay::GetSlotInfo(item->id, &slot);
 	
 	Replay::FramesToTime(slot.hdr.total_frames, &item->raligntext[1]);
 	item->raligntext[0] = (slot.hdr.locked) ? '=':' ';
+*/
 }
 
 /*
 void c------------------------------() {}
 */
-
+/*
 void EnterReplaySubmenu(ODItem *item, int dir)
 {
 	opt.selected_replay = item->id;
@@ -315,11 +317,11 @@ void EnterReplaySubmenu(ODItem *item, int dir)
 	opt.subdlg->AddItem("Play", _play_replay);
 	opt.subdlg->AddItem("Keep", _keep_replay);
 }
-
+*/
 
 void _keep_replay(ODItem *item, int dir)
 {
-char fname[MAXPATHLEN];
+/*char fname[MAXPATHLEN];
 ReplayHeader hdr;
 
 	GetReplayName(opt.selected_replay, fname);
@@ -344,7 +346,7 @@ ReplayHeader hdr;
 	
 	sound(SND_MENU_MOVE);
 	opt.subdlg->Dismiss();
-	opt.dlg->Refresh();
+	opt.dlg->Refresh();*/
 }
 
 

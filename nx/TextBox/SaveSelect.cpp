@@ -6,7 +6,7 @@
 #include "../nx.h"
 #include "../profile.h"
 #include "../inventory.h"
-#include "../replay.h"
+/*#include "../replay.h"*/
 #include "TextBox.h"	// for textbox coordinates; MSG_W etc
 #include "SaveSelect.h"
 #include "SaveSelect.fdh"
@@ -108,7 +108,7 @@ int start;
 	{
 		// when shown in a replay, the box is shown and everything just like what was done
 		// originally, but we won't actually overwrite any save files.
-		if (!Replay::IsPlaying())
+		/*if (!Replay::IsPlaying())*/
 		{
 			if (fSaving)
 				game_save(fCurSel);

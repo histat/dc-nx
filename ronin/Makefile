@@ -68,6 +68,7 @@ all: include lib/crt0.o lib/libronin.a lib/libronin-sd.a lib/libronin-noserial.a
 
 
 lib/crt0.o: crt0.s
+	@test -d lib || mkdir lib
 	$(AS) $< -o $@
 
 
@@ -79,6 +80,7 @@ lib/libronin.a: $(OBJECTS) arm_sound_code.h
 else
 lib/libronin.a:
 	@echo "disable NETCD"
+	rm -f $@ && $(AR) rs $@ $(OBJECTS)
 endif
 
 ifeq "$(NETCD)$(LIBSD)" "01"

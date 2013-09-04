@@ -270,10 +270,10 @@ bool have_replays = false;
 
 	dlg->Clear();
 	sound(SND_MENU_MOVE);
-	
+/*	
 	for(int i=0;i<MAX_REPLAYS;i++)
 	{
-/*		Replay::GetSlotInfo(i, &slot);
+		Replay::GetSlotInfo(i, &slot);
 		
 		if (slot.status != RS_UNUSED)
 		{
@@ -281,9 +281,8 @@ bool have_replays = false;
 			dlg->AddItem(mapname, EnterReplaySubmenu, _upd_replay, i);
 			have_replays = true;
 		}
-*/
 	}
-	
+*/
 	if (!have_replays)
 		dlg->AddDismissalItem("[no replays yet]");
 	
@@ -293,7 +292,8 @@ bool have_replays = false;
 
 void _upd_replay(ODItem *item)
 {
-/*ReplaySlotInfo slot;
+/*	
+ReplaySlotInfo slot;
 
 	Replay::GetSlotInfo(item->id, &slot);
 	
@@ -321,7 +321,8 @@ void EnterReplaySubmenu(ODItem *item, int dir)
 
 void _keep_replay(ODItem *item, int dir)
 {
-/*char fname[MAXPATHLEN];
+/*	
+char fname[MAXPATHLEN];
 ReplayHeader hdr;
 
 	GetReplayName(opt.selected_replay, fname);
@@ -346,7 +347,8 @@ ReplayHeader hdr;
 	
 	sound(SND_MENU_MOVE);
 	opt.subdlg->Dismiss();
-	opt.dlg->Refresh();*/
+	opt.dlg->Refresh();
+*/	
 }
 
 

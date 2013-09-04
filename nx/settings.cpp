@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "settings.h"
+/*#include "settings.h"*/
 #include "replay.h"
 #include "vm_file.h"
 #include "settings.fdh"
@@ -13,7 +13,7 @@ const char *setfilename = "settings.dat";
 const uint16_t SETTINGS_VERSION = 0x1602;		// serves as both a version and magic
 
 Settings normal_settings;
-Settings replay_settings;
+/*Settings replay_settings;*/
 Settings *settings = &normal_settings;
 
 
@@ -47,7 +47,6 @@ bool settings_load(Settings *setfile)
 		// but calling SDL_DisplayFormat seems to actually be slowing things
 		// down. This goes against established wisdom so if you want it back on,
 		// run "displayformat 1" in the console and restart.
-		//setfile->displayformat = false;
 		
 		return 1;
 	}

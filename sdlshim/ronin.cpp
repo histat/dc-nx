@@ -16,8 +16,6 @@ bool ronin_init()
 	
 	chdir("NX");
 
-	mkdir("replay", 0);
-	
 #else
 	
 	vmu_init();

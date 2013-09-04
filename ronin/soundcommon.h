@@ -13,9 +13,7 @@ struct soundstatus {
   int cmd;
   int cmdstatus;
   int samplepos;
-#ifdef STEREO
-  int stereo;
-#endif
+	int submit;
   int freq;
   int ring_length;
 };

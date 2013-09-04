@@ -32,7 +32,7 @@ void ronin_close()
 
 // ---
 
-extern "C" void vsync_event()
+extern "C" void aica_to_sh4()
 {
 	SSRunMixer();
 }

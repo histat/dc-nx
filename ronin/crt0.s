@@ -243,7 +243,24 @@ int_hdler:
 	mov.l	@r0,r0
 	cmp/eq	r0,r1
 	bf	unknown_irq
+
+		mov.l	int_stack,r15
+		sts.l	mach,@-r15
+		sts.l	macl,@-r15
+		sts.l	pr,@-r15
 		
+		mov.l	pvrevt_addr,r1
+		mov.l	@(4,r1),r0
+		and		#0x02,r0
+		tst		r0,r0
+		bt/s	pvr_irq
+		mov.l	r0,@(4,r1)
+
+		mov.l	aica_int_hdlr,r0
+		jsr	@r0
+		nop
+
+pvr_irq:
 	mov.l	pvrevt_addr,r0
 	mov.l	@r0,r4
 	mov.l	pvrint_mask,r2
@@ -252,33 +269,17 @@ int_hdler:
 	bt/s	dummyirq
 	mov.l	r4,@r0
 
-		mov.l	int_stack,r15
-	sts.l	mach,@-r15
-	sts.l	macl,@-r15
-	sts.l	pr,@-r15
-		mov.l	r4,@-r15
-
 	mov.l	c_int_hdlr,r0
 	jsr	@r0
 	nop
-
-		mov.l	@r15+,r0
-		tst	#0x8,r0
-		bt	.done
-		
-		mov.l	vsync_int_hdlr,r0
-		jsr	@r0
-		nop
-.done:
-		
+dummyirq:
 	lds.l	@r15+,pr
 	lds.l	@r15+,macl
 	lds.l	@r15+,mach
 		stc	sgr,r15
-dummyirq:
 	rte
 	nop
-
+		
 unknown_irq:	
 	mov.l	exc_stack2,r15
 	mov.l	r8,@-r15
@@ -302,8 +303,8 @@ pvrevt_addr:
 c_int_hdlr:
 	.long	_ta_interrupt
 
-vsync_int_hdlr:
-	.long	_vsync_event
+aica_int_hdlr:
+	.long	_aica_to_sh4
 				
 int_stack:
 	.long	exc_hdler_end

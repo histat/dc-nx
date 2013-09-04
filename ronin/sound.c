@@ -50,9 +50,7 @@ void init_arm()
 {
   int i;
 
-#if 0  
   *(volatile unsigned int *)(0xa05f6934) = 0x00000002;
-#endif
 
   //TODO: Providing your own ARM code as an argument might be nice.
   *((volatile unsigned long *)(void *)0xa0702c00) |= 1;

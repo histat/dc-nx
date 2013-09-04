@@ -27,7 +27,6 @@ extern "C" void *memcpy4s(void *s1, const void *s2, unsigned int n);
 static uint8_t mixbuffer[SAMPLE_RATE*2*2] __attribute__((aligned (32)));
 static uint8_t tmp_sound_buffer[AUDIO_SIZE<<1] __attribute__((aligned (32)));
 
-static int dsstreamevent;
 static int dsstreambytes;
 
 char SSInit(void)
@@ -42,7 +41,6 @@ char SSInit(void)
 	stat("sslib: initilization was successful.");
 
 	dsstreambytes = RING_BUFFER_SAMPLES >> 1;
-	dsstreamevent = -1;
 
 	//lockcount = 0;
 
@@ -354,11 +352,9 @@ void SSRunMixer(void)
 	int bytestogo;
 	int c;
 	int i;
+	uint32_t pos = read_sound_int(&SOUNDSTATUS->submit);
 
-	static uint32_t last_pos = 0;
-	uint32_t cur_pos = read_sound_int(&SOUNDSTATUS->samplepos) > dsstreambytes;
-
-	if(last_pos == cur_pos)
+	if (pos < 0)
 		return;
 	
 	memset(tmp_sound_buffer, 0, sizeof(tmp_sound_buffer));
@@ -393,11 +389,8 @@ void SSRunMixer(void)
 
 	}
 
-	memcpy4s(RING_BUF + dsstreambytes * last_pos, tmp_sound_buffer, SAMPLES_TO_BYTES(dsstreambytes));
+	memcpy4s(RING_BUF + pos, tmp_sound_buffer, SAMPLES_TO_BYTES(dsstreambytes));
 
-	last_pos = cur_pos;
-	
-	
 	// tell any callbacks that had a chunk finish, that their chunk finished
 	for(c=0;c<SS_NUM_CHANNELS;c++)
 	{

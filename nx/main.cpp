@@ -143,7 +143,8 @@ bool freshstart;
 			if (!inhibit_loadfade) fade.Start(FADE_IN, FADE_CENTER);
 			else inhibit_loadfade = false;
 		}
-/*		else if (game.switchstage.mapno == START_REPLAY)
+/*		
+		else if (game.switchstage.mapno == START_REPLAY)
 		{
 			stat(">> beginning replay '%s'", GetReplayName(game.switchstage.param));
 			

@@ -108,8 +108,7 @@ int start;
 	{
 		// when shown in a replay, the box is shown and everything just like what was done
 		// originally, but we won't actually overwrite any save files.
-/*		
-		if (!Replay::IsPlaying())
+		/*if (!Replay::IsPlaying())*/
 		{
 			if (fSaving)
 				game_save(fCurSel);
@@ -117,7 +116,6 @@ int start;
 			settings->last_save_slot = fCurSel;
 			settings_save();		// record new save/load slot
 		}
-*/		
 		
 		SetVisible(false);
 		

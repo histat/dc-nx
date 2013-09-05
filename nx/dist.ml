@@ -40,7 +40,6 @@ tsc.cpp
 screeneffect.cpp
 floattext.cpp
 input.cpp
-replay.cpp
 trig.cpp
 inventory.cpp
 map_system.cpp
@@ -174,10 +173,5 @@ common/misc.cpp
 ../sdlshim/SDL/misc.cpp
 <<
 
-../sdlshim/SDL/audio.cpp
-
-sound/sslib.cpp
-sound/org.cpp
-sound/pxt.cpp
 
 

@@ -191,7 +191,7 @@ int main()
 	//resets SH4 intrrrupt MCIRE
 	*AICA(0x28bc) = 0x20;
 
-  SOUNDSTATUS->submit = -1;
+  SOUNDSTATUS->submit = 0;
 
   for(;;) {
 

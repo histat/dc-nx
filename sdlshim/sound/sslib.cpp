@@ -23,9 +23,9 @@ int mix_pos;
 
 extern "C" void *memcpy4s(void *s1, const void *s2, unsigned int n);
 
-#define AUDIO_SIZE (RING_BUFFER_SAMPLES)
+#define AUDIO_SIZE ((RING_BUFFER_SAMPLES/2)*2*2)
 static uint8_t mixbuffer[SAMPLE_RATE*2*2] __attribute__((aligned (32)));
-static uint8_t tmp_sound_buffer[AUDIO_SIZE<<1] __attribute__((aligned (32)));
+static uint8_t tmp_sound_buffer[AUDIO_SIZE] __attribute__((aligned (32)));
 
 static int dsstreambytes;
 
@@ -352,11 +352,10 @@ void SSRunMixer(void)
 	int bytestogo;
 	int c;
 	int i;
-	uint32_t pos = read_sound_int(&SOUNDSTATUS->submit);
+	uint32_t pos;
 
-	if (pos < 0)
-		return;
-	
+	pos = SOUNDSTATUS->submit;
+		
 	memset(tmp_sound_buffer, 0, sizeof(tmp_sound_buffer));
 
 	const int len = 2*SAMPLES_TO_BYTES(dsstreambytes);
@@ -389,8 +388,6 @@ void SSRunMixer(void)
 
 	}
 
-	memcpy4s(RING_BUF + pos, tmp_sound_buffer, SAMPLES_TO_BYTES(dsstreambytes));
-
 	// tell any callbacks that had a chunk finish, that their chunk finished
 	for(c=0;c<SS_NUM_CHANNELS;c++)
 	{
@@ -405,4 +402,6 @@ void SSRunMixer(void)
 		
 		channel[c].nFinishedChunks = 0;
 	}
+
+	memcpy4s(RING_BUF + pos, tmp_sound_buffer, SAMPLES_TO_BYTES(dsstreambytes));
 }

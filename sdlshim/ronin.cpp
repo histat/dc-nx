@@ -16,9 +16,6 @@ bool ronin_init()
 	
 	chdir("NX");
 
-#else
-	
-	vmu_init();
 #endif
 
 	return 0;

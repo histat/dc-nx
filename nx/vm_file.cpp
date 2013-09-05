@@ -186,7 +186,7 @@ int vm_fprintf(VMFILE *fp , const char *format , ... )
 
 	return len;
 }
-
+/*
 void vm_remove(const char *fname)
 {
 	int vm;
@@ -204,7 +204,7 @@ int vm_rename(const char *oldpath, const char *newpath)
 	
 	return 0;
 }
-
+*/
 
 int vm_fgetc(VMFILE *fp )
 {
@@ -338,7 +338,7 @@ void vm_fbooleanflush(VMFILE *fp)
 
 
 // ----
-
+/*
 VMFileBuffer::VMFileBuffer()
 {
 	fMaxSize = 0;
@@ -359,12 +359,12 @@ void VMFileBuffer::SetFile(VMFILE *fp)
 	fFP = fp;
 	_pos = 0;
 }
-
+*/
 /*
 void c------------------------------() {}
 */
 
-
+/*
 void VMFileBuffer::Write8(uint8_t data)
 {
 	memcpy((uint8_t*)&fbuffer[_pos], (uint8_t*)&data, 1);
@@ -388,11 +388,11 @@ void VMFileBuffer::Write32(uint32_t data)
 	
 	CheckFlush(fMaxSize);
 }
-
+*/
 /*
 void c------------------------------() {}
 */
-
+/*
 void VMFileBuffer::CheckFlush(int maxsize)
 {
 	if (_pos >= maxsize)
@@ -419,3 +419,4 @@ void VMFileBuffer::Flush()
 void VMFileBuffer::Dump()
 {
 }
+*/

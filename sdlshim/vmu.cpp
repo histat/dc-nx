@@ -13,61 +13,26 @@
 
 extern char caption[];
 
-static int vmu_present[4];
-
 static int vm_file;
 
-void vmu_init()
-{
-	// to get vmu_avail before reading vmu
-	int mask = getimask();
-	setimask(15);
-	struct mapledev *pad=locked_get_pads();
-	for (int i=0; i<4; ++i, ++pad) {
-		vmu_present[i] = pad[i].present;
-	}
-	setimask(mask);
-}
-
-			  
 bool vmfile_search(const char *fname, int *vm)
 {
 	struct vmsinfo info;
 	struct superblock super;
 	struct vms_file file;
 
-	bool vmu_avail[4*2];
+	int i;
 
-	memset(vmu_avail, false, sizeof(vmu_avail));
-
-	for (int i=0; i<4; i++) {
-		if (vmu_present[i] & (1<<0)) {
-			vmu_avail[i] = true;
-		}
-		if (vmu_present[i] & (1<<1)) {
-			vmu_avail[i+4] = true;
-		}
-	}
-
-	for (int x=0; x<4; x++) {
-		for (int y=0; y<2; y++) {
-			
-			if (vmu_avail[x+y*4]) {
-
-				int res = x*6 + y + 1;
-				
-				if (vmsfs_check_unit(res, 0, &info))
-					if (vmsfs_get_superblock(&info, &super))
-						if (vmsfs_open_file(&super, fname, &file)) {
+	for (i=0; i<24; i++)
+		if (vmsfs_check_unit(i, 0, &info))
+			if (vmsfs_get_superblock(&info, &super))
+				if (vmsfs_open_file(&super, fname, &file)) {
 #ifndef NOSERIAL
-							printf("%s Found on %c%d\n", fname, 'A'+res/6,res%6);
+					printf("%s Found on %c%d\n", fname, 'A'+i/6,i%6);
 #endif
-							*vm = res;
-						return true;
-					}
-			}
-		}
-	}
+					*vm = i;
+					return true;
+				}
 	
 	return false;
 }
@@ -101,7 +66,7 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 		return false;
 	}
 
-	sprintf(shortdesc,"%s %s",caption, "save");
+	sprintf(shortdesc,"%s %s",caption, "savegame");
 	sprintf(longdesc,"%s v1.0.0.4", caption);
 
 	if (!vmsfs_check_unit(unit, 0, &info)) {
@@ -183,7 +148,7 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
 
 	return true;
 }
-
+/*
 bool delete_file_vmu(int unit, const char *filename)
 {
 	struct vmsinfo info;
@@ -248,5 +213,5 @@ bool rename_vmu_file(const char *oldpath, const char *newpath)
 	
 	return true;
 }
-
+*/
 #endif

@@ -4,7 +4,7 @@
 #include "vm_file.h"
 #include "vm_file.fdh"
 
-#define MAX_FILES 4
+#define MAX_FILES 2
 #define MAX_SIZE 128*1024
 
 static struct {

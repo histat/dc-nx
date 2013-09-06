@@ -16,7 +16,7 @@
 
 SSChannel channel[SS_NUM_CHANNELS];
 
-//uint8_t *mixbuffer = NULL;
+uint8_t *mixbuffer = NULL;
 int mix_pos;
 
 //int lockcount = 0;
@@ -24,14 +24,14 @@ int mix_pos;
 extern "C" void *memcpy4s(void *s1, const void *s2, unsigned int n);
 
 #define AUDIO_SIZE ((RING_BUFFER_SAMPLES/2)*2*2)
-static uint8_t mixbuffer[SAMPLE_RATE*2*2] __attribute__((aligned (32)));
-static uint8_t tmp_sound_buffer[AUDIO_SIZE] __attribute__((aligned (32)));
+//static uint8_t tmp_sound_buffer[AUDIO_SIZE] __attribute__((aligned (32)));
+uint8_t tmp_sound_buffer[AUDIO_SIZE];
 
 static int dsstreambytes;
 
 char SSInit(void)
 {
-	//mixbuffer = (uint8_t *)malloc(obtained.samples * obtained.channels * 2);
+	mixbuffer = (uint8_t *)malloc(SAMPLE_RATE * 2 * 2);
 	
 	// zero everything in all channels
 	memset(channel, 0, sizeof(channel));
@@ -53,7 +53,7 @@ void SSClose(void)
 {
 	stop_sound();
 	
-//	if (mixbuffer) free(mixbuffer);
+	if (mixbuffer) free(mixbuffer);
 }
 
 /*
@@ -352,8 +352,8 @@ void SSRunMixer(void)
 	int bytestogo;
 	int c;
 	int i;
-	uint32_t pos = read_sound_int(&SOUNDSTATUS->samplepos);
-		
+	int pos = read_sound_int(&SOUNDSTATUS->samplepos);
+
 	memset(tmp_sound_buffer, 0, sizeof(tmp_sound_buffer));
 
 	const int len = 2*SAMPLES_TO_BYTES(dsstreambytes);

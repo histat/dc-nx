@@ -352,9 +352,7 @@ void SSRunMixer(void)
 	int bytestogo;
 	int c;
 	int i;
-	uint32_t pos;
-
-	pos = SOUNDSTATUS->submit;
+	uint32_t pos = read_sound_int(&SOUNDSTATUS->samplepos);
 		
 	memset(tmp_sound_buffer, 0, sizeof(tmp_sound_buffer));
 

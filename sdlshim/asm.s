@@ -1,11 +1,6 @@
 
-
-		.globl _asm_do_blit_transparent
-		.globl _asm_do_blit_nontransparent
-		
-
 		.text
-		.align	5
+		.align 2
 		
 /* r4 = src
  r5 = dest
@@ -13,6 +8,7 @@
  r7 = copy height
  parm4 = source pitch minus (copy width * 2)
  parm5 = dest pitch minus (copy width * 2) */
+.globl _asm_do_blit_transparent
 _asm_do_blit_transparent:
 		mov.l	@(0,r15) ,r0		! load source pitch
 		mov.l	@(4,r15) ,r1		! load dest pitch
@@ -36,7 +32,7 @@ widthLoop:
 		rts
 		nop
 
-		.align	5
+.globl _asm_do_blit_nontransparent		
 _asm_do_blit_nontransparent:
 		mov.l	@(0,r15) ,r0		! load source pitch
 		mov.l	@(4,r15) ,r1		! load dest pitch
@@ -56,8 +52,7 @@ widthLoop2:
 		rts
 		nop
 
-		.align	5
-		.globl _fcopy32
+.globl _fcopy32
 _fcopy32:
 	    fmov	@r4+,dr0
 	    fmov	@r4+,dr2
@@ -73,7 +68,6 @@ _fcopy32:
 	    fmov	dr0,@-r5
 		
 		.end
-
 
 
 

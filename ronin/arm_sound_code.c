@@ -191,8 +191,6 @@ int main()
 	//resets SH4 intrrrupt MCIRE
 	*AICA(0x28bc) = 0x20;
 
-  SOUNDSTATUS->submit = 0;
-
   for(;;) {
 
     if(SOUNDSTATUS->cmdstatus==1) {
@@ -211,17 +209,16 @@ int main()
     if(SOUNDSTATUS->mode == MODE_PLAY) {
 		//SOUNDSTATUS->samplepos = *AICA(0x2814);
 	  unsigned int pos = *AICA(0x2814);
-	  SOUNDSTATUS->samplepos = pos;
 
 	  if(pos==(RING_BUFFER_SAMPLES>>1)) {
-		  SOUNDSTATUS->submit = 0;
+		  SOUNDSTATUS->samplepos = 0;
 
 		  *AICA(0x28b8) = 0x20;
 		  *AICA(0x28bc) = 0x20;
 		  
 	  } else if(pos==RING_BUFFER_SAMPLES-1) {
 
-		  SOUNDSTATUS->submit = (RING_BUFFER_SAMPLES>>1);
+		  SOUNDSTATUS->samplepos = (RING_BUFFER_SAMPLES>>1);
 
 		  *AICA(0x28b8) = 0x20;
 		  *AICA(0x28bc) = 0x20;

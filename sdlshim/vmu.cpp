@@ -13,26 +13,56 @@
 
 extern char caption[];
 
-static int vm_file;
+int vm_file;
+
+bool vmu_avail[4*2] = {
+	false, false, false, false,
+	false, false, false, false
+};
 
 bool vmfile_search(const char *fname, int *vm)
 {
 	struct vmsinfo info;
 	struct superblock super;
 	struct vms_file file;
+	static bool inited = false;
 
-	int i;
+	if(!inited) {
+		int mask = getimask();
+		setimask(15);
+		struct mapledev *pad=locked_get_pads();
+		for (int i=0; i<4; ++i, ++pad) {
+			if (pad[i].present & (1<<0)) {
+				vmu_avail[i] = true;
+			}
+			if (pad[i].present & (1<<1)) {
+				vmu_avail[i+4] = true;
+			}
+		}
+		setimask(mask);
 
-	for (i=0; i<24; i++)
-		if (vmsfs_check_unit(i, 0, &info))
-			if (vmsfs_get_superblock(&info, &super))
-				if (vmsfs_open_file(&super, fname, &file)) {
+		inited = true;
+	}
+	
+	for (int x=0; x<4; x++) {
+		for (int y=0; y<2; y++) {
+			
+			if (vmu_avail[x+y*4]) {
+
+				int res = x*6 + y + 1;
+				
+				if (vmsfs_check_unit(res, 0, &info))
+					if (vmsfs_get_superblock(&info, &super))
+						if (vmsfs_open_file(&super, fname, &file)) {
 #ifndef NOSERIAL
-					printf("%s Found on %c%d\n", fname, 'A'+i/6,i%6);
+							printf("%s Found on %c%d\n", fname, 'A'+res/6,res%6);
 #endif
-					*vm = i;
-					return true;
-				}
+							*vm = res;
+						return true;
+					}
+			}
+		}
+	}
 	
 	return false;
 }

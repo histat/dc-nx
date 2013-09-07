@@ -209,14 +209,14 @@ int main()
     if(SOUNDSTATUS->mode == MODE_PLAY) {
 	  unsigned int pos = *AICA(0x2814);
 
-	  if(pos==(RING_BUFFER_SAMPLES>>1)) {
+	  if(pos==(RING_BUFFER_SAMPLES/2)) {
 		  SOUNDSTATUS->samplepos = 0;
 
 		  *AICA(0x28b8) = 0x20;
 		  *AICA(0x28bc) = 0x20;
 		  
 	  } else if(pos==RING_BUFFER_SAMPLES-1) {
-		  SOUNDSTATUS->samplepos = (RING_BUFFER_SAMPLES>>1);
+		  SOUNDSTATUS->samplepos = (RING_BUFFER_SAMPLES/2);
 
 		  *AICA(0x28b8) = 0x20;
 		  *AICA(0x28bc) = 0x20;

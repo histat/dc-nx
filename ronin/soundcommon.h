@@ -64,8 +64,7 @@ struct soundstatus {
 
 /* 1s buffer for menu */
 //#define RING_BUFFER_SAMPLES ADJUST_BUFFER_SIZE(44100)
-
-#define RING_BUFFER_SAMPLES (5512)
+#define RING_BUFFER_SAMPLES ADJUST_BUFFER_SIZE(5512)
 
 
 /* 16bit */

@@ -23,11 +23,8 @@ int mix_pos;
 
 extern "C" void *memcpy4s(void *s1, const void *s2, unsigned int n);
 
-#define AUDIO_SIZE ((RING_BUFFER_SAMPLES/2)*2*2)
-//static uint8_t tmp_sound_buffer[AUDIO_SIZE] __attribute__((aligned (32)));
-uint8_t tmp_sound_buffer[AUDIO_SIZE];
-
-static int dsstreambytes;
+#define AUDIO_SIZE (RING_BUFFER_SAMPLES/2)
+uint8_t tmp_sound_buffer[AUDIO_SIZE*2*2];
 
 char SSInit(void)
 {
@@ -39,8 +36,6 @@ char SSInit(void)
 		channel[i].volume = SDL_MIX_MAXVOLUME;
 	
 	stat("sslib: initilization was successful.");
-
-	dsstreambytes = RING_BUFFER_SAMPLES >> 1;
 
 	//lockcount = 0;
 
@@ -356,7 +351,7 @@ void SSRunMixer(void)
 
 	memset(tmp_sound_buffer, 0, sizeof(tmp_sound_buffer));
 
-	const int len = 2*SAMPLES_TO_BYTES(dsstreambytes);
+	const int len = 2*SAMPLES_TO_BYTES(AUDIO_SIZE);
 
 	// get data for all channels and add it to the mix
 	for(c=0;c<SS_NUM_CHANNELS;c++)
@@ -401,5 +396,5 @@ void SSRunMixer(void)
 		channel[c].nFinishedChunks = 0;
 	}
 
-	memcpy4s(RING_BUF + pos, tmp_sound_buffer, SAMPLES_TO_BYTES(dsstreambytes));
+	memcpy4s(RING_BUF + pos, tmp_sound_buffer, SAMPLES_TO_BYTES(AUDIO_SIZE));
 }

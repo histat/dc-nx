@@ -15,7 +15,6 @@ _asm_do_blit_transparent:
 	
 heightLoop:
 		mov		r6,r2	!X pixels remaining
-		pref	@r4
 widthLoop:
 		mov.w	@r4+, r3
 		tst		r3,r3
@@ -38,7 +37,6 @@ _asm_do_blit_nontransparent:
 		mov.l	@(4,r15) ,r1		! load dest pitch
 heightLoop2:
 		mov		r6,r2		! X pixels remaining
-		pref	@r4
 widthLoop2:
 		mov.w	@r4+, r3
 		dt		r2

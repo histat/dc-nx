@@ -15,10 +15,7 @@ extern char caption[];
 
 int vm_file;
 
-bool vmu_avail[4*2] = {
-	false, false, false, false,
-	false, false, false, false
-};
+bool vmu_avail[4*2];
 
 bool vmfile_search(const char *fname, int *vm)
 {
@@ -28,6 +25,9 @@ bool vmfile_search(const char *fname, int *vm)
 	static bool inited = false;
 
 	if(!inited) {
+
+		memset(vmu_avail, false, sizeof(vmu_avail));
+		
 		int mask = getimask();
 		setimask(15);
 		struct mapledev *pad=locked_get_pads();

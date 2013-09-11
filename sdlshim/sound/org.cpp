@@ -45,7 +45,7 @@ static struct
 } final_buffer[2];
 
 static uint8_t current_buffer;
-static bool buffers_full;
+static int buffers_full;
 
 static int OrgVolume;
 
@@ -467,8 +467,6 @@ bool org_start(int startbeat)
 	
 	// kickstart the first buffer
 	current_buffer = 0;
-	generate_music();
-	queue_final_buffer();
 	buffers_full = 0;				// tell org_run to generate the other buffer right away
 	
 	return 0;
@@ -611,7 +609,7 @@ static void queue_final_buffer(void)
 // callback from sslib when a buffer is finished playing.
 static void OrgBufferFinished(int channel, int buffer_no)
 {
-	buffers_full = false;
+	--buffers_full;
 }
 
 /*
@@ -874,7 +872,7 @@ void org_run(void)
 	
 	// keep both buffers queued. if one of them isn't queued, then it's time to
 	// generate more music for it and queue it back on.
-	if (!buffers_full)
+	if (buffers_full < 2)
 	{
 #ifdef PROFILE
 		uint32_t start = SDL_GetTicks();
@@ -886,7 +884,7 @@ void org_run(void)
 #endif
 		
 		queue_final_buffer();			// enqueue current_buffer and switch buffers
-		buffers_full = true;			// both buffers full again until OrgBufferFinished called
+		++buffers_full;			// both buffers full again until OrgBufferFinished called
 #ifdef PROFILE
 		uint32_t totaltime = (SDL_GetTicks() - start);
 		stat("  %d gen  %d mix    %dms", \

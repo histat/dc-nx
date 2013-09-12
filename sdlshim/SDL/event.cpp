@@ -2,8 +2,6 @@
 #include "../shim.h"
 #include "event.fdh"
 
-char caption[32];
-
 static const char *key_names[] =
 {
 	NULL,
@@ -13,8 +11,8 @@ static const char *key_names[] =
 	"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
 	"esc", "spc",
 	"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
-	"btn A", "btn B", "btn C", "btn X", "btn Y", "btn Z",
-	"rtrig", "ltrig"
+	"A btn", "B btn", "C btn", "X btn", "Y btn", "Z btn",
+	"R-trig", "L-trig"
 };
 
 bool SDLS_EventInit(void)
@@ -191,7 +189,6 @@ void SDL_WarpMouse(uint16_t x, uint16_t y)
 
 void SDL_WM_SetCaption(const char *title, const char *icon)
 {
-	strncpy(caption, title, sizeof(caption));
 }
 
 

@@ -11,11 +11,9 @@
 
 #define MAX_VMU_SIZE (128 * 1024)
 
-extern char caption[];
-
 int vm_file;
 
-bool vmu_avail[4*2];
+static bool vmu_avail[4*2];
 
 bool vmfile_search(const char *fname, int *vm)
 {
@@ -82,8 +80,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 	time_t long_time;
 	struct tm *now_time;
 	struct timestamp stamp;
-	char shortdesc[16];
-	char longdesc[32];
 	unsigned char compressed_buf[MAX_VMU_SIZE];
 	int compressed_len;
 
@@ -95,9 +91,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 
 		return false;
 	}
-
-	sprintf(shortdesc,"%s %s",caption, "savegame");
-	sprintf(longdesc,"%s v1.0.0.4", caption);
 
 	if (!vmsfs_check_unit(unit, 0, &info)) {
 		return false;
@@ -115,9 +108,9 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 	}
 
 	memset(&header, 0, sizeof(header));
-	strncpy(header.shortdesc, shortdesc,sizeof(header.shortdesc));
-	strncpy(header.longdesc, longdesc, sizeof(header.longdesc));
-	strncpy(header.id, caption, sizeof(header.id));
+	strncpy(header.shortdesc, "NXEngine savegame",sizeof(header.shortdesc));
+	strncpy(header.longdesc, "NXEngine v1.0.0.4", sizeof(header.longdesc));
+	strncpy(header.id, "NXEngine", sizeof(header.id));
 	memcpy(header.palette, cave_icon, sizeof(header.palette));
 	header.numicons = 1;
 

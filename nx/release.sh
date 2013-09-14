@@ -45,28 +45,18 @@ make_src() {
 
 	cp LICENSE disttmp/$SOURCEDIR/
 	cp *.cpp *.h dist.ml disttmp/$SOURCEDIR/
-	cp smalfont.bmp sprites.sif tilekey.dat dreamcast.ml disttmp/$SOURCEDIR/
-	mkdir -p disttmp/$SOURCEDIR/TextBox
-	mkdir -p disttmp/$SOURCEDIR/ai
-	mkdir -p disttmp/$SOURCEDIR/autogen
-	mkdir -p disttmp/$SOURCEDIR/common
-	mkdir -p disttmp/$SOURCEDIR/endgame
-	mkdir -p disttmp/$SOURCEDIR/graphics
-	mkdir -p disttmp/$SOURCEDIR/intro
-	mkdir -p disttmp/$SOURCEDIR/pause
-	mkdir -p disttmp/$SOURCEDIR/siflib
-	mkdir -p disttmp/$SOURCEDIR/sound
+	cp smalfont.bmp sprites.sif tilekey.dat dist.ml disttmp/$SOURCEDIR/
 	
-	cp TextBox/*.cpp TextBox/*.h disttmp/$SOURCEDIR/TextBox
-	cp ai/*.cpp ai/*.h disttmp/$SOURCEDIR/ai
-	cp autogen/*.cpp autogen/*.h disttmp/$SOURCEDIR/autogen
-	cp common/*.cpp common/*.h disttmp/$SOURCEDIR/common
-	cp endgame/*.cpp endgame/*.h disttmp/$SOURCEDIR/endgame
-	cp graphics/*.cpp graphics/*.h disttmp/$SOURCEDIR/graphics
-	cp intro/*.cpp intro/*.h disttmp/$SOURCEDIR/intro
-	cp pause/*.cpp pause/*.h disttmp/$SOURCEDIR/pause
-	cp siflib/*.cpp siflib/*.h disttmp/$SOURCEDIR/siflib
-	cp sound/*.cpp sound/*.h disttmp/$SOURCEDIR/sound
+	cp -r TextBox disttmp/$SOURCEDIR
+	cp -r ai disttmp/$SOURCEDIR
+	cp -r autogen disttmp/$SOURCEDIR
+	cp -r common disttmp/$SOURCEDIR
+	cp -r endgame disttmp/$SOURCEDIR
+	cp -r graphics disttmp/$SOURCEDIR
+	cp -r intro disttmp/$SOURCEDIR
+	cp -r pause disttmp/$SOURCEDIR
+	cp -r siflib disttmp/$SOURCEDIR
+	cp -r sound disttmp/$SOURCEDIR
 		
 	cd $BASE/disttmp/
 	tar jcvf $SOURCEDIR.tar.bz2 $SOURCEDIR

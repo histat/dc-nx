@@ -20,7 +20,7 @@ make_src() {
 	cp *.cpp *.h *.s *.c disttmp/$SOURCEDIR/sdlshim/
 	cp -r ../lib disttmp/$SOURCEDIR/
 	cp -r ../ronin disttmp/$SOURCEDIR/
-	cp -r sound disttmp/$SOURCEDIR/
+	cp -r sound disttmp/$SOURCEDIR/sdlshim/
 	cp -r SDL disttmp/$SOURCEDIR/sdlshim/
 	
 	cd $BASE/disttmp/

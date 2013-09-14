@@ -1,6 +1,6 @@
 NETSERIAL = 1
-NETCD = 1
-LIBSD = 0
+NETCD = 0
+LIBSD = 1
 
 CCC = sh-elf-c++ -fno-rtti -fconserve-space
 CC = sh-elf-gcc -Wall
@@ -72,7 +72,7 @@ lib/crt0.o: crt0.s
 	$(AS) $< -o $@
 
 
-ifeq "$(NETCD)$(LIBSD)" "10"
+ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "110"
 lib/libronin.a: $(OBJECTS) arm_sound_code.h
 	@test -d lib || mkdir lib
 	rm -f $@ && $(AR) rs $@ $(OBJECTS)
@@ -80,13 +80,12 @@ lib/libronin.a: $(OBJECTS) arm_sound_code.h
 else
 lib/libronin.a:
 	@echo "disable NETCD"
-	rm -f $@ && $(AR) rs $@ $(OBJECTS)
 endif
 
-ifeq "$(NETCD)$(LIBSD)" "01"
+ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "101"
 lib/libronin-sd.a: $(OBJECTS) arm_sound_code.h
+	$(MAKE) cleanish
 	rm -f lib/libronin-sd.a
-	rm -f notlibc.o
 	$(MAKE) CFLAGS="$(CFLAGS) -D__SDCARD__" noserial-dummy
 	rm -f $@ && $(AR) rs $@ $(OBJECTS) 
 
@@ -99,22 +98,26 @@ endif
 noserial-dummy: $(OBJECTS) arm_sound_code.h
 	@echo Dummy done.
 
-ifeq "$(NETSERIAL)$(NETCD)" "00"
+ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "001"
 lib/libronin-sd-noserial.a:
 	$(MAKE) cleanish
 	rm -f lib/libronin-sd-noserial.a
 	$(MAKE) CFLAGS="$(CFLAGS) -DNOSERIAL -D__SDCARD__" noserial-dummy
 	rm -f $@ && $(AR) rs $@ $(OBJECTS)
+else
+lib/libronin-sd-noserial.a:
+	@echo "enable NETSERIAL/NETCD"
+endif
 
+ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "000"
 lib/libronin-noserial.a:
 	$(MAKE) cleanish
 	rm -f lib/libronin-noserial.a
 	$(MAKE) CFLAGS="$(CFLAGS) -DNOSERIAL" noserial-dummy
 	rm -f $@ && $(AR) rs $@ $(OBJECTS)
 else
-lib/libronin-sd-noserial.a:
 lib/libronin-noserial.a:
-	@echo "enable NETCD/NETSERIAL"
+	@echo "enable NETSERIAL/NETCD"
 endif
 
 lib/libz.a:

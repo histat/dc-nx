@@ -607,7 +607,7 @@ void SDLS_DumpRect(SDL_Rect *rect)
 void SDL_ShowCursor(int enable)	{ }
 int SDL_SetAlpha(SDL_Surface *surface, uint32_t flag, uint8_t alpha) {
 
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, 0);
+	//SDL_SetColorKey(surface, SDL_SRCCOLORKEY, 0);
 	return -1;
 }
 

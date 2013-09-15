@@ -5,14 +5,14 @@
 #include <stdint.h>
 #include <string.h>
 #include "settings.h"
-/*#include "replay.h"*/
+#include "replay.h"
 #include "settings.fdh"
 
 const char *setfilename = "settings.dat";
 const uint16_t SETTINGS_VERSION = 0x1602;		// serves as both a version and magic
 
 Settings normal_settings;
-/*Settings replay_settings;*/
+Settings replay_settings;
 Settings *settings = &normal_settings;
 
 

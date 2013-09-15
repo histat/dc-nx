@@ -39,6 +39,7 @@ tsc.cpp
 screeneffect.cpp
 floattext.cpp
 input.cpp
+replay.cpp
 trig.cpp
 inventory.cpp
 map_system.cpp

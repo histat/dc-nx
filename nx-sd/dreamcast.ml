@@ -39,7 +39,7 @@ tsc.cpp
 screeneffect.cpp
 floattext.cpp
 input.cpp
-
+replay.cpp
 trig.cpp
 inventory.cpp
 map_system.cpp
@@ -179,4 +179,4 @@ sound/sslib.cpp
 sound/org.cpp
 sound/pxt.cpp
 
-replay.cpp
+

@@ -40,6 +40,7 @@ press key to close the programme.
 you don't need nxextract.exe (and SDL.dll)
 
 copy the data to a directory named "NX"
+and if you use repaly make "replay" in the directory.
 
 1ST_READ.BIN scrambled binary
 NXDC.BIN unscrambled binary
@@ -49,16 +50,21 @@ Controls
 
 Dreamcast controller:
 D-pad:	left,right,down,up
-A:		jump
-B:		fire
-X:		inventory
-Y:		mapsystem
-L trigger:	prev wepon
-R trigger:	next wepon
-Start:	F3
+Start:	MENU(F3)
+
+thease buttons and triggers are not assigned in default
+A,B,X,Y,L trigger,R trigger
 
 Dreamcast keyboard:
-arrow, f1 - f12, esc, 0 - 9, a - z
+arrow:	left,right,down,up
+F3:	MENU
+Z:		jump
+X:		fire
+Q:		inventory
+W:		mapsystem
+A:	prev wepon
+S:	next wepon
+
 
 Credits
 -------

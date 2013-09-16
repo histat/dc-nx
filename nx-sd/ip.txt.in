@@ -4,8 +4,8 @@ Device Info   : 0000 CD-ROM1/1
 Area Symbols  : JUE
 Peripherals   : E000F10
 Product No    : T0000
-Version       : V0.2
+Version       : V1.000
 Release Date  : @DATE@
 Boot Filename : 1ST_READ.BIN
 SW Maker Name : histat
-Game Title    : NXEngine for DC (SD card support)
+Game Title    : NXEngine for DC (require SD card reader)

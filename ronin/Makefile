@@ -1,6 +1,5 @@
 NETSERIAL = 1
 NETCD = 0
-LIBSD = 1
 
 CCC = sh-elf-c++ -fno-rtti -fconserve-space
 CC = sh-elf-gcc -Wall
@@ -55,69 +54,51 @@ else
 OBJECTS += serial.o
 endif
 
-ifeq "$(NETCD)$(LIBSD)" "10"
+ifeq "$(NETCD)" "1"
 OBJECTS += netcd.o
-endif
-
-ifeq "$(NETCD)$(LIBSD)" "00"
+else
 OBJECTS += cdfs.o
 endif
 
 
-all: include lib/crt0.o lib/libronin.a lib/libronin-sd.a lib/libronin-noserial.a lib/libronin-sd-noserial.a lib/libz.a
+all: include lib/crt0.o lib/libronin.a lib/libronin-sd.a lib/libz.a
 
 
 lib/crt0.o: crt0.s
 	@test -d lib || mkdir lib
 	$(AS) $< -o $@
 
+noserial-dummy: $(OBJECTS) arm_sound_code.h Makefile
+	@echo Dummy done.
 
-ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "110"
 lib/libronin.a: $(OBJECTS) arm_sound_code.h
-	@test -d lib || mkdir lib
 	rm -f $@ && $(AR) rs $@ $(OBJECTS)
 
-else
-lib/libronin.a:
-	@echo "disable NETCD"
-endif
-
-ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "101"
 lib/libronin-sd.a: $(OBJECTS) arm_sound_code.h
 	$(MAKE) cleanish
 	rm -f lib/libronin-sd.a
 	$(MAKE) CFLAGS="$(CFLAGS) -D__SDCARD__" noserial-dummy
 	rm -f $@ && $(AR) rs $@ $(OBJECTS) 
 
-else
-lib/libronin-sd.a:
-	@echo "disable SD"
-endif
+dist: lib/libronin-noserial.a lib/libronin-sd-noserial.a
 
-
-noserial-dummy: $(OBJECTS) arm_sound_code.h
-	@echo Dummy done.
-
-ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "001"
-lib/libronin-sd-noserial.a:
-	$(MAKE) cleanish
-	rm -f lib/libronin-sd-noserial.a
-	$(MAKE) CFLAGS="$(CFLAGS) -DNOSERIAL -D__SDCARD__" noserial-dummy
-	rm -f $@ && $(AR) rs $@ $(OBJECTS)
-else
-lib/libronin-sd-noserial.a:
-	@echo "enable NETSERIAL/NETCD"
-endif
-
-ifeq "$(NETSERIAL)$(NETCD)$(LIBSD)" "000"
+ifeq "$(NETSERIAL)$(NETCD)" "00"
 lib/libronin-noserial.a:
 	$(MAKE) cleanish
 	rm -f lib/libronin-noserial.a
 	$(MAKE) CFLAGS="$(CFLAGS) -DNOSERIAL" noserial-dummy
 	rm -f $@ && $(AR) rs $@ $(OBJECTS)
+
+lib/libronin-sd-noserial.a:
+	$(MAKE) cleanish
+	rm -f lib/libronin-sd-noserial.a
+	$(MAKE) CFLAGS="$(CFLAGS) -DNOSERIAL -D__SDCARD__" noserial-dummy
+	rm -f $@ && $(AR) rs $@ $(OBJECTS)
+
 else
 lib/libronin-noserial.a:
-	@echo "enable NETSERIAL/NETCD"
+lib/libronin-sd-noserial.a:
+	@echo "You must disable NETCD/NETSERIAL!"
 endif
 
 lib/libz.a:

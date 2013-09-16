@@ -9,6 +9,8 @@ START_EXTERN_C
 #include "lwip/api.h"
 END_EXTERN_C
 
+#ifndef __SDCARD__
+
 #define MAXFD 64
 
 static struct {
@@ -323,3 +325,5 @@ EXTERN_C int cdfs_diskchanges(void)
 {
   return 0;
 }
+
+#endif

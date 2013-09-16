@@ -5,6 +5,8 @@
 #include "dc_time.h"
 #include "notlibc.h"
 
+#ifndef __SDCARD__
+
 #define ERR_SYSERR   -1
 #define ERR_DIRERR   -2
 #define ERR_NOFILE   -3
@@ -628,3 +630,5 @@ struct TOC *cdfs_gettoc()
 {
   return current_toc;
 }
+
+#endif

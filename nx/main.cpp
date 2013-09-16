@@ -495,7 +495,7 @@ void c------------------------------() {}
 */
 
 #ifdef __SDLSHIM__
-
+/*
 void speed_test(void)
 {
 	SDL_Rect textrect;
@@ -531,7 +531,7 @@ void speed_test(void)
 		fps++;
 	}
 }
-
+*/
 #else
 
 void speed_test(void)

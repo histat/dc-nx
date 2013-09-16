@@ -106,7 +106,7 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 	}
 
 	memset(&header, 0, sizeof(header));
-	strncpy(header.shortdesc, "NXEngine savegame",sizeof(header.shortdesc));
+	strncpy(header.shortdesc, "NXEngine save",sizeof(header.shortdesc));
 	strncpy(header.longdesc, "NXEngine v1.0.0.4", sizeof(header.longdesc));
 	strncpy(header.id, "NXEngine", sizeof(header.id));
 	memcpy(header.palette, cave_icon, sizeof(header.palette));

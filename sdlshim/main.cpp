@@ -6,31 +6,50 @@
 
 static bool quitting = false;
 
+#if 1
 
-static const char *org_dir = "org/";
-static const char *pxt_dir = "pxt/";
-static const char *sndcache = "sndcache.pcm";
-static const char *org_wavetable = "wavetable.dat";
+extern bool vmfile_search(const char *fname, int *vm);
 
-#if 0
 int SDL_main(int argc, char *argv[])
 {
-	stat("Entering main loop");
-	testblit();
-
-	while(!quitting)
-	{
-		SDL_Event pie;
-		if (SDL_PollEvent(&pie))
-		{
-			stat("Got event %d", pie.type);
-			quitting = true;
-		}
-	}
+	int vm;
+	unsigned int size;
+	uint8_t *data;
+	char *srcfile = "profile3.dat";
 	
+	if(!vmfile_search(srcfile, &vm))
+		vm = 1;
+
+	FILE *fp;
+	fp = fopen(srcfile, "rb");
+	if (!fp)
+	{
+		stat("failed to open!");
+		return 1;
+	}
+
+	fseek(fp, 0L, SEEK_END);
+	size = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
+	
+	data = (uint8_t*)malloc(size);
+	
+	if(!data) {
+		fclose(fp);
+		return 1;
+	}
+
+	memset(data, 0, size);
+
+	fread(data, 1, size, fp);
+	fclose(fp);
+
+	save_to_vmu(vm, srcfile, (const char*)data, size);
+
+	free(data);
 	return 0;
 }
-#endif
+#else
 
 void testblit(void)
 {
@@ -111,6 +130,11 @@ uint32_t color = SDL_MapRGB(screen->format, 0, 255, 0);
 }
 
 
+static const char *org_dir = "org/";
+static const char *pxt_dir = "pxt/";
+static const char *sndcache = "sndcache.pcm";
+static const char *org_wavetable = "wavetable.dat";
+
 
 #define NUM_SOUNDS		0x75
 #define ORG_VOLUME		75
@@ -173,11 +197,6 @@ int SDL_main(int argc, char *argv[])
 		return 1;
 	}
 
-	
-//	pxt_Play(-1, 1, 1);
-//	pxt_Play(-1, 0x16, 2);
-
-	
 	music(19);
 
 	while(!quitting)
@@ -207,6 +226,7 @@ int SDL_main(int argc, char *argv[])
 
 	return 0;
 }
+#endif
 
 
 

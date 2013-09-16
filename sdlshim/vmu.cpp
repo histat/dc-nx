@@ -5,8 +5,6 @@
 #include <zlib.h>
 #include "vmu.fdh"
 
-#ifndef __SDCRAD__
-
 #include "cave_icon.h"
 
 #define MAX_VMU_SIZE (128 * 1024)
@@ -237,4 +235,3 @@ bool rename_vmu_file(const char *oldpath, const char *newpath)
 	return true;
 }
 */
-#endif

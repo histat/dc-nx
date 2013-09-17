@@ -20,10 +20,10 @@ void *screen_tx[2] = {NULL};
 int screen_buffer = 0;
 
 
-int _screen_w;
-int _screen_h;
-int _screen_x;
-int _screen_y;
+float _screen_w;
+float _screen_h;
+float _screen_x;
+float _screen_y;
 float _x_scale, _y_scale; 
 bool _fullscreen = false;
 
@@ -180,20 +180,20 @@ void update_polygon()
 	struct polygon_list mypoly;
 	struct packed_colour_vertex_list myvertex;
 
-	int w = SCREEN_WIDTH;
-	int h = SCREEN_HEIGHT;
+	float w = SCREEN_WIDTH  * _x_scale;
+	float h = SCREEN_HEIGHT * _y_scale;
 
 	mypoly.cmd =
 		TA_CMD_POLYGON|TA_CMD_POLYGON_TYPE_OPAQUE|TA_CMD_POLYGON_SUBLIST|
 		TA_CMD_POLYGON_STRIPLENGTH_2|TA_CMD_POLYGON_TEXTURED|TA_CMD_POLYGON_PACKED_COLOUR;
-	mypoly.mode1 = TA_POLYMODE1_Z_ALWAYS;
+	mypoly.mode1 = TA_POLYMODE1_Z_ALWAYS|TA_POLYMODE1_NO_Z_UPDATE;
 	mypoly.mode2 =
 		TA_POLYMODE2_BLEND_SRC|TA_POLYMODE2_FOG_DISABLED|TA_POLYMODE2_TEXTURE_REPLACE|
 		TA_POLYMODE2_U_SIZE_1024|TA_POLYMODE2_V_SIZE_1024;
 	mypoly.texture =
 		TA_TEXTUREMODE_RGB565|TA_TEXTUREMODE_STRIDE|TA_TEXTUREMODE_NON_TWIDDLED|
 		TA_TEXTUREMODE_ADDRESS(screen_tx[screen_buffer]);
-	mypoly.alpha = mypoly.red = mypoly.green = mypoly.blue = 0;
+	mypoly.alpha = mypoly.red = mypoly.green = mypoly.blue = 1.0;
 	
 	ta_begin_frame();
 	ta_commit_list(&mypoly);
@@ -209,23 +209,19 @@ void update_polygon()
 	myvertex.v = 0.0;
 	ta_commit_list(&myvertex);
 	
-	myvertex.x = _screen_x;
-	myvertex.y = _screen_y + h * _y_scale;
-	myvertex.u = 0.0;
-	myvertex.v = h * (1.0/1024);
+	myvertex.y += h;
+	myvertex.v = SCREEN_HEIGHT * (1.0/1024);
 	ta_commit_list(&myvertex);
 	
-	myvertex.x = _screen_x + w * _x_scale;
+	myvertex.x += w;
 	myvertex.y = _screen_y;
-	myvertex.u = w * (1.0/1024);
+	myvertex.u = SCREEN_WIDTH * (1.0/1024);
 	myvertex.v = 0.0;
 	ta_commit_list(&myvertex);
 
+	myvertex.y += h;
+	myvertex.v = SCREEN_HEIGHT * (1.0/1024);
 	myvertex.cmd |= TA_CMD_VERTEX_EOS;
-	myvertex.x = _screen_x + w * _x_scale;
-	myvertex.y = _screen_y + h * _y_scale;
-	myvertex.u = w * (1.0/1024);
-	myvertex.v = h * (1.0/1024);
 	ta_commit_list(&myvertex);
 	
 	ta_commit_end();

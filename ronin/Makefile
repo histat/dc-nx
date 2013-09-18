@@ -1,4 +1,4 @@
-NETSERIAL = 1
+NETSERIAL = 0
 NETCD = 0
 
 CCC = sh-elf-c++ -fno-rtti -fconserve-space
@@ -61,7 +61,7 @@ OBJECTS += cdfs.o
 endif
 
 
-all: include lib/crt0.o lib/libronin.a lib/libronin-sd.a lib/libz.a
+all: include lib/crt0.o lib/libronin.a lib/libronin-sd.a lib/libronin-noserial.a lib/libronin-sd-noserial.a lib/libz.a
 
 
 lib/crt0.o: crt0.s
@@ -71,6 +71,7 @@ lib/crt0.o: crt0.s
 noserial-dummy: $(OBJECTS) arm_sound_code.h Makefile
 	@echo Dummy done.
 
+ifeq "$(NETSERIAL)" "1"
 lib/libronin.a: $(OBJECTS) arm_sound_code.h
 	rm -f $@ && $(AR) rs $@ $(OBJECTS)
 
@@ -80,7 +81,10 @@ lib/libronin-sd.a: $(OBJECTS) arm_sound_code.h
 	$(MAKE) CFLAGS="$(CFLAGS) -D__SDCARD__" noserial-dummy
 	rm -f $@ && $(AR) rs $@ $(OBJECTS) 
 
-dist: lib/libronin-noserial.a lib/libronin-sd-noserial.a
+else
+lib/libronin.a:
+lib/libronin-sd.a:
+endif
 
 ifeq "$(NETSERIAL)$(NETCD)" "00"
 lib/libronin-noserial.a:

@@ -50,21 +50,7 @@ widthLoop2:
 		rts
 		nop
 
-.globl _fcopy32
-_fcopy32:
-	    fmov	@r4+,dr0
-	    fmov	@r4+,dr2
-	    mov		#8,r0
-	    fmov	@(r0,r4),dr6
-	    add		#32,r5
-	    fmov	@r4+,dr4
-	    add		#8,r4
-	    fmov	dr6,@-r5
-	    fmov	dr4,@-r5
-	    fmov	dr2,@-r5
-		rts
-	    fmov	dr0,@-r5
-		
+
 		.end
 
 

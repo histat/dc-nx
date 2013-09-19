@@ -24,46 +24,25 @@ float _screen_w;
 float _screen_h;
 float _screen_x;
 float _screen_y;
-float _x_scale, _y_scale; 
+
 bool _fullscreen = false;
 
 // ----
 
-extern "C" 	const void fcopy32(const void *src, void *dst);
-
 #define QACR0 (*(volatile unsigned int *)(void *)0xff000038)
 #define QACR1 (*(volatile unsigned int *)(void *)0xff00003c)
-
 
 static void tex_memcpy(void *dst, void *src, unsigned int n)
 {
 	unsigned int *s = (unsigned int *)src;
-	unsigned int *d = (unsigned int *)(void *)(0xe0000000 | (((unsigned long)dst) & 0x03ffffe0));
+	unsigned int *d = (unsigned int *)(void *) \
+		(0xe0000000 | (((unsigned long)dst) & 0x03ffffc0));
 	
 	QACR0 = ((0xa4000000>>26)<<2)&0x1c;
 	QACR1 = ((0xa4000000>>26)<<2)&0x1c;
 
 	n >>= 6;
 
-#if 1
-	__asm__ volatile("fschg\n");
-	
-	while (n--) {
-		asm("pref @%0" : : "r"(s + 8));
-		fcopy32(s,d);
-		s += 8;
-		asm("pref @%0" : : "r"(d));
-		d += 8;
-		asm("pref @%0" : : "r"(s + 8));
-		fcopy32(s,d);
-		s += 8;
-		asm("pref @%0" : : "r"(d));
-		d += 8;
-	}
-	
-	__asm__ volatile("fschg\n");
-
-#else
 	while (n--) {
 		d[0] = *s++;
 		d[1] = *s++;
@@ -88,7 +67,6 @@ static void tex_memcpy(void *dst, void *src, unsigned int n)
 		asm("pref @%0" : : "r" (d));
 		d += 8;
 	}
-#endif
 }
 
 void commit_dummy_transpoly()
@@ -110,6 +88,8 @@ void commit_dummy_transpoly()
 
 void set_scaling()
 {
+	float _x_scale, _y_scale;
+	
 	if (!_fullscreen) {
 
 		_screen_x = 0;
@@ -125,6 +105,9 @@ void set_scaling()
 		_x_scale = 2.0;
 		_y_scale = 2.0;
 	}
+
+	_screen_w = SCREEN_WIDTH  * _x_scale;
+	_screen_h = SCREEN_HEIGHT * _y_scale;
 }
 
 
@@ -135,9 +118,6 @@ void set_scaling()
 //	which can be displayed by calling SDL_Flip.
 SDL_Surface *SDL_SetVideoMode(int width, int height, int bitsperpixel, uint32_t flags)
 {
-	_screen_w = width;
-	_screen_h = height;
-
 	if (flags & SDL_FULLSCREEN)
 		_fullscreen = true;
 	else
@@ -180,9 +160,6 @@ void update_polygon()
 	struct polygon_list mypoly;
 	struct packed_colour_vertex_list myvertex;
 
-	float w = SCREEN_WIDTH  * _x_scale;
-	float h = SCREEN_HEIGHT * _y_scale;
-
 	mypoly.cmd =
 		TA_CMD_POLYGON|TA_CMD_POLYGON_TYPE_OPAQUE|TA_CMD_POLYGON_SUBLIST|
 		TA_CMD_POLYGON_STRIPLENGTH_2|TA_CMD_POLYGON_TEXTURED|TA_CMD_POLYGON_PACKED_COLOUR;
@@ -209,17 +186,17 @@ void update_polygon()
 	myvertex.v = 0.0;
 	ta_commit_list(&myvertex);
 	
-	myvertex.y += h;
+	myvertex.y += _screen_h;
 	myvertex.v = SCREEN_HEIGHT * (1.0/1024);
 	ta_commit_list(&myvertex);
 	
-	myvertex.x += w;
+	myvertex.x += _screen_w;
 	myvertex.y = _screen_y;
 	myvertex.u = SCREEN_WIDTH * (1.0/1024);
 	myvertex.v = 0.0;
 	ta_commit_list(&myvertex);
 
-	myvertex.y += h;
+	myvertex.y += _screen_h;
 	myvertex.v = SCREEN_HEIGHT * (1.0/1024);
 	myvertex.cmd |= TA_CMD_VERTEX_EOS;
 	ta_commit_list(&myvertex);

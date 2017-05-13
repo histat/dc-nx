@@ -383,11 +383,10 @@ void ai_bute_archer(Object *o)
 		// flashing to fire
 		case 20:
 		{
-			if (o->timer2 == 0) {
-				ANIMATE(0, 1, 2);
-			} else {
-				ANIMATE(0, 4, 5);
-			}
+			if (o->timer2 == 0)
+				ANIMATE(0, 1, 2)
+			else
+				ANIMATE(0, 4, 5)
 			
 			if (++o->timer > 30)
 				o->state = 30;

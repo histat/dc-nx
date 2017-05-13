@@ -24,7 +24,7 @@ struct SDL_Palette
 
 struct SDL_PixelFormat
 {
-	SDL_Palette *palette;
+    SDL_Palette *palette;
 	uint8_t BitsPerPixel;
 	uint8_t BytesPerPixel;
 	uint8_t Rloss, Gloss, Bloss, Aloss;
@@ -34,7 +34,7 @@ struct SDL_PixelFormat
 
 struct SDL_Surface
 {
-	uint32_t flags;
+    uint32_t flags;
 	uint16_t *pixels;
 	int w, h;
 	

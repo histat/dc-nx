@@ -59,7 +59,7 @@ uint32_t magick;
 	ClearIndex();
 	
 	if (fFP) fclose(fFP);
-	fp = fFP = fopen(filename, "rb");
+	fp = fFP = fileopen(filename, "rb");
 	
 	if (!fp)
 	{
@@ -163,7 +163,7 @@ bool SIFLoader::EndSave(const char *filename)
 {
 FILE *fp;
 
-	fp = fopen(filename, "wb");
+	fp = fileopen(filename, "wb");
 	if (!fp)
 	{
 		stat("SIFLoader::EndSave: failed to open '%s' for writing", filename);

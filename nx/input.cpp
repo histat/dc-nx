@@ -44,6 +44,7 @@ bool input_init(void)
 		mappings[SDLK_F10] = F10KEY;
 		mappings[SDLK_F11] = F11KEY;
 		mappings[SDLK_F12] = F12KEY;
+		
 	}
 	#else
 	{
@@ -198,7 +199,6 @@ int ino, key;
 					
 					if (evt.type == SDL_KEYDOWN)
 					{
-/*						
 						if (Replay::IsPlaying() && ino <= LASTCONTROLKEY)
 						{
 							stat("user interrupt - stopping playback of replay");
@@ -206,7 +206,7 @@ int ino, key;
 							memset(inputs, 0, sizeof(inputs));
 							inputs[ino] = true;
 						}
-*/						
+						
 						#ifndef __SDLSHIM__
 						if (key == '`')		// bring up console
 						{

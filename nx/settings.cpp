@@ -5,15 +5,26 @@
 #include <stdint.h>
 #include <string.h>
 #include "settings.h"
-/*#include "replay.h"*/
-#include "vm_file.h"
+#include "replay.h"
 #include "settings.fdh"
+
+#ifdef __SDLSHIM__
+
+#include "vm_file.h"
+
+#define FILE VMFILE
+#define fileopen vm_fileopen
+#define fread vm_fread
+#define fwrite vm_fwrite
+#define fclose vm_fclose
+
+#endif
 
 const char *setfilename = "settings.dat";
 const uint16_t SETTINGS_VERSION = 0x1602;		// serves as both a version and magic
 
 Settings normal_settings;
-/*Settings replay_settings;*/
+Settings replay_settings;
 Settings *settings = &normal_settings;
 
 
@@ -26,9 +37,7 @@ bool settings_load(Settings *setfile)
 		stat("No saved settings; using defaults.");
 		
 		memset(setfile, 0, sizeof(Settings));
-
-		setfile->resolution = 1;		// Fixed 320x240 for Dreamcast
-
+		setfile->resolution = 1;
 		setfile->last_save_slot = 0;
 		setfile->multisave = true;
 		
@@ -47,17 +56,16 @@ bool settings_load(Settings *setfile)
 		// but calling SDL_DisplayFormat seems to actually be slowing things
 		// down. This goes against established wisdom so if you want it back on,
 		// run "displayformat 1" in the console and restart.
+		//setfile->displayformat = false;
 		
 		return 1;
 	}
 	else
 	{
 		#ifdef __SDLSHIM__
-			stat("settings_load(): Done");
-
-			//settings->show_fps = true;
-
+			//stat("settings_load(): Hey FIXME!!!");
 			input_set_mappings(settings->input_mappings);
+			//settings->show_fps = true;
 		#else
 			input_set_mappings(settings->input_mappings);
 		#endif
@@ -72,11 +80,11 @@ void c------------------------------() {}
 
 static bool tryload(Settings *setfile)
 {
-VMFILE *fp;
+FILE *fp;
 
 	stat("Loading settings...");
 	
-	fp = vm_fileopen(setfilename, "rb");
+	fp = fileopen(setfilename, "rb");
 	if (!fp)
 	{
 		stat("Couldn't open file %s.", setfilename);
@@ -84,27 +92,27 @@ VMFILE *fp;
 	}
 	
 	setfile->version = 0;
-	vm_fread(setfile, sizeof(Settings), 1, fp);
+	fread(setfile, sizeof(Settings), 1, fp);
 	if (setfile->version != SETTINGS_VERSION)
 	{
 		stat("Wrong settings version %04x.", setfile->version);
 		return 1;
 	}
 	
-	vm_fclose(fp);
+	fclose(fp);
 	return 0;
 }
 
 
 bool settings_save(Settings *setfile)
 {
-VMFILE *fp;
+FILE *fp;
 
 	if (!setfile)
 		setfile = &normal_settings;
 	
 	stat("Writing settings...");
-	fp = vm_fileopen(setfilename, "wb");
+	fp = fileopen(setfilename, "wb");
 	if (!fp)
 	{
 		stat("Couldn't open file %s.", setfilename);
@@ -115,12 +123,21 @@ VMFILE *fp;
 		setfile->input_mappings[i] = input_get_mapping(i);
 	
 	setfile->version = SETTINGS_VERSION;
-	vm_fwrite(setfile, sizeof(Settings), 1, fp);
+	fwrite(setfile, sizeof(Settings), 1, fp);
 	
-	vm_fclose(fp);
+	fclose(fp);
 	return 0;
 }
 
+#ifdef __SDLSHIM__
+
+#undef FILE
+#undef fileopen
+#undef fread
+#undef fwrite
+#undef fclose
+
+#endif
 
 
 

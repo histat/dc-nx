@@ -7,7 +7,7 @@
 #include "tsc.h"
 #include "tsc.fdh"
 
-//#define TRACE_SCRIPT
+#define TRACE_SCRIPT
 
 // which textbox options are enabled by the "<TUR" script command.
 #define TUR_PARAMS		(TB_LINE_AT_ONCE | TB_VARIABLE_WIDTH_CHARS | TB_CURSOR_NEVER_SHOWN)
@@ -163,7 +163,7 @@ char *tsc_decrypt(const char *fname, int *fsize_out)
 FILE *fp;
 int fsize, i;
 
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("tsc_decrypt: no such file: '%s'!", fname);
@@ -927,7 +927,7 @@ int cmdip;
 			{
 				if (!settings->multisave)
 				{
-					/*if (!Replay::IsPlaying())*/
+					if (!Replay::IsPlaying())
 						game_save(settings->last_save_slot);
 				}
 				else

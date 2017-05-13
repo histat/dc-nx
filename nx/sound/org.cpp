@@ -117,13 +117,13 @@ uint16_t version;
 	#ifndef DRUM_PXT
 		for(d=0;d<NUM_DRUMS;d++)
 		{
-			sprintf(fname, "/drums/%s.wav", drum_names[d]);
+			sprintf(fname, "./drums/%s.wav", drum_names[d]);
 			if (load_drum(fname, d)) return 1;
 		}
 	#else
 		
 		// try and load the drums from cache instead of synthing them
-		fp = fopen(drum_cache, "rb");
+		fp = fileopen(drum_cache, "rb");
 		if (fp)
 		{
 			// this also checks for correct endianness
@@ -145,7 +145,10 @@ uint16_t version;
 				return 0;
 			}
 		}
-		
+#ifdef __SDLSHIM__
+		stat("load_drumtable: cache gone;");
+		return 1;
+#else
 		stat("load_drumtable: cache gone; rebuilding drums...");
 		
 		pxt_initsynth();
@@ -160,7 +163,7 @@ uint16_t version;
 		}
 		
 		// cache the drums for next time
-		fp = fopen(drum_cache, "wb");
+		fp = fileopen(drum_cache, "wb");
 		if (fp)
 		{
 			version = DRUM_VERSION;
@@ -174,6 +177,7 @@ uint16_t version;
 		}
 		
 		load_drumtable(pxt_path);
+#endif
 	#endif
 	
 	//for(d=0;d<256;d++) { lprintf("%d ", drumtable[0].samples[d]); if (d%32==0) lprintf("\n"); }
@@ -268,7 +272,7 @@ FILE *fp;
 signed char buffer[BUF_SIZE + 1];
 signed char *ptr;
 
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		stat("Unable to open wavetable.dat!!");
@@ -338,7 +342,7 @@ char buf[8];
 FILE *fp;
 int i, j;
 
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp) { visible_warning("org_load: no such file: '%s'", fname); return 1; }
 	
 	for(i=0;i<6;i++) { buf[i] = fgetc(fp); } buf[i] = 0;

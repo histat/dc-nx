@@ -11,6 +11,8 @@
 #include "basics.h"
 #include "misc.fdh"
 
+#include "vmu.h"
+
 void stat(const char *fmt, ...);
 
 
@@ -83,6 +85,33 @@ bool result = 1;
 	return result;
 }
 
+// read data from a file until CR
+void fgetline(FILE *fp, char *str, int maxlen)
+{
+int k;
+	str[0] = 0;
+	fgets(str, maxlen - 1, fp);
+	
+	// trim the CRLF that fgets appends
+	for(k=strlen(str)-1;k>=0;k--)
+	{
+		if (str[k] != 13 && str[k] != 10) break;
+		str[k] = 0;
+	}
+}
+
+// returns the size of an open file.
+int filesize(FILE *fp)
+{
+int cp, sz;
+
+	cp = ftell(fp);
+	fseek(fp, 0, SEEK_END);
+	sz = ftell(fp);
+	fseek(fp, cp, SEEK_SET);
+	
+	return sz;
+}
 
 // read data from a file until ',' or CR
 void fgetcsv(FILE *fp, char *str, int maxlen)
@@ -125,63 +154,18 @@ char buffer[80];
 }
 
 
-// read data from a file until CR
-void fgetline(FILE *fp, char *str, int maxlen){
-int k;
-	str[0] = 0;
-	fgets(str, maxlen - 1, fp);
-	
-	// trim the CRLF that fgets appends
-	for(k=strlen(str)-1;k>=0;k--)
-	{
-		if (str[k] != 13 && str[k] != 10) break;
-		str[k] = 0;
-	}
-}
-
-// returns the size of an open file.
-int filesize(FILE *fp)
-{
-int cp, sz;
-
-	cp = ftell(fp);
-	fseek(fp, 0, SEEK_END);
-	sz = ftell(fp);
-	fseek(fp, cp, SEEK_SET);
-	
-	return sz;
-}
-
-/*
-// return a random number between min and max inclusive
-int randrange(int min, int max)
-{
-int range, val;
-
-	range = (max - min);
-	
-	if (range < 0)
-	{
-		//error("random(): warning: max < min [%d, %d]\n", min, max);
-		min ^= max;
-		max ^= min;
-		min ^= max;
-		range = (max - min);
-	}
-	
-	if (range >= RAND_MAX)
-	{
-		//error("random(): range > RAND_MAX\n", min, max);
-		return 0;
-	}
-	
-	val = rand() % (range + 1);
-	return val + min;
-}
-*/
-
-
 static uint32_t seed = 0;
+
+uint32_t getrand()
+{
+	seed = (seed * 0x343FD) + 0x269EC3;
+	return seed;
+}
+
+void seedrand(uint32_t newseed)
+{
+	seed = newseed;
+}
 
 // return a random number between min and max inclusive
 int random(int min, int max)
@@ -207,18 +191,6 @@ int range, val;
 	val = getrand() % (range + 1);
 	return val + min;
 }
-
-uint32_t getrand()
-{
-	seed = (seed * 0x343FD) + 0x269EC3;
-	return seed;
-}
-
-void seedrand(uint32_t newseed)
-{
-	seed = newseed;
-}
-
 
 void strtoupper(char *str)
 {
@@ -260,7 +232,7 @@ bool file_exists(const char *filename)
 {
 FILE *fp;
 
-	fp = fopen(filename, "rb");
+	fp = SDLS_fopen(filename, "rb");
 	if (fp)
 	{
 		fclose(fp);

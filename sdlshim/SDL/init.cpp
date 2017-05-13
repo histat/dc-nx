@@ -1,25 +1,18 @@
 
 #include <ronin/ronin.h>
-#ifdef __SDCARD__
-#include "../sdfs.h"
-#endif
+#include <stdio.h>
+#include <stdlib.h>
 #include "SDL.h"
+#include "../shim.h"
 #include "init.fdh"
 
 #undef	main
 bool did_quit = false;
 
-static void (*end_call)(void) = NULL;
-
-int _atexit (void (*function)(void))
-{
-	end_call = function;
-	return 0;
-}
 
 int SDL_Init(int what)
 {
-	return 0;
+    return 0;
 }
 
 void SDL_Quit(void)
@@ -34,16 +27,8 @@ void SDL_Quit(void)
 		ronin_close();
 	}
 
-#ifdef __SDCARD__
-	sdfs_exit();
-#endif
-
-
 #ifdef NOSERIAL
-	(*(void(**)(int))0x8c0000e0)(1);
-	while (1) { }
-#else
-	printf("call %s\n", __func__);
+	exit(1);
 #endif
 }
 
@@ -59,12 +44,7 @@ int main(int argc, char *argv[])
 	printf("Serial OK\n");
 #endif
 
-#ifdef __SDCARD__
-	sdfs_init();
-#else
 	cdfs_init();
-#endif
-	
 	maple_init();
 	dc_setup_ta();
 	init_arm();
@@ -73,17 +53,11 @@ int main(int argc, char *argv[])
 	if (ronin_init()) return 1;
 	if (console_init()) return 1;
 	
-	atexit(SDL_Quit);
-#if 0
-	return SDL_main(argc, argv);
-#else
 	SDL_main(argc, argv);
 
-	(*end_call)();
-#endif
+	SDL_Quit();
+
+	return 0;
 }
-
-
-
 
 

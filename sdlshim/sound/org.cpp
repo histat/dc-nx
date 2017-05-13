@@ -1,5 +1,7 @@
 
-#include <SDL.h>
+#ifndef USE_ARM
+
+#include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +13,7 @@
 #include "pxt.h"			// for loading drums
 #include "sslib.h"			// SAMPLE_RATE
 #include "org.fdh"
+
 
 //#define QUIET
 #define DRUM_PXT
@@ -27,12 +30,7 @@ static stNoteChannel note_channel[16];
 
 static stSong song;
 
-#if 0
 static int cache_ahead_time = 2000;		// approximate number of ms to cache ahead (is rounded to a # of beats)
-#else
-//#define PROFILE
-static int cache_ahead_time = 500;		// approximate number of ms to cache ahead (is rounded to a # of beats)
-#endif
 
 static int buffer_beats;				// # of beats to cache ahead in each buffer
 static int buffer_samples;				// how many samples are in each outbuffer
@@ -45,7 +43,7 @@ static struct
 } final_buffer[2];
 
 static uint8_t current_buffer;
-static int buffers_full;
+static bool buffers_full;
 
 static int OrgVolume;
 
@@ -119,15 +117,23 @@ static const char *drum_cache = "drum.pcm";
 #define DRUM_VERSION	0x0001
 uint16_t version;
 
+	#ifndef DRUM_PXT
+		for(d=0;d<NUM_DRUMS;d++)
+		{
+			sprintf(fname, "./drums/%s.wav", drum_names[d]);
+			if (load_drum(fname, d)) return 1;
+		}
+	#else
+		
 		// try and load the drums from cache instead of synthing them
-		fp = fopen(drum_cache, "rb");
+		fp = SDLS_fopen(drum_cache, "rb");
 		if (fp)
 		{
 			// this also checks for correct endianness
 			fread(&version, sizeof(version), 1, fp);
 			if (version != DRUM_VERSION)
 			{
-				staterr("%s: version incorrect\n", drum_cache);
+				printf("%s: version incorrect\n", drum_cache);
 			}
 			else
 			{
@@ -142,9 +148,11 @@ uint16_t version;
 				return 0;
 			}
 		}
-		
+#ifdef __SDLSHIM__
+		stat("load_drumtable: cache gone;");
+		return 1;
+#else
 		stat("load_drumtable: cache gone; rebuilding drums...");
-/*		
 		
 		pxt_initsynth();
 		
@@ -158,7 +166,7 @@ uint16_t version;
 		}
 		
 		// cache the drums for next time
-		fp = fopen(drum_cache, "wb");
+		fp = fileopen(drum_cache, "wb");
 		if (fp)
 		{
 			version = DRUM_VERSION;
@@ -172,13 +180,54 @@ uint16_t version;
 		}
 		
 		load_drumtable(pxt_path);
-*/
+#endif
+	#endif
 	
 	//for(d=0;d<256;d++) { lprintf("%d ", drumtable[0].samples[d]); if (d%32==0) lprintf("\n"); }
 	//lprintf("\n");
 	
 	return 0;
 }
+
+#ifndef DRUM_PXT
+
+static bool load_drum(char *fname, int d)
+{
+Mix_Chunk *chunk;
+int i, read_pt;
+int left,right;
+signed short *abuf;
+
+	//stat("load_drum: loading %s into drum index %d", fname, d);
+	if (!(chunk = Mix_LoadWAV(fname)))
+	{
+		staterr("Missing drum sample: '%s'", fname);
+		return 1;
+	}
+	
+	//stat("chunk: %d bytes in chunk", chunk->alen);
+	drumtable[d].nsamples = chunk->alen / 2 / 2;	// 16-bit stereo sound
+	drumtable[d].samples = malloc(drumtable[d].nsamples * 2);
+	
+	#ifndef QUIET
+		stat("drum0%X [%s]: %d samples", d, fname, drumtable[d].nsamples);
+	#endif
+	
+	read_pt = 0;
+	abuf = (signed short *)chunk->abuf;
+	for(i=0;i<drumtable[d].nsamples;i++)
+	{
+		left = abuf[read_pt++]; right = abuf[read_pt++];
+		
+		drumtable[d].samples[i] = (left + right) / 2;
+		drumtable[d].samples[i] += drumtable[d].samples[i];		// make drums louder--sounds better
+	}
+	
+	Mix_FreeChunk(chunk);
+	return 0;
+}
+
+#else
 
 static bool load_drum_pxt(char *fname, int d)
 {
@@ -213,6 +262,9 @@ stPXSound snd;
 	return 0;
 }
 
+#endif
+
+
 
 
 static bool load_wavetable(const char *fname)
@@ -223,7 +275,7 @@ FILE *fp;
 signed char buffer[BUF_SIZE + 1];
 signed char *ptr;
 
-	fp = fopen(fname, "rb");
+	fp = SDLS_fopen(fname, "rb");
 	if (!fp)
 	{
 		stat("Unable to open wavetable.dat!!");
@@ -293,7 +345,7 @@ char buf[8];
 FILE *fp;
 int i, j;
 
-	fp = fopen(fname, "rb");
+	fp = SDLS_fopen(fname, "rb");
 	if (!fp) { staterr("org_load: no such file: '%s'", fname); return 1; }
 	
 	for(i=0;i<6;i++) { buf[i] = fgetc(fp); } buf[i] = 0;
@@ -467,6 +519,8 @@ bool org_start(int startbeat)
 	
 	// kickstart the first buffer
 	current_buffer = 0;
+	generate_music();
+	queue_final_buffer();
 	buffers_full = 0;				// tell org_run to generate the other buffer right away
 	
 	return 0;
@@ -558,17 +612,6 @@ signed short *final;
 	//stat("mixing %d samples", len);
 	for(cursample=0;cursample<len;cursample++)
 	{
-#if 0		
-		// first mix instruments
-		mixed_sample = note_channel[0].outbuffer[cursample];
-		for(i=1;i<16;i++) mixed_sample += note_channel[i].outbuffer[cursample];
-		
-		if (mixed_sample > 32767) mixed_sample = 32767;
-		else if (mixed_sample < -32768) mixed_sample = -32768;
-		
-		final[cursample] = htole16(mixed_sample);
-
-#else
 		// first mix instruments
 		mixed_sample  = note_channel[0].outbuffer[cursample];
 		mixed_sample += note_channel[1].outbuffer[cursample];
@@ -590,8 +633,7 @@ signed short *final;
 		if (mixed_sample > 32767) mixed_sample = 32767;
 		else if (mixed_sample < -32768) mixed_sample = -32768;
 		
-		*(final++) = mixed_sample;
-#endif
+		*final++ = mixed_sample;
 	}
 }
 
@@ -609,7 +651,7 @@ static void queue_final_buffer(void)
 // callback from sslib when a buffer is finished playing.
 static void OrgBufferFinished(int channel, int buffer_no)
 {
-	--buffers_full;
+	buffers_full = false;
 }
 
 /*
@@ -872,35 +914,25 @@ void org_run(void)
 	
 	// keep both buffers queued. if one of them isn't queued, then it's time to
 	// generate more music for it and queue it back on.
-	if (buffers_full < 2)
+	if (!buffers_full)
 	{
-#ifdef PROFILE
-		uint32_t start = SDL_GetTicks();
-		uint32_t mixtime;
+//	    uint32_t start = SDL_GetTicks();
 
-		mixtime = generate_music();				// generate more music into current_buffer
-#else		
 		generate_music();				// generate more music into current_buffer
-#endif
 		
 		queue_final_buffer();			// enqueue current_buffer and switch buffers
-		++buffers_full;			// both buffers full again until OrgBufferFinished called
-#ifdef PROFILE
-		uint32_t totaltime = (SDL_GetTicks() - start);
-		stat("  %d gen  %d mix    %dms", \
-				totaltime - mixtime, \
-				mixtime, \
-				totaltime);
-#endif		
-	}
+		buffers_full = true;			// both buffers full again until OrgBufferFinished called
 
+//		uint32_t totaltime = (SDL_GetTicks() - start);
+//		stat("%dms",totaltime);
+	}
 	
 	if (song.fading) runfade();
 }
 
 
 // generate a buffer's worth of music and place it in the current final buffer.
-static uint32_t generate_music(void)
+static void generate_music(void)
 {
 int m;
 int beats_left;
@@ -921,7 +953,8 @@ int out_position;
 	//stat("generate_music: generating %d beats of music\n", buffer_beats);
 	beats_left = buffer_beats;
 	out_position = 0;
-	
+
+//	uint32_t beat_start = SDL_GetTicks();
 	while(beats_left)
 	{
 		out_position += song.samples_per_beat;
@@ -941,7 +974,7 @@ int out_position;
 		{
 			song.beat = song.loop_start;
 			song.haslooped = true;
-			
+
 			for(m=0;m<16;m++)
 			{
 				song.instrument[m].curnote = song.instrument[m].loop_note;
@@ -952,15 +985,13 @@ int out_position;
 		beats_left--;
 	}
 
-#ifdef PROFILE
-	uint32_t start = SDL_GetTicks();
-#endif
+//	stat("%d beat", SDL_GetTicks() - beat_start);
+
+//	uint32_t start = SDL_GetTicks();
+	
 	mix_buffers();
-#ifdef PROFILE
-	return SDL_GetTicks() - start;
-#else
-	return 0;
-#endif
+	
+//	stat("%d mix ", SDL_GetTicks() - start);
 }
 
 
@@ -1133,3 +1164,4 @@ static const char *note_names[] =
 }
 */
 
+#endif

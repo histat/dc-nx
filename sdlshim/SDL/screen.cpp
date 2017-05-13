@@ -11,23 +11,44 @@ static struct SDL_PixelFormat SDLS_StdFormat = { NULL, 16, 2 };
 SDL_Surface *SDLS_VRAMSurface = NULL;
 static SDL_Surface _default;
 
+// -----
 
 #define FULL_SCREEN_W 640
 #define FULL_SCREEN_H 480
 
-void *screen_tx[2] = {NULL};
+static int screen_buffer = 0;
 
-int screen_buffer = 0;
+static float _screen_w;
+static float _screen_h;
+static float _screen_x;
+static float _screen_y;
 
+static bool _fullscreen = false;
 
-float _screen_w;
-float _screen_h;
-float _screen_x;
-float _screen_y;
+static void set_scaling()
+{
+	float _x_scale, _y_scale;
+	
+	if (!_fullscreen) {
 
-bool _fullscreen = false;
+		_screen_x = 0;
+		_screen_y = 20;
 
-// ----
+		_x_scale = FULL_SCREEN_W*1.0/320;;
+		_y_scale = (FULL_SCREEN_H - _screen_y*2)*1.0/240;
+
+	} else {
+		_screen_x = 0;
+		_screen_y = 0;
+
+		_x_scale = 2.0;
+		_y_scale = 2.0;
+	}
+
+	_screen_w = SCREEN_WIDTH  * _x_scale;
+	_screen_h = SCREEN_HEIGHT * _y_scale;
+}
+
 
 #define QACR0 (*(volatile unsigned int *)(void *)0xff000038)
 #define QACR1 (*(volatile unsigned int *)(void *)0xff00003c)
@@ -86,75 +107,6 @@ void commit_dummy_transpoly()
 }
 
 
-void set_scaling()
-{
-	float _x_scale, _y_scale;
-	
-	if (!_fullscreen) {
-
-		_screen_x = 0;
-		_screen_y = 20;
-
-		_x_scale = FULL_SCREEN_W*1.0/320;;
-		_y_scale = (FULL_SCREEN_H - _screen_y*2)*1.0/240;
-
-	} else {
-		_screen_x = 0;
-		_screen_y = 0;
-
-		_x_scale = 2.0;
-		_y_scale = 2.0;
-	}
-
-	_screen_w = SCREEN_WIDTH  * _x_scale;
-	_screen_h = SCREEN_HEIGHT * _y_scale;
-}
-
-
-// standard SDL initilize screen surface function.
-// points of note:
-//	flags is ignored, and bitsperpixel is always 16.
-//	the surface returned is not a direct pointer to VRAM, but double-buffer
-//	which can be displayed by calling SDL_Flip.
-SDL_Surface *SDL_SetVideoMode(int width, int height, int bitsperpixel, uint32_t flags)
-{
-	if (flags & SDL_FULLSCREEN)
-		_fullscreen = true;
-	else
-		_fullscreen = false;
-	
-	set_scaling();
-
-	*(volatile unsigned int*)(0xa05f80e4) = SCREEN_WIDTH >> 5; //for stride
-
-	for (int i=0; i<2; i++)
-		if (!screen_tx[i])
-			screen_tx[i] = ta_txalloc(VRAM_SIZE);
-
-	screen_buffer = 0;
-
-	SDLS_VRAMSurface = &_default;
-
-	SDL_Surface *sfc = SDLS_VRAMSurface;
-
-	sfc->pixels = vram;
-	sfc->format = &SDLS_StdFormat;
-	
-	sfc->w = width;
-	sfc->h = height;
-	sfc->pitch = width * 2;
-	
-	sfc->use_colorkey = false;
-	sfc->free_pixels = false;
-	
-	sfc->cliprect.x = 0;
-	sfc->cliprect.y = 0;
-	sfc->cliprect.w = sfc->w;
-	sfc->cliprect.h = sfc->h;
-	
-	return SDLS_VRAMSurface;
-}
-
 void update_polygon()
 {
 	struct polygon_list mypoly;
@@ -208,18 +160,55 @@ void update_polygon()
 	ta_commit_frame();
 }
 
+// -----
+
+SDL_Surface *SDL_SetVideoMode(int width, int height, int bitsperpixel, uint32_t flags)
+{
+	if (flags & SDL_FULLSCREEN)
+		_fullscreen = true;
+	else
+		_fullscreen = false;
+	
+	set_scaling();
+
+	screen_buffer = 0;
+
+	SDLS_VRAMSurface = &_default;
+
+	SDL_Surface *sfc = SDLS_VRAMSurface;
+
+	sfc->pixels = vram;
+	sfc->format = &SDLS_StdFormat;
+	
+	sfc->w = width;
+	sfc->h = height;
+	sfc->pitch = width * 2;
+	
+	sfc->use_colorkey = false;
+	sfc->free_pixels = false;
+	
+	sfc->cliprect.x = 0;
+	sfc->cliprect.y = 0;
+	sfc->cliprect.w = sfc->w;
+	sfc->cliprect.h = sfc->h;
+	
+	return SDLS_VRAMSurface;
+}
+
+
 // blit 'screen' (which is assumed to be the same size and pitch as the real screen,
 // usually this is the surface returned by SDL_SetVideoMode), to the screen.
 void SDL_Flip(SDL_Surface *sfc)
 {
-	screen_buffer = !screen_buffer;
+    ++screen_buffer;
+    screen_buffer &= (SCREEN_BUFFER_SIZE-1);
 	
-	unsigned short *dst = (unsigned short *)screen_tx[screen_buffer];
-	unsigned short *src = sfc->pixels;
-
-	tex_memcpy(dst, src, VRAM_SIZE);
-
-	update_polygon();
+    unsigned short *dst = (unsigned short *)screen_tx[screen_buffer];
+    unsigned short *src = sfc->pixels;
+    
+    tex_memcpy(dst, src, VRAM_SIZE);
+    
+    update_polygon();
 }
 
 
@@ -243,8 +232,6 @@ BMPHeader hdr;
 
 	bitmap = bmp_load(fname, &hdr);
 	if (!bitmap) return NULL;
-
-//	printf("%s w=%d h=%d bpp=%d\n", __func__, hdr.bmWidth, hdr.bmHeight, hdr.bpp);
 	
 	return SDLS_SurfaceFromRaw(bitmap, hdr.bmWidth, hdr.bmHeight, hdr.bmWidth*2, false);
 }
@@ -323,7 +310,7 @@ int w, h;
 	
 	srcptr = GET_PIXEL_ADDR(src, srcrect.x, srcrect.y);
 	dstptr = GET_PIXEL_ADDR(dst, dstrect->x, dstrect->y);
-
+	
 	if (src->use_colorkey)
 	{
 		asm_do_blit_transparent(srcptr, dstptr, w, h, \
@@ -371,16 +358,12 @@ void SDL_SetClipRect(SDL_Surface *surface, SDL_Rect *rect)
 
 void SDL_FreeSurface(SDL_Surface *sfc)
 {
-	if (sfc == SDLS_VRAMSurface)
-		return;
-
 	if (sfc->pixels)
 		free(sfc->pixels);
-#if 0	
+	
 	if (sfc->format != &SDLS_StdFormat)
 		free(sfc->format);
-#endif
-
+	
 	free(sfc);
 }
 
@@ -468,7 +451,7 @@ SDL_Surface *SDL_CreateRGBSurface(uint32_t flags, int width, int height, int dep
 // provided for compatibility only.
 SDL_Surface *SDL_DisplayFormat(SDL_Surface *sfc)
 {
-	SDL_Surface *newsfc;
+SDL_Surface *newsfc;
 
 	newsfc = SDLS_CreateSurface(sfc->w, sfc->h, sfc->use_colorkey);
 	memcpy(newsfc->pixels, sfc->pixels, (sfc->h * sfc->pitch));
@@ -571,23 +554,19 @@ SDL_Surface *sfc;
 	
 	return sfc;
 }
-/*
+
 void SDLS_DumpRect(SDL_Rect *rect)
 {
 	stat("<%d, %d, %d, %d>", rect->x, rect->y, rect->w, rect->h);
 }
-*/
-void SDL_ShowCursor(int enable)	{ }
-int SDL_SetAlpha(SDL_Surface *surface, uint32_t flag, uint8_t alpha) {
 
-	//SDL_SetColorKey(surface, SDL_SRCCOLORKEY, 0);
-	return -1;
+void SDL_ShowCursor(int enable)	{ }
+int SDL_SetAlpha(SDL_Surface *surface, uint32_t flag, uint8_t alpha) {return -1;
 }
 
 /*
 void c------------------------------() {}
 */
-
 
 void SDL_GetRGB(uint32_t pixel, SDL_PixelFormat *fmt, uint8_t *r, uint8_t *g, uint8_t *b)
 {
@@ -597,8 +576,6 @@ int SDL_SetColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int n
 {
 	return 0;
 }
-
-
 
 
 

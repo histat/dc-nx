@@ -4,6 +4,7 @@
 
 bool console_init(void)
 {
+	stat("Console initilized.");
 	return 0;
 }
 
@@ -16,13 +17,14 @@ void set_console_visible(bool enable)
 {
 }
 
+
 /*
 void c------------------------------() {}
 */
 
 void stat(const char *str, ...)
 {
-#ifndef NOSERIAL	
+#ifndef NOSERIAL
 va_list ar;
 char buffer[256];
 
@@ -52,7 +54,7 @@ char buffer[256];
 
 void staterr(const char *str, ...)
 {
-#ifndef NOSERIAL	
+#ifndef NOSERIAL  
 va_list ar;
 char buffer[256];
 
@@ -60,7 +62,11 @@ char buffer[256];
 	vsnprintf(buffer, sizeof(buffer), str, ar);
 	va_end(ar);
 
+
+	puts(" error << ");
 	puts(buffer);
+	puts(" >>\n");
+
 	fflush(stdout);
 #endif
 }

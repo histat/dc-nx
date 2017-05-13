@@ -35,7 +35,7 @@ struct SSChannel
 	void (*FinishedCB)(int channel, int chunkid);
 };
 
-#define SSLockAudio() do { }while(0)
-#define SSUnlockAudio() do { }while(0)
+char SSInit(void);
+void SSClose(void);
 
 #endif

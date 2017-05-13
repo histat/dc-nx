@@ -6,8 +6,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/time.h>
 
 #include "init.h"
@@ -33,6 +31,8 @@ uint32_t SDL_MapRGB(SDL_PixelFormat *fmt, uint8_t r, uint8_t g, uint8_t b);
 int SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color);
 void SDL_ShowCursor(int enable);
 int SDL_SetAlpha(SDL_Surface *surface, uint32_t flag, uint8_t alpha);
+void SDL_GetRGB(uint32_t pixel, SDL_PixelFormat *fmt, uint8_t *r, uint8_t *g, uint8_t *b);
+int SDL_SetColors(SDL_Surface *surface, SDL_Color *colors, int firstcolor, int ncolors);
 
 // event
 int SDL_PollEvent(SDL_Event *event);
@@ -56,15 +56,15 @@ uint32_t SDL_GetTicks();
 void SDL_Delay(int ms);
 const char *SDL_GetError(void);
 
+// SDLS
+FILE *SDLS_fopen(const char *filename, const char *mode);
+
 int SDL_main(int argc, char *argv[]);
 #define main	SDL_main
 
-
 #define MAXPATHLEN 255
 
-#define atexit _atexit
-
-int _atexit(void (*function)(void));
+void set_console_visible(bool enable);
 
 #endif
 

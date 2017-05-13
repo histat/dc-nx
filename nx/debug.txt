@@ -1,0 +1,270 @@
+Loading settings...
+Couldn't open file settings.dat.
+No saved settings; using defaults.
+videoinfo: desktop bpp 32
+Graphics::SetResolution(2)
+Setting scaling 2 and fullscreen=no
+SDL_SetVideoMode: 640x480 @ 32bpp
+Graphics::FlushAll()
+SIFLoader::LoadHeader: read index of 8 sections
+Loading SIF section 1 from address 004d
+Loading SIF section 2 from address 044c
+SIFSpritesSect: loading 490 sprites
+fonts: using truetype at 17pt
+safemode print: 'I need to extract some game data'
+safemode print: 'before I can start up for the first time.'
+safemode print: ''
+safemode print: 'Before beginning, you should have the Aeon Genesis'
+safemode print: 'English translation of version 1.0.0.6, and drop'
+safemode print: 'Doukutsu.exe and it's "data" directory into the same'
+safemode print: 'folder as the "nx" program you just ran.'
+safemode print: ''
+safemode print: 'If you haven't done that yet, please press ESCAPE now'
+safemode print: 'and come back in a moment. Otherwise, you can'
+safemode print: 'press any other key to start the extraction.'
+run_until_key()
+returning key 13
+safemode print: '= Extracting Files ='
+safemode print: '[ pxt/fx01.pxt ]'
+safemode print: '[ pxt/fx02.pxt ]'
+safemode print: '[ pxt/fx03.pxt ]'
+safemode print: '[ pxt/fx04.pxt ]'
+safemode print: '[ pxt/fx05.pxt ]'
+safemode print: '[ pxt/fx06.pxt ]'
+safemode print: '[ pxt/fx07.pxt ]'
+safemode print: '[ pxt/fx0b.pxt ]'
+safemode print: '[ pxt/fx0c.pxt ]'
+safemode print: '[ pxt/fx0e.pxt ]'
+safemode print: '[ pxt/fx0f.pxt ]'
+safemode print: '[ pxt/fx10.pxt ]'
+safemode print: '[ pxt/fx11.pxt ]'
+safemode print: '[ pxt/fx12.pxt ]'
+safemode print: '[ pxt/fx14.pxt ]'
+safemode print: '[ pxt/fx15.pxt ]'
+safemode print: '[ pxt/fx16.pxt ]'
+safemode print: '[ pxt/fx17.pxt ]'
+safemode print: '[ pxt/fx18.pxt ]'
+safemode print: '[ pxt/fx19.pxt ]'
+safemode print: '[ pxt/fx1a.pxt ]'
+safemode print: '[ pxt/fx1b.pxt ]'
+safemode print: '[ pxt/fx1c.pxt ]'
+safemode print: '[ pxt/fx1d.pxt ]'
+safemode print: '[ pxt/fx1e.pxt ]'
+safemode print: '[ pxt/fx1f.pxt ]'
+safemode print: '[ pxt/fx20.pxt ]'
+safemode print: '[ pxt/fx21.pxt ]'
+safemode print: '[ pxt/fx22.pxt ]'
+safemode print: '[ pxt/fx23.pxt ]'
+safemode print: '[ pxt/fx25.pxt ]'
+safemode print: '[ pxt/fx26.pxt ]'
+safemode print: '[ pxt/fx27.pxt ]'
+safemode print: '[ pxt/fx28.pxt ]'
+safemode print: '[ pxt/fx29.pxt ]'
+safemode print: '[ pxt/fx2a.pxt ]'
+safemode print: '[ pxt/fx2b.pxt ]'
+safemode print: '[ pxt/fx2c.pxt ]'
+safemode print: '[ pxt/fx2d.pxt ]'
+safemode print: '[ pxt/fx2e.pxt ]'
+safemode print: '[ pxt/fx2f.pxt ]'
+safemode print: '[ pxt/fx30.pxt ]'
+safemode print: '[ pxt/fx31.pxt ]'
+safemode print: '[ pxt/fx32.pxt ]'
+safemode print: '[ pxt/fx33.pxt ]'
+safemode print: '[ pxt/fx34.pxt ]'
+safemode print: '[ pxt/fx35.pxt ]'
+safemode print: '[ pxt/fx36.pxt ]'
+safemode print: '[ pxt/fx37.pxt ]'
+safemode print: '[ pxt/fx38.pxt ]'
+safemode print: '[ pxt/fx39.pxt ]'
+safemode print: '[ pxt/fx3a.pxt ]'
+safemode print: '[ pxt/fx3b.pxt ]'
+safemode print: '[ pxt/fx3c.pxt ]'
+safemode print: '[ pxt/fx3d.pxt ]'
+safemode print: '[ pxt/fx3e.pxt ]'
+safemode print: '[ pxt/fx3f.pxt ]'
+safemode print: '[ pxt/fx40.pxt ]'
+safemode print: '[ pxt/fx41.pxt ]'
+safemode print: '[ pxt/fx46.pxt ]'
+safemode print: '[ pxt/fx47.pxt ]'
+safemode print: '[ pxt/fx48.pxt ]'
+safemode print: '[ pxt/fx64.pxt ]'
+safemode print: '[ pxt/fx65.pxt ]'
+safemode print: '[ pxt/fx66.pxt ]'
+safemode print: '[ pxt/fx67.pxt ]'
+safemode print: '[ pxt/fx68.pxt ]'
+safemode print: '[ pxt/fx68.pxt ]'
+safemode print: '[ pxt/fx69.pxt ]'
+safemode print: '[ pxt/fx6a.pxt ]'
+safemode print: '[ pxt/fx6b.pxt ]'
+safemode print: '[ pxt/fx6c.pxt ]'
+safemode print: '[ pxt/fx6d.pxt ]'
+safemode print: '[ pxt/fx6e.pxt ]'
+safemode print: '[ pxt/fx6f.pxt ]'
+safemode print: '[ pxt/fx70.pxt ]'
+safemode print: '[ pxt/fx71.pxt ]'
+safemode print: '[ pxt/fx72.pxt ]'
+safemode print: '[ pxt/fx73.pxt ]'
+safemode print: '[ pxt/fx74.pxt ]'
+safemode print: '[ pxt/fx75.pxt ]'
+safemode print: '[ pxt/fx96.pxt ]'
+safemode print: '[ pxt/fx97.pxt ]'
+safemode print: '[ pxt/fx98.pxt ]'
+safemode print: '[ pxt/fx99.pxt ]'
+safemode print: '[ pxt/fx9a.pxt ]'
+safemode print: '[ pxt/fx9b.pxt ]'
+safemode print: '[ endpic/credit01.bmp ]'
+safemode print: '[ endpic/credit02.bmp ]'
+safemode print: '[ endpic/credit03.bmp ]'
+safemode print: '[ endpic/credit04.bmp ]'
+safemode print: '[ endpic/credit05.bmp ]'
+safemode print: '[ endpic/credit06.bmp ]'
+safemode print: '[ endpic/credit07.bmp ]'
+safemode print: '[ endpic/credit08.bmp ]'
+safemode print: '[ endpic/credit09.bmp ]'
+safemode print: '[ endpic/credit10.bmp ]'
+safemode print: '[ endpic/credit11.bmp ]'
+safemode print: '[ endpic/credit12.bmp ]'
+safemode print: '[ endpic/credit14.bmp ]'
+safemode print: '[ endpic/credit15.bmp ]'
+safemode print: '[ endpic/credit16.bmp ]'
+safemode print: '[ endpic/credit17.bmp ]'
+safemode print: '[ endpic/credit18.bmp ]'
+safemode print: '[ endpic/pixel.bmp ]'
+safemode print: '[ wavetable.dat ]'
+safemode print: '[ org/access.org ]'
+safemode print: '[ org/balcony.org ]'
+safemode print: '[ org/balrog.org ]'
+safemode print: '[ org/breakdown.org ]'
+safemode print: '[ org/cemetary.org ]'
+safemode print: '[ org/charge.org ]'
+safemode print: '[ org/credits.org ]'
+safemode print: '[ org/egg.org ]'
+safemode print: '[ org/eyesofflame.org ]'
+safemode print: '[ org/fanfale1.org ]'
+safemode print: '[ org/fanfale2.org ]'
+safemode print: '[ org/fanfale3.org ]'
+safemode print: '[ org/gameover.org ]'
+safemode print: '[ org/geothermal.org ]'
+safemode print: '[ org/gestation.org ]'
+safemode print: '[ org/gravity.org ]'
+safemode print: '[ org/grasstown.org ]'
+safemode print: '[ org/hell.org ]'
+safemode print: '[ org/heroend.org ]'
+safemode print: '[ org/jenka1.org ]'
+safemode print: '[ org/jenka2.org ]'
+safemode print: '[ org/labyrinth.org ]'
+safemode print: '[ org/lastbattle.org ]'
+safemode print: '[ org/lastcave.org ]'
+safemode print: '[ org/meltdown2.org ]'
+safemode print: '[ org/oppression.org ]'
+safemode print: '[ org/oside.org ]'
+safemode print: '[ org/plant.org ]'
+safemode print: '[ org/pulse.org ]'
+safemode print: '[ org/quiet.org ]'
+safemode print: '[ org/run.org ]'
+safemode print: '[ org/safety.org ]'
+safemode print: '[ org/scorching.org ]'
+safemode print: '[ org/seal.org ]'
+safemode print: '[ org/theme.org ]'
+safemode print: '[ org/toroko.org ]'
+safemode print: '[ org/town.org ]'
+safemode print: '[ org/tyrant.org ]'
+safemode print: '[ org/waterway.org ]'
+safemode print: '[ org/white.org ]'
+safemode print: '[ org/zombie.org ]'
+safemode print: '[ stage.dat ]'
+safemode print: 'Success!'
+safemode print: ''
+safemode print: 'You can now remove the Doukutsu.exe file'
+safemode print: 'if you like, as it isn't needed anymore.'
+safemode print: 'Please leave the "data" directory though.'
+safemode print: ''
+safemode print: 'Once you get to the title screen, you may want'
+safemode print: 'to adjust your resolution by pressing F3.'
+safemode print: ''
+safemode print: 'Press any key to begin'
+run_until_key()
+returning key 122
+Writing settings...
+sslib: initilization was successful.
+Loading Sound FX...
+LoadFXCache: audio cache sndcache.pcm not exist
+ error << pxt_load: file './pxt/fx08.pxt' not found. >>
+ error << pxt_load: file './pxt/fx09.pxt' not found. >>
+ error << pxt_load: file './pxt/fx0a.pxt' not found. >>
+ error << pxt_load: file './pxt/fx0d.pxt' not found. >>
+ error << pxt_load: file './pxt/fx13.pxt' not found. >>
+ error << pxt_load: file './pxt/fx24.pxt' not found. >>
+ error << pxt_load: file './pxt/fx42.pxt' not found. >>
+ error << pxt_load: file './pxt/fx43.pxt' not found. >>
+ error << pxt_load: file './pxt/fx44.pxt' not found. >>
+ error << pxt_load: file './pxt/fx45.pxt' not found. >>
+ error << pxt_load: file './pxt/fx49.pxt' not found. >>
+ error << pxt_load: file './pxt/fx4a.pxt' not found. >>
+ error << pxt_load: file './pxt/fx4b.pxt' not found. >>
+ error << pxt_load: file './pxt/fx4c.pxt' not found. >>
+ error << pxt_load: file './pxt/fx4d.pxt' not found. >>
+ error << pxt_load: file './pxt/fx4e.pxt' not found. >>
+ error << pxt_load: file './pxt/fx4f.pxt' not found. >>
+ error << pxt_load: file './pxt/fx50.pxt' not found. >>
+ error << pxt_load: file './pxt/fx51.pxt' not found. >>
+ error << pxt_load: file './pxt/fx52.pxt' not found. >>
+ error << pxt_load: file './pxt/fx53.pxt' not found. >>
+ error << pxt_load: file './pxt/fx54.pxt' not found. >>
+ error << pxt_load: file './pxt/fx55.pxt' not found. >>
+ error << pxt_load: file './pxt/fx56.pxt' not found. >>
+ error << pxt_load: file './pxt/fx57.pxt' not found. >>
+ error << pxt_load: file './pxt/fx58.pxt' not found. >>
+ error << pxt_load: file './pxt/fx59.pxt' not found. >>
+ error << pxt_load: file './pxt/fx5a.pxt' not found. >>
+ error << pxt_load: file './pxt/fx5b.pxt' not found. >>
+ error << pxt_load: file './pxt/fx5c.pxt' not found. >>
+ error << pxt_load: file './pxt/fx5d.pxt' not found. >>
+ error << pxt_load: file './pxt/fx5e.pxt' not found. >>
+ error << pxt_load: file './pxt/fx5f.pxt' not found. >>
+ error << pxt_load: file './pxt/fx60.pxt' not found. >>
+ error << pxt_load: file './pxt/fx61.pxt' not found. >>
+ error << pxt_load: file './pxt/fx62.pxt' not found. >>
+ error << pxt_load: file './pxt/fx63.pxt' not found. >>
+ - created sndcache.pcm; 1273006 bytes
+Calculating pitch scale...
+load_drumtable: cache gone; rebuilding drums...
+load_drum: loading ./pxt/fx96.pxt into drum index 0
+drum00 [./pxt/fx96.pxt]: 5000 samples
+load_drum: loading ./pxt/fx97.pxt into drum index 2
+drum02 [./pxt/fx97.pxt]: 10000 samples
+load_drum: loading ./pxt/fx9a.pxt into drum index 4
+drum04 [./pxt/fx9a.pxt]: 10000 samples
+load_drum: loading ./pxt/fx98.pxt into drum index 5
+drum05 [./pxt/fx98.pxt]: 1000 samples
+load_drum: loading ./pxt/fx99.pxt into drum index 6
+drum06 [./pxt/fx99.pxt]: 10000 samples
+load_drum: loading ./pxt/fx9b.pxt into drum index 8
+drum08 [./pxt/fx9b.pxt]: 4000 samples
+-- Drums loaded from cache
+tsc_load: loading 'data/Head.tsc' to page 0
+tsc_load: loading 'data/ArmsItem.tsc' to page 2
+tsc_load: loading 'data/StageSelect.tsc' to page 3
+Reading npc.tbl...
+InitList::CallFunctions(007391a0): executing 61 functions...
+initslopetable: generating slopetables.
+initmapfirsttime: loading tilekey.dat.
+Setting tick function to type 1 param 0
+Setting tick function to type 6 param 0
+Entering main loop...
+ >> Entering stage 72: 'u'.
+load_map: level size 21x16
+load_map: 'data/Stage/Kings.pxm' loaded OK! - 21x16
+load_pxa: reading in data/Stage/White.pxa
+load_entities: reading in data/Stage/Kings.pxe
+tsc_load: loading 'data/Stage/Kings.tsc' to page 1
+StageBossManager::SetType(0)
+-- Starting on-entry script 100
+  - Started script 0100
+0100:0  002c <KEY 
+0100:1  0032 <MNA 
+0100:2   0050
+0100:5   0001
+Setting pause: type 8 param 0
+Setting tick function to type 1 param 0
+Graphics::Close()

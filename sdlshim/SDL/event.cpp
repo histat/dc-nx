@@ -1,6 +1,15 @@
 
 #include "../shim.h"
-#include "event.fdh"
+
+#include "SDL.h"
+#include "dcevent.h"
+#include "scrnsave.h"
+
+//static int last_keydown, last_keyup;
+//static int lastmx, lastmy;
+//static bool poll_again;
+//static BList queue;
+
 
 static const char *key_names[] =
 {
@@ -9,24 +18,12 @@ static const char *key_names[] =
 	"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
 	"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
 	"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-	"esc", "spc",
+	"esc", "space",
 	"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
 	"A btn", "B btn", "C btn", "X btn", "Y btn", "Z btn",
 	"R-trig", "L-trig"
 };
 
-bool SDLS_EventInit(void)
-{
-	return 0;
-}
-
-void SDLS_EventQuit(void)
-{
-}
-
-/*
-void c------------------------------() {}
-*/
 
 static int sdl_func[12] ={
 	SDLK_F1, SDLK_F2, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_F6, SDLK_F7, SDLK_F8,SDLK_F9,
@@ -85,91 +82,126 @@ static int key_to_sdlk(int key)
 	return SDLK_UNKNOWN;
 }
 
+bool SDLS_EventInit(void)
+{
+	return 0;
+}
+
+void SDLS_EventQuit(void)
+{
+}
+
+/*
+void c------------------------------() {}
+*/
+
 int SDL_PollEvent(SDL_Event *event)
 {
-	Event ev;
+    Event ev;
 
-	if (PollEvent(ev))	{
+#ifndef USE_ARM
+	update_audio();
+#endif
 
-		switch(ev.type) {
-		case EVENT_JOYBUTTONDOWN:
-		{
-			int sdlk = joy_to_sdlk(ev.jbutton.button);
+    if (PollEvent(ev)) {
 
-			if (sdlk != SDLK_UNKNOWN)
-			{
-				event->type = SDL_KEYDOWN;
-				event->key.keysym.sym = sdlk;
-				event->key.keysym.scancode = 0;
+	switch(ev.type) {
+	case EVENT_JOYBUTTONDOWN:
+	{
+	    int sdlk = joy_to_sdlk(ev.jbutton.button);
+	    
+	    if (sdlk != SDLK_UNKNOWN)
+	    {
+		event->type = SDL_KEYDOWN;
+		event->key.keysym.sym = sdlk;
+		event->key.keysym.scancode = 0;
 
-				return 1;
-			}
-		}
-		break;
+		return 1;
+	    }
+	}
+	break;
 
-		case EVENT_JOYBUTTONUP:
-		{
-			int sdlk = joy_to_sdlk(ev.jbutton.button);
-						
-			if (sdlk != SDLK_UNKNOWN)
-			{
-				event->type = SDL_KEYUP;
-				event->key.keysym.sym = sdlk;
-				event->key.keysym.scancode = 0;
+	case EVENT_JOYBUTTONUP:
+	{
+	    int sdlk = joy_to_sdlk(ev.jbutton.button);
+	    
+	    if (sdlk != SDLK_UNKNOWN)
+	    {
+		event->type = SDL_KEYUP;
+		event->key.keysym.sym = sdlk;
+		event->key.keysym.scancode = 0;
 
-				return 1;
-			}
-		}
-		break;
-
-		case EVENT_KEYDOWN:
-		{
-			int sdlk = key_to_sdlk(ev.key.keycode);
+		return 1;
+	    }
+	}
+	break;
+	
+	case EVENT_KEYDOWN:
+	{
+	    int sdlk = key_to_sdlk(ev.key.keycode);
 
 #if !defined(NOSERIAL) && defined(__SDCARD__)
 			if(ev.key.keycode == 0x46)
 				screensave();
 #endif
-			
-			if (sdlk != SDLK_UNKNOWN)
-			{
-				event->type = SDL_KEYDOWN;
-				event->key.keysym.sym = sdlk;
-				event->key.keysym.scancode = 0;
+	    
+	    if (sdlk != SDLK_UNKNOWN)
+	    {
+		event->type = SDL_KEYDOWN;
+		event->key.keysym.sym = sdlk;
+		event->key.keysym.scancode = 0;
 
-				return 1;
-			}
-
-		}
-		break;
-
-		case EVENT_KEYUP:
-		{
-			int sdlk = key_to_sdlk(ev.key.keycode);
-
-			if (sdlk != SDLK_UNKNOWN)
-			{
-				event->type = SDL_KEYUP;
-				event->key.keysym.sym = sdlk;
-				event->key.keysym.scancode = 0;
-
-				return 1;
-			}
-		}
-		break;
-
-		case EVENT_QUIT:
-		{
-			event->type = SDL_QUIT;
-			
-			return 1;
-
-		}
-		break;
-		}
+		return 1;
+	    }
+	    
 	}
+	break;
+	
+	case EVENT_KEYUP:
+	{
+	    int sdlk = key_to_sdlk(ev.key.keycode);
+	    
+	    if (sdlk != SDLK_UNKNOWN)
+	    {
+		event->type = SDL_KEYUP;
+		event->key.keysym.sym = sdlk;
+		event->key.keysym.scancode = 0;
+
+		return 1;
+	    }
+	}
+	break;
+
+	case EVENT_MOUSEMOTION:
+	{
+	}
+	break;
+	    
+	case EVENT_MOUSEBUTTONDOWN:
+	{
+	}
+	break;
+	    
+	case EVENT_MOUSEBUTTONUP:
+	{
+	}
+	break;
+	
+	case EVENT_QUIT:
+	{
+	    event->type = SDL_QUIT;
+
+	    return 1;
+	}
+	break;
+	}
+    }
 
 	return 0;
+}
+
+void SDL_PushEvent(SDL_Event *event)
+{
 }
 
 
@@ -189,8 +221,18 @@ void SDL_WarpMouse(uint16_t x, uint16_t y)
 
 void SDL_WM_SetCaption(const char *title, const char *icon)
 {
-}
+	extern char vmu_title[];
+	int i;
+	char *wtitle = vmu_title;
 
+	for(i=0;i<32;i++)
+	{
+		wtitle[i] = title[i];
+		if (!title[i]) break;
+	}
+
+	wtitle[i] = '\0';
+}
 
 uint8_t SDL_GetAppState(void)
 {
@@ -200,5 +242,4 @@ uint8_t SDL_GetAppState(void)
 /*
 void c------------------------------() {}
 */
-
 

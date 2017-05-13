@@ -38,7 +38,7 @@ const int smoke_amounts[] = { 0, 3, 7, 12 };
 const int nEntries = 361;
 int i;
 
-	FILE *fp = fopen("data/npc.tbl", "rb");
+	FILE *fp = fileopen("data/npc.tbl", "rb");
 	if (!fp) { staterr("load_npc_tbl: data/npc.tbl is missing"); return 1; }
 	
 	stat("Reading npc.tbl...");

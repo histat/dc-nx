@@ -1,18 +1,22 @@
 
 #include <math.h>
 #include "nx.h"
+
 #include "trig.fdh"
 
-#include "sintan.cpp"
 
-/*
-signed int sin_table[256];
-signed int tan_table[64];
-*/
+signed int sin_table[256] = {
+#include "sin_table.h"
+};
+
+signed int tan_table[64] = {
+#include "tan_table.h"
+};
+
 
 char trig_init(void)
 {
-/*
+#if 0
 int degrees;
 
 // converts from 0-256 scale to 0-360 scale, then from degrees to radians
@@ -27,7 +31,7 @@ int degrees;
 	{
 		tan_table[degrees] = (int)(tan((double)degrees * PIBT) * (1 << 13));
 	}
-*/
+#endif	
 	//SetFullscreen(1);
 	return 0;
 }

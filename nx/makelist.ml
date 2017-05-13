@@ -2,12 +2,12 @@
 <DEFAULT
 COMPILE=g++ -g -O2 -c %SRCFILE% -D DEBUG `sdl-config --cflags` -Wreturn-type -Wformat -Wno-multichar -o %MODULE%.%OBJ_EXT%
 LPREFIX=g++ -o %OUTPUT%
-LSUFFIX=`sdl-config --libs` -lstdc++ -lm
+LSUFFIX=`sdl-config --libs` -lSDL_ttf -lstdc++ -lm
 OBJ_EXT=o
-OUTPUT=nxextract
+OUTPUT=nx
 
 >>
-exmain.cpp
+main.cpp
 
 game.cpp
 object.cpp

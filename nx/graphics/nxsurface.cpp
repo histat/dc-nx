@@ -321,7 +321,7 @@ SDL_Surface *scaled;
 		// especially on maps with motion tiles.
 		SDL_SetColorKey(scaled, SDL_SRCCOLORKEY, SDL_MapRGB(scaled->format, 0, 0, 0));
 	}
-#ifndef __SDLSHIM__		
+#ifndef __SDLSHIM__
 	if (use_palette)
 	{
 		scaled = palette_add(scaled);

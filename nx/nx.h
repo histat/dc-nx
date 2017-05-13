@@ -36,8 +36,8 @@ class Object;
 
 // don't use this, use fileopen() instead.
 // some platforms are retarded and need special workarounds (read: WinCE)
-//#pragma	GCC poison		fopen
-//FILE *fileopen(const char *fname, const char *mode);
+#pragma	GCC poison		fopen
+FILE *fileopen(const char *fname, const char *mode);
 
 #include "trig.h"
 #include "autogen/sprites.h"
@@ -63,19 +63,11 @@ class Object;
 #include "slope.h"
 #include "player.h"
 #include "p_arms.h"
-/*#include "replay.h"*/
+#include "replay.h"
 #include "platform.h"
 
 #include "sound/sound.h"
 
 const char *strhex(int value);
-
-extern const char *DescribeObjectType(int type);
-extern const char *map_get_stage_name(int mapno);
-extern ScriptInstance *GetCurrentScriptInstance();
-extern Object *SpawnObjectAtActionPoint(Object *o, int otype);
-extern Object *dr_create_red_crystal(int x, int y);
-
-extern void palette_reset(void);
 
 #endif

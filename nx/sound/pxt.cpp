@@ -836,7 +836,7 @@ FILE *fp = NULL;
 			return 0;
 		}
 		
-		fp = fopen(cache_name, "wb");
+		fp = fileopen(cache_name, "wb");
 		if (!fp)
 		{
 			staterr("LoadSoundFX: failed open: '%s'", cache_name);
@@ -898,7 +898,7 @@ int slot;
 uint32_t magick;
 stPXSound snd;
 
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		stat("LoadFXCache: audio cache %s not exist", fname);
@@ -1041,7 +1041,7 @@ int i, cc;
 
 #define BRACK		'{'		// my damn IDE is borking up the Function List if i put this inline
 
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp) { staterr("pxt_load: file '%s' not found.", fname); return 1; }
 	
 	//lprintf("pxt_load: reading %s...\n", fname);
@@ -1163,7 +1163,7 @@ char pxt_save(const char *fname, stPXSound *snd)
 FILE *fp;
 int i, j;
 
-	fp = fopen(fname, "wb");
+	fp = fileopen(fname, "wb");
 	if (!fp)
 	{
 		stat("save_pxt: unable to open '%s'", fname);

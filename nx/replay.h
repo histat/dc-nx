@@ -2,7 +2,7 @@
 #ifndef _REPLAY_H
 #define _REPLAY_H
 
-#include "vm_file.h"
+#include "common/FileBuffer.h"
 #define MAX_REPLAYS				8	// how many automatic replays to save
 
 #define REC_OK		0
@@ -22,11 +22,11 @@ struct ReplayHeader
 struct ReplayRecording
 {
 	ReplayHeader hdr;
-	VMFileBuffer fb;
+	FileBuffer fb;
 	
 	uint32_t lastkeys;
 	uint32_t runlength;
-	VMFILE *fp;
+	FILE *fp;
 };
 
 struct ReplayPlaying
@@ -37,7 +37,7 @@ struct ReplayPlaying
 	uint32_t runlength;
 	int elapsed_frames;
 	int elapsed_records;
-	VMFILE *fp;
+	FILE *fp;
 	
 	int ffwdto, ffwd_accel;
 	int stopat;

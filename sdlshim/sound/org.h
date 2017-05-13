@@ -110,5 +110,12 @@ struct stSong
 	uint32_t last_fade_time;
 };
 
+int org_init(const char *wavetable_fname, const char *drum_pxt_dir, int org_volume);
+void org_close(void);
+char org_load(char *fname);
+bool org_start(int startbeat);
+void org_stop(void);
+void org_run(void);
+
 #endif
 

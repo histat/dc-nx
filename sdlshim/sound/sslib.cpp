@@ -1,16 +1,16 @@
 
+#ifndef USE_ARM
+
 // Sound System
 // more or less, my own version of SDL_mixer
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../common/basics.h"
 
-#include <ronin/sound.h>
-#include <ronin/soundcommon.h>
 #include "sslib.h"
 #include "sslib.fdh"
 
@@ -19,16 +19,36 @@ SSChannel channel[SS_NUM_CHANNELS];
 uint8_t *mixbuffer = NULL;
 int mix_pos;
 
-//int lockcount = 0;
+int lockcount = 0;
 
-extern "C" void *memcpy4s(void *s1, const void *s2, unsigned int n);
-
-#define AUDIO_SIZE (RING_BUFFER_SAMPLES/2)
-uint8_t tmp_sound_buffer[AUDIO_SIZE*2*2];
 
 char SSInit(void)
 {
-	mixbuffer = (uint8_t *)malloc(SAMPLE_RATE * 2 * 2);
+SDL_AudioSpec fmt, obtained;
+
+	// Set 16-bit stereo audio at 22Khz
+	fmt.freq = SAMPLE_RATE;
+	fmt.format = AUDIO_S16;
+	fmt.channels = 2;
+	fmt.samples = 512;
+	fmt.callback = mixaudio;
+	fmt.userdata = NULL;
+	
+	// Open the audio device and start playing sound!
+	if (SDL_OpenAudio(&fmt, &obtained) < 0)
+	{
+		staterr("SS: Unable to open audio: %s", SDL_GetError());
+		return 1;
+	}
+	
+	if (obtained.format != fmt.format || \
+		obtained.channels != fmt.channels)
+	{
+		staterr("SS: Failed to obtain the audio format I wanted");
+		return 1;
+	}
+	
+	mixbuffer = (uint8_t *)malloc(obtained.samples * obtained.channels * 2);
 	
 	// zero everything in all channels
 	memset(channel, 0, sizeof(channel));
@@ -36,18 +56,15 @@ char SSInit(void)
 		channel[i].volume = SDL_MIX_MAXVOLUME;
 	
 	stat("sslib: initilization was successful.");
-
-	//lockcount = 0;
-
-	start_sound();
 	
+	lockcount = 0;
+	SDL_PauseAudio(0);
 	return 0;
 }
 
 void SSClose(void)
 {
-	stop_sound();
-	
+	SDL_CloseAudio();
 	if (mixbuffer) free(mixbuffer);
 }
 
@@ -97,7 +114,7 @@ SSChunk *chunk;
 	}
 	
 	SSLockAudio();
-
+	
 	if (c < 0) c = SSFindFreeChannel();
 	if (c==-1)
 	{
@@ -254,25 +271,21 @@ void SSSetVolume(int c, int newvol)
 /*
 void c------------------------------() {}
 */
-/*
+
 // the effects of SSLockAudio are cumulative--calling it more than once will lock
 // the audio "more", and you have to call it the same numbers of times before it will unlock.
 void SSLockAudio(void)
 {
-
 	if (lockcount==0) SDL_LockAudio();
 	lockcount++;
-
 }
 
 void SSUnlockAudio(void)
 {
-
 	lockcount--;
 	if (!lockcount) SDL_UnlockAudio();
-
 }
-*/
+
 /*
 void c------------------------------() {}
 */
@@ -311,48 +324,13 @@ static int AddBuffer(SSChannel *chan, int bytes)
 }
 
 
-#define ADJUST_VOLUME(s, v)		(s = ((s*v) / SDL_MIX_MAXVOLUME))
-
-static void MixAudio(uint8_t *dst, const uint8_t *src, uint32_t len, int volume)
+static void mixaudio(void *unused, uint8_t *stream, int len)
 {
-	int16_t sample1, sample2;
-	int dst_sample;
-	#define MAX_AUDIOVAL	((1<<(16-1))-1)
-	#define MIN_AUDIOVAL	-(1<<(16-1))
-
-	len /= 2;
-	while(len--)
-	{
-		sample1 = (src[1] << 8) | src[0];
-		ADJUST_VOLUME(sample1, volume);
-		sample2 = (dst[1] << 8) | dst[0];
-		src += 2;
-		
-		dst_sample = (sample1 + sample2);
-		
-		if (dst_sample > MAX_AUDIOVAL) dst_sample = MAX_AUDIOVAL;
-		else if (dst_sample < MIN_AUDIOVAL) dst_sample = MIN_AUDIOVAL;
-
-
-		dst[0] = dst_sample; dst_sample >>= 8;
-		dst[1] = dst_sample;
-		dst += 2;
-	}
-}
-
-
-void SSRunMixer(void)
-{
-	int bytes_copied;
-	int bytestogo;
-	int c;
-	int i;
-	int pos = read_sound_int(&SOUNDSTATUS->samplepos);
-
-	memset(tmp_sound_buffer, 0, sizeof(tmp_sound_buffer));
-
-	const int len = 2*SAMPLES_TO_BYTES(AUDIO_SIZE);
-
+int bytes_copied;
+int bytestogo;
+int c;
+int i;
+//uint32_t start = SDL_GetTicks();
 	// get data for all channels and add it to the mix
 	for(c=0;c<SS_NUM_CHANNELS;c++)
 	{
@@ -377,10 +355,9 @@ void SSRunMixer(void)
 			}
 		}
 		
-		MixAudio(tmp_sound_buffer, mixbuffer, len, channel[c].volume);
-
+		SDL_MixAudio(stream, mixbuffer, len, channel[c].volume);
 	}
-
+	
 	// tell any callbacks that had a chunk finish, that their chunk finished
 	for(c=0;c<SS_NUM_CHANNELS;c++)
 	{
@@ -396,5 +373,19 @@ void SSRunMixer(void)
 		channel[c].nFinishedChunks = 0;
 	}
 
-	memcpy4s(RING_BUF + pos, tmp_sound_buffer, SAMPLES_TO_BYTES(AUDIO_SIZE));
+//	stat("mixaudio  %d",SDL_GetTicks() - start);
 }
+
+#else
+
+char SSInit(void)
+{
+	return 0;
+}
+
+void SSClose(void)
+{
+}
+
+#endif
+

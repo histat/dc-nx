@@ -71,7 +71,7 @@ bool error = false;
 		}
 		
 		uint32_t fgindex = SDL_MapRGB(sheet->format, 255, 255, 255);
-
+		
 		error |= whitefont.InitBitmapChars(sheet, fgindex, 0xffffff);
 		error |= greenfont.InitBitmapChars(sheet, fgindex, 0x00ff80);
 		error |= bluefont.InitBitmapChars(sheet, fgindex, 0xa0b5de);
@@ -334,7 +334,7 @@ SDL_Rect dstrect;
 	
 	if (shadowfont.InitBitmapChars(sheet, fgcolor, shadowcolor))
 		return 1;
-
+	
 	// now combine the two fonts
 	uint32_t transp = SDL_MapRGB(format, 0, 0, 0);
 	for(int i=0;i<NUM_FONT_LETTERS;i++)
@@ -384,6 +384,7 @@ void NXFont::ReplaceColor(SDL_Surface *sfc, uint32_t oldcolor, uint32_t newcolor
 	{
 #ifdef __SDLSHIM__
 		static uint32_t lastcolor = 0;
+
 		SDL_Color fgcolor;
 
 		fgcolor.r = (uint8_t)(newcolor >> 16);
@@ -391,9 +392,11 @@ void NXFont::ReplaceColor(SDL_Surface *sfc, uint32_t oldcolor, uint32_t newcolor
 		fgcolor.b = (uint8_t)(newcolor);
 
 		newcolor = SDL_MapRGB(sfc->format, fgcolor.r, fgcolor.g, fgcolor.b);
+
 		if(lastcolor)
 			oldcolor = lastcolor;
-		lastcolor = newcolor;
+
+		lastcolor = newcolor;		
 #endif
 
 		uint16_t *pixels = (uint16_t *)sfc->pixels;
@@ -419,9 +422,6 @@ SDL_Rect dstrect;
 	for(int i=0;text[i];i++)
 	{
 		SDL_Surface *letter = whitefont.letters[text[i]];
-//		SDL_Surface *letter = greenfont.letters[text[i]];
-//		SDL_Surface *letter = bluefont.letters[text[i]];
-//		SDL_Surface *letter = shadowfont.letters[text[i]];
 		
 		if (letter)
 		{
@@ -536,7 +536,6 @@ static bool create_shade_sfc(void)
 		staterr("create_shade_sfc: failed to create surface");
 		return 1;
 	}
-	
 	SDL_FillRect(shadesfc, NULL, SDL_MapRGB(format, 0, 0, 0));
 	SDL_SetAlpha(shadesfc, SDL_SRCALPHA, 128);
 	

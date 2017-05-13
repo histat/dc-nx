@@ -15,8 +15,8 @@ NXSurface *backdrop[MAX_BACKDROPS];
 Object *ID2Lookup[65536];
 
 unsigned char tilecode[MAX_TILES];			// tile codes for every tile in current tileset
-unsigned int tileattr[MAX_TILES];			// tile attribute bits for every tile in current tileset
-unsigned int tilekey[MAX_TILES];			// mapping from tile codes -> tile attributes
+uint32_t tileattr[MAX_TILES];			// tile attribute bits for every tile in current tileset
+uint32_t tilekey[MAX_TILES];			// mapping from tile codes -> tile attributes
 
 
 // load stage "stage_no", this entails loading the map (pxm), enemies (pxe), tileset (pbm),
@@ -28,14 +28,14 @@ char fname[MAXPATHLEN];
 
 	stat(" >> Entering stage %d: '%s'.", stage_no, stages[stage_no].stagename);
 	game.curmap = stage_no;		// do it now so onspawn events will have it
-#ifndef __SDLSHIM__	
+	
 	if (use_palette)
 	{
 		palette_reset();
 		Sprites::FlushSheets();
 		map_flush_graphics();
 	}
-#endif
+
 	if (Tileset::Load(stages[stage_no].tileset))
 		return 1;
 	
@@ -73,7 +73,7 @@ bool load_map(const char *fname)
 FILE *fp;
 int x, y;
 
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("load_map: no such file: '%s'", fname);
@@ -132,7 +132,7 @@ int nEntities;
 	
 	stat("load_entities: reading in %s", fname);
 	// now we can load in the new objects
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("load_entities: no such file: '%s'", fname);
@@ -244,7 +244,7 @@ unsigned char tc;
 	map.nmotiontiles = 0;
 	
 	stat("load_pxa: reading in %s", fname);
-	fp = fopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("load_pxa: no such file: '%s'", fname);
@@ -283,7 +283,7 @@ bool load_stages(void)
 {
 FILE *fp;
 
-	fp = fopen("stage.dat", "rb");
+	fp = fileopen("stage.dat", "rb");
 	if (!fp)
 	{
 		staterr("%s(%d): failed to open stage.dat", __FILE__, __LINE__);
@@ -305,7 +305,7 @@ FILE *fp;
 int i;
 
 	stat("initmapfirsttime: loading tilekey.dat.");
-	if (!(fp = fopen("tilekey.dat", "rb")))
+	if (!(fp = fileopen("tilekey.dat", "rb")))
 	{
 		staterr("tilekey.dat is missing!");
 		return 1;
@@ -413,7 +413,7 @@ static void DrawFastLeftLayered(void)
 {
 static const int layer_ys[] = { 80, 122, 145, 176, 240 };
 static const int move_spd[] = { 0,    1,   2,   4,   8 };
-int nlayers = 6;
+const int nlayers = 5;
 int y1, y2;
 int i, x;
 

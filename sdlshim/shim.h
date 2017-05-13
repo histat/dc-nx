@@ -7,13 +7,15 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <ronin/ronin.h>
-#include <ronin/soundcommon.h>
 
 #include "common/DBuffer.h"
 #include "common/BList.h"
 #include "SDL/SDL.h"
 
-#include "dcevent.h"
+bool ronin_init();
+void ronin_close();
+void update_audio();
+extern void *screen_tx[];
 
 extern uint16_t *vram;
 #define SCREEN_WIDTH		320
@@ -25,5 +27,7 @@ extern uint16_t *vram;
 #define FONT_HEIGHT			8
 #define SCREEN_CHARS_WIDTH	(SCREEN_WIDTH/FONT_WIDTH)
 #define SCREEN_CHARS_HEIGHT	(SCREEN_HEIGHT/FONT_HEIGHT)
+
+#define SCREEN_BUFFER_SIZE 4
 
 #endif

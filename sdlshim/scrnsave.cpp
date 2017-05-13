@@ -1,43 +1,54 @@
 
-#include "shim.h"
+#ifdef __SDCARD__
+
+#include "scrnsave.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
 #include <time.h>
+#include "../libsd/ff.h"
 
 
-typedef struct tagBITMAPFILEHEADER {
-  unsigned short bfType;
-  unsigned long  bfSize;
-  unsigned short bfReserved1;
-  unsigned short bfReserved2;
-  unsigned long  bfOffBits;
-} __attribute__ ((packed)) BITMAPFILEHEADER;
+extern uint16_t *vram;
 
-typedef struct tagBITMAPINFOHEADER{
-    unsigned long  biSize;
-    long           biWidth;
-    long           biHeight;
-    unsigned short biPlanes;
-    unsigned short biBitCount;
-    unsigned long  biCompression;
-    unsigned long  biSizeImage;
-    long           biXPixPerMeter;
-    long           biYPixPerMeter;
-    unsigned long  biClrUsed;
-    unsigned long  biClrImporant;
-} __attribute__ ((packed)) BITMAPINFOHEADER;
+static FATFS Fatfs;
+static FILINFO _fi;
 
-bool screensave()
+#ifdef _USE_LFN
+static char lfn[_MAX_LFN + 1];
+#endif
+
+int sd_init(void)
 {
-	FILE *out;
+	f_mount(0, &Fatfs);
+
+#ifdef _USE_LFN	
+	_fi.lfname = lfn;
+	_fi.lfsize = sizeof(lfn);
+#endif
+
+	return 1;
+}
+
+int sd_exit(void) {
+
+	f_mount(0, NULL);
+
+	return 1;
+}
+
+bool screensave(void)
+{
 	BITMAPFILEHEADER bmf;
 	BITMAPINFOHEADER bmi;
 	uint8_t *img;
 	char fname[32];
 	time_t long_time;
 	struct tm *now_time;
+	FRESULT res;
+	FIL fil;
+	unsigned int writesize;
 
     time(&long_time);
     now_time = localtime(&long_time);
@@ -50,12 +61,12 @@ bool screensave()
 	       ,now_time->tm_min
 	       ,now_time->tm_sec);
 
-	int w = SCREEN_WIDTH;
-	int h = SCREEN_HEIGHT;
+	int w = 320;
+	int h = 240;
 	
-	out = fopen(fname, "wb");
+	res = f_open (&fil, fname, FA_WRITE|FA_CREATE_ALWAYS);
 
-	if(!out)
+	if(res != FR_OK)
 		return false;
 
 	memset(&bmf, 0, sizeof(BITMAPFILEHEADER));
@@ -105,16 +116,15 @@ bool screensave()
 		}
 	}
 
-	fwrite(&bmf, 1, sizeof(BITMAPFILEHEADER), out);
-	fwrite(&bmi, 1, sizeof(BITMAPINFOHEADER), out);
+	f_write (&fil, &bmf, sizeof(BITMAPFILEHEADER), &writesize);
+	f_write (&fil, &bmi, sizeof(BITMAPINFOHEADER), &writesize);
 
-	fwrite(img, 1, size, out);
+	f_write (&fil, img, size, &writesize);
 
 	free(img);
 
-	fclose(out);
+	f_close (&fil);
 
 	return true;
 }
-
-
+#endif

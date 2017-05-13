@@ -3,7 +3,6 @@
 #include "nx.h"
 #include "replay.h"
 #include "profile.h"
-#include "vm_file.h"
 #include "replay.fdh"
 using namespace Replay;
 
@@ -16,11 +15,79 @@ static int next_stopat = 0;
 static bool next_accel = false;
 extern int flipacceltime;
 
+#ifdef __SDLSHIM__
+
+
+bool Replay::LoadHeader(const char *fname, ReplayHeader *hdr)
+{
+}
+
+bool Replay::SaveHeader(const char *fname, ReplayHeader *hdr)
+{
+}
+
+bool Replay::begin_playback(const char *fname)
+{
+}
+
+void Replay::OnGameStarting()
+{
+}
+
+void Replay::DrawStatus()
+{
+}
+
+bool Replay::IsRecording()
+{
+	return false;
+}
+
+bool Replay::IsPlaying()
+{
+	return false;
+}
+
+void Replay::close()
+{
+}
+
+void Replay::run()
+{
+}
+
+bool Replay::end_playback()
+{
+	return 0;
+}
+
+bool Replay::end_record()
+{
+	return 0;
+}
+
+void Replay::GetSlotInfo(int slotno, ReplaySlotInfo *slot)
+{
+}
+
+void Replay::FramesToTime(int framecount, char *buffer)
+{
+}
+
+const char *GetReplayName(int slotno, char *buffer)
+{
+	if (!buffer) buffer = GetStaticStr();
+	sprintf(buffer, "replay/rep%d.dat", slotno);
+	return buffer;
+}
+
+#else
+
 // begin recording a replay into the given file,
 // creating the save-profile section from the current game state.
 bool Replay::begin_record(const char *fname)
 {
-VMFILE *fp;
+FILE *fp;
 Profile profile;
 
 	end_record();
@@ -33,14 +100,14 @@ Profile profile;
 	if (game_save(&profile)) return 1;
 	if (profile_save(fname, &profile)) return 1;
 	
-	fp = vm_fileopen(fname, "r+");
+	fp = fileopen(fname, "r+");
 	if (!fp)
 	{
 		staterr("begin_record: failed to open file %s", fname);
 		return 1;
 	}
 	
-	vm_fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
+	fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
 	
 	rec.hdr.magick = REPLAY_MAGICK;
 	rec.hdr.randseed = getrand();
@@ -50,12 +117,12 @@ Profile profile;
 	rec.hdr.stageno = game.curmap;
 	memcpy(&rec.hdr.settings, &normal_settings, sizeof(Settings));
 	
-	vm_fwrite(&rec.hdr, sizeof(ReplayHeader), 1, fp);
+	fwrite(&rec.hdr, sizeof(ReplayHeader), 1, fp);
 	
 	rec.fp = fp;
 	seedrand(rec.hdr.randseed);
 	
-	vm_fputl('MARK', fp);
+	fputl('MARK', fp);
 	rec.fb.SetFile(fp);
 	rec.fb.SetBufferSize(256);
 	rec.fb.Dump();
@@ -73,13 +140,13 @@ bool Replay::end_record()
 	rec.fb.Flush();
 	rec.fb.SetFile(NULL);
 	
-	vm_fputc('!', rec.fp);
-	vm_fputl('STOP', rec.fp);
+	fputc('!', rec.fp);
+	fputl('STOP', rec.fp);
 	
 	// go back and save the header again so we have total_frames correct.
-	vm_fseek(rec.fp, PROFILE_LENGTH, SEEK_SET);
-	vm_fwrite(&rec.hdr, sizeof(ReplayHeader), 1, rec.fp);
-	vm_fclose(rec.fp);
+	fseek(rec.fp, PROFILE_LENGTH, SEEK_SET);
+	fwrite(&rec.hdr, sizeof(ReplayHeader), 1, rec.fp);
+	fclose(rec.fp);
 	
 	stat("end_record(): wrote %d frames", rec.hdr.total_frames);
 	memset(&rec, 0, sizeof(rec));
@@ -93,7 +160,7 @@ void c------------------------------() {}
 // load the save-game contained with the given replay and begin playback.
 bool Replay::begin_playback(const char *fname)
 {
-VMFILE *fp;
+FILE *fp;
 Profile profile;
 
 	end_playback();
@@ -104,15 +171,15 @@ Profile profile;
 	if (profile_load(fname, &profile))
 		return 1;
 	
-	fp = vm_fileopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("begin_playback: failed to open file %s", fname);
 		return 1;
 	}
 	
-	vm_fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
-	vm_fread(&play.hdr, sizeof(ReplayHeader), 1, fp);
+	fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
+	fread(&play.hdr, sizeof(ReplayHeader), 1, fp);
 	
 	if (play.hdr.magick != REPLAY_MAGICK)
 	{
@@ -129,7 +196,7 @@ Profile profile;
 	game_load(&profile);
 	seedrand(play.hdr.randseed);
 	
-	if (vm_fgetl(fp) != 'MARK')
+	if (fgetl(fp) != 'MARK')
 	{
 		console.Print("Replay fail MARK");
 		return 1;
@@ -154,7 +221,7 @@ bool Replay::end_playback()
 {
 	if (!IsPlaying()) return 1;
 	
-	vm_fclose(play.fp);
+	fclose(play.fp);
 	play.fp = NULL;
 	
 	memset(inputs, 0, sizeof(inputs));
@@ -273,7 +340,7 @@ static void Replay::run_playback()
 void c------------------------------() {}
 */
 
-static void write_record(uint32_t keys, uint32_t runlength, VMFileBuffer *fb)
+static void write_record(uint32_t keys, uint32_t runlength, FileBuffer *fb)
 {
 	fb->Write8('[');
 	fb->Write32(keys);
@@ -282,12 +349,12 @@ static void write_record(uint32_t keys, uint32_t runlength, VMFileBuffer *fb)
 	fb->Write8(']');
 }
 
-static bool read_record(uint32_t *keys, uint32_t *runlength, VMFILE *fp)
+static bool read_record(uint32_t *keys, uint32_t *runlength, FILE *fp)
 {
-	char ch = vm_fgetc(fp);
+	char ch = fgetc(fp);
 	if (ch == '!') return REC_END;
 	
-	if (vm_feof(fp))
+	if (feof(fp))
 	{
 		console.Print("unexpected end of file");
 		return REC_ERR;
@@ -299,17 +366,17 @@ static bool read_record(uint32_t *keys, uint32_t *runlength, VMFILE *fp)
 		return REC_ERR;
 	}
 	
-	*keys = vm_fgetl(fp);
+	*keys = fgetl(fp);
 	
-	if (vm_fgetc(fp) != ':')
+	if (fgetc(fp) != ':')
 	{
 		console.Print("replay field fail :");
 		return REC_ERR;
 	}
 	
-	*runlength = vm_fgetl(fp);
+	*runlength = fgetl(fp);
 	
-	if (vm_fgetc(fp) != ']')
+	if (fgetc(fp) != ']')
 	{
 		console.Print("replay field fail ]");
 		return REC_ERR;
@@ -427,7 +494,7 @@ int i, numUnlocked;
 		return -1;
 	
 	// delete the file in the highest-numbered slot.
-	vm_remove(unlocked[--numUnlocked]->filename);
+	remove(unlocked[--numUnlocked]->filename);
 	unlocked[numUnlocked]->status = RS_UNUSED;
 	
 	// assign new filenames to all the files in the list, working downward
@@ -441,7 +508,7 @@ int i, numUnlocked;
 			nextslot--;
 		
 		const char *newfilename = GetReplayName(nextslot);
-		vm_rename(unlocked[i]->filename, newfilename);
+		rename(unlocked[i]->filename, newfilename);
 		strcpy(unlocked[i]->filename, newfilename);
 		
 		nextslot--;
@@ -450,7 +517,7 @@ int i, numUnlocked;
 	// now take the first unused slot. we're sure that there is one this time.
 	for(i=0;i<MAX_REPLAYS;i++)
 	{
-		if (!vmfile_exists(GetReplayName(i)))
+		if (!file_exists(GetReplayName(i)))
 			return i;
 	}
 	
@@ -484,43 +551,43 @@ void Replay::GetSlotInfo(int slotno, ReplaySlotInfo *slot)
 const char *GetReplayName(int slotno, char *buffer)
 {
 	if (!buffer) buffer = GetStaticStr();
-	sprintf(buffer, "rep%d.dat", slotno);
+	sprintf(buffer, "replay/rep%d.dat", slotno);
 	return buffer;
 }
 
 bool Replay::LoadHeader(const char *fname, ReplayHeader *hdr)
 {
-VMFILE *fp;
+FILE *fp;
 
-	fp = vm_fileopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		staterr("LoadHeader: can't open file '%s'", fname);
 		return 1;
 	}
 	
-	vm_fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
-	vm_fread(hdr, sizeof(ReplayHeader), 1, fp);
+	fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
+	fread(hdr, sizeof(ReplayHeader), 1, fp);
 	
-	vm_fclose(fp);
+	fclose(fp);
 	return 0;
 }
 
 bool Replay::SaveHeader(const char *fname, ReplayHeader *hdr)
 {
-VMFILE *fp;
+FILE *fp;
 
-	fp = vm_fileopen(fname, "r+");
+	fp = fileopen(fname, "r+");
 	if (!fp)
 	{
 		staterr("SaveHeader: can't open file '%s'", fname);
 		return 1;
 	}
 	
-	vm_fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
-	vm_fwrite(hdr, sizeof(ReplayHeader), 1, fp);
+	fseek(fp, PROFILE_LENGTH, SEEK_SET);	// seek to end of profile data
+	fwrite(hdr, sizeof(ReplayHeader), 1, fp);
 	
-	vm_fclose(fp);
+	fclose(fp);
 	return 0;
 }
 
@@ -636,7 +703,6 @@ void c------------------------------() {}
 
 static void dump_replay()
 {
-#if 0
 	stat("=== Header ===");
 	stat("magick: %04x (%s)", play.hdr.magick, (play.hdr.magick == REPLAY_MAGICK) ? "correct" : "not correct");
 	stat("randseed: %08x", play.hdr.randseed);
@@ -716,7 +782,6 @@ static void dump_replay()
 	stat("total frames count: %d", total_frames);
 	stat("frames reported: %d", play.hdr.total_frames);
 	exit(1);
-#endif
 }
 
-
+#endif

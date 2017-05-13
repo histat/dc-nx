@@ -4,62 +4,42 @@ NXEngine for DC
 About
 -----
 
-A complete open-source clone/rewrite of the masterpiece jump-and-run platformer Doukutsu Monogatari (also known as Cave Story).
+Port of NxEngine to the Dreamcast
 
-<http://nxengine.sourceforge.net>
+NxEngine is a complete open-source clone/rewrite of the Cave Story.
+
+Original NXEngine website http://nxengine.sourceforge.net 
+
 
 
 Installation
 ------------
+windows user try ready to burn iso
 
-download Cave Story 1.0.0.6 with Aeon Genesis English translation
-(e.g cavestory.zip) and extract it
+unix user try burn script
+you should to install cdrkit
 
-download nxextract.zip and extract it
-This contain these files.
-1. nxextract.exe
-2. smalfont.bmp
-3. sprites.sif
-4. tilekey.dat
+unzip data.zip
 
-and SDL.dll if you havn't
+ubzip raw.zip
 
-put above files to doukutsu data directorty(e.g cavestory)
+unzip binary
 
-change the directory 
-and open nxextract.exe
+IP.BIN data raw
 
-press key
+put 1st_read.bin data
 
-press key
+before excute the script 
+edit dev_option
 
-you get "Done" message
+type 
+$ wodim --devices
 
-press key to close the programme.
+example
+dev_option="/dev/sg4"
 
-you don't need nxextract.exe (and SDL.dll)
-
-put 1ST_READ.BIN 
-
-Now you can burn CD
-
-CD structure
-ROOT
-|
-1ST_READ.BIN
-data/
-drum.pcm
-endpic/
-org/
-smalfont.bmp
-sndcache.pcm
-sprite.sif
-stage.dat
-tilekey.dat
-wavetable.dat
-
-1ST_READ.BIN scrambled binary
-NXDC.BIN unscrambled binary
+finary 
+$ sh burm.sh
 
 Controls
 --------

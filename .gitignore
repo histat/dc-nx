@@ -2,9 +2,7 @@
 *.elf
 *.BIN
 *.bin
-nxdc
-*.txt
-*.fdh
-nxextract
+ip.txt
 *.exe
-disttmp/
+libronin
+

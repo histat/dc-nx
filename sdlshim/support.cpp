@@ -2,6 +2,37 @@
 #include "shim.h"
 #include "support.fdh"
 
+WCHAR *QuickToUnicode(const char *str)
+{
+int i;
+
+	if (!str) return NULL;
+	
+	WCHAR *out = (WCHAR *)malloc(strlen(str) * 2);
+	for(i=0;str[i];i++)
+		out[i] = str[i];
+	
+	out[i] = 0;
+	return out;
+}
+
+void MSGBOX(const char *str, ...)
+{
+va_list ar;
+char buf[40000];
+
+	va_start(ar, str);
+	vsnprintf(buf, sizeof(buf), str, ar);
+	va_end(ar);
+	
+	puts(buf);
+	fflush(stdout);
+	
+	WCHAR *unicode = QuickToUnicode(buf);
+	MessageBox(NULL, unicode, TEXT(""), MB_OK);
+	free(unicode);
+}
+
 /*
 void c------------------------------() {}
 */

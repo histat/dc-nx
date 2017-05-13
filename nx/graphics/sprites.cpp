@@ -63,17 +63,8 @@ static void Sprites::LoadSheetIfNeeded(int sheetno)
 	if (!spritesheet[sheetno])
 	{
 		char pbm_name[MAXPATHLEN];
-#if 1
-		char *s = sheetfiles.StringAt(sheetno);
-		if (!strncmp(s, "..", 2)) {
-			sprintf(pbm_name, "%s", s + 2);
-		}
-		else {
-			sprintf(pbm_name, "%s/%s", data_dir, s);
-		}
-#else
+		
 		sprintf(pbm_name, "%s/%s", data_dir, sheetfiles.StringAt(sheetno));
-#endif
 		spritesheet[sheetno] = new NXSurface;
 		spritesheet[sheetno]->LoadImage(pbm_name, true);
 		

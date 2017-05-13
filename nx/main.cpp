@@ -5,10 +5,10 @@
 #include "graphics/safemode.h"
 #include "main.fdh"
 
-const char *data_dir = "/data";
-const char *stage_dir = "/data/Stage";
-const char *pic_dir = "/endpic";
-const char *nxdata_dir = "/";
+const char *data_dir = "data";
+const char *stage_dir = "data/Stage";
+const char *pic_dir = "endpic";
+const char *nxdata_dir = "";
 
 int fps = 0;
 static int fps_so_far = 0;
@@ -25,9 +25,8 @@ int main(int argc, char *argv[])
 bool inhibit_loadfade = false;
 bool error = false;
 bool freshstart;
-
+	
 	SetLogFilename("debug.txt");
-
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
 	{
 		staterr("ack, sdl_init failed: %s.", SDL_GetError());
@@ -70,7 +69,9 @@ bool freshstart;
 		return 1;
 	}
 	
+#ifdef __SDLSHIM__
 	Graphics::ShowLoadingScreen();
+#endif
 	if (sound_init()) { fatal("Failed to initialize sound."); return 1; }
 	if (trig_init()) { fatal("Failed trig module init."); return 1; }
 	
@@ -108,7 +109,7 @@ bool freshstart;
 	
 	stat("Entering main loop...");
 	#ifdef __SDLSHIM__
-	set_console_visible(false);
+		set_console_visible(false);
 	#endif
 	
 	//speed_test();
@@ -138,12 +139,11 @@ bool freshstart;
 				goto ingame_error;
 			}
 			
-			/*Replay::OnGameStarting();*/
+			Replay::OnGameStarting();
 			
 			if (!inhibit_loadfade) fade.Start(FADE_IN, FADE_CENTER);
 			else inhibit_loadfade = false;
 		}
-/*		
 		else if (game.switchstage.mapno == START_REPLAY)
 		{
 			stat(">> beginning replay '%s'", GetReplayName(game.switchstage.param));
@@ -155,7 +155,6 @@ bool freshstart;
 				goto ingame_error;
 			}
 		}
-*/		
 		else
 		{
 			if (game.switchstage.mapno == NEW_GAME || \
@@ -191,7 +190,7 @@ bool freshstart;
 	}
 	
 shutdown: ;
-	/*Replay::close();*/
+	Replay::close();
 	game.close();
 	Carets::close();
 	
@@ -235,15 +234,13 @@ int32_t nexttick = 0;
 				game.ffwdtime--;
 			
 			nexttick = curtime + GAME_WAIT;
-
-/*
+			
 			// pause game if window minimized
 			if ((SDL_GetAppState() & VISFLAGS) != VISFLAGS)
 			{
 				AppMinimized();
 				nexttick = 0;
 			}
-*/
 		}
 		else
 		{
@@ -308,7 +305,7 @@ static int frameskip = 0;
 	}
 	
 	// fast-forward key (F5)
-	if (inputs[FFWDKEY] && (settings->enable_debug_keys /*|| Replay::IsPlaying()*/))
+	if (inputs[FFWDKEY] && (settings->enable_debug_keys || Replay::IsPlaying()))
 	{
 		game.ffwdtime = 2;
 	}
@@ -324,12 +321,10 @@ static int frameskip = 0;
 			font_draw_shaded(4, (SCREEN_HEIGHT-GetFontHeight()-4), buf, 0, &greenfont);
 			can_tick = false;
 		}
-/*		
 		else
 		{
 			Replay::DrawStatus();
 		}
-*/		
 		
 		if (settings->show_fps)
 		{
@@ -412,9 +407,10 @@ void InitNewGame(bool with_intro)
 	fade.set_full(FADE_OUT);
 }
 
-/*
 void AppMinimized(void)
 {
+#ifndef __SDLSHIM__
+
 	stat("Game minimized or lost focus--pausing...");
 	SDL_PauseAudio(1);
 	
@@ -431,8 +427,8 @@ void AppMinimized(void)
 	
 	SDL_PauseAudio(0);
 	stat("Focus regained, resuming play...");
+#endif
 }
-*/
 
 /*
 void c------------------------------() {}
@@ -495,7 +491,7 @@ void c------------------------------() {}
 */
 
 #ifdef __SDLSHIM__
-/*
+
 void speed_test(void)
 {
 	SDL_Rect textrect;
@@ -504,22 +500,25 @@ void speed_test(void)
 	fps = 0;
 	
 	ClearScreen(255, 0, 0);
-	screen->Flip();
 	
 	game.running = true;
 	while(game.running)
 	{
 		if (SDL_GetTicks() >= end)
 		{
+			SDLS_VRAMSurface->h = 320;
+			SDLS_VRAMSurface->cliprect.h = 320;
 			textrect.x = 5;
-			textrect.y = 100;
+			textrect.y = 250;
 			textrect.w = 100;
 			textrect.h = 10;
 			SDL_FillRect(SDLS_VRAMSurface, &textrect, 0);
 			
 			char buffer[80];
 			sprintf(buffer, "%d fps ", fps);
-			direct_text_draw(5, 100, buffer);
+			direct_text_draw(5, 250, buffer);
+			SDLS_VRAMSurface->h = 240;
+			SDLS_VRAMSurface->cliprect.h = 240;
 			
 			input_poll();
 			
@@ -531,7 +530,7 @@ void speed_test(void)
 		fps++;
 	}
 }
-*/
+
 #else
 
 void speed_test(void)
@@ -569,7 +568,7 @@ void speed_test(void)
 #endif
 
 
-/*
+
 void org_test_miniloop(void)
 {
 uint32_t start = 0, curtime;
@@ -607,7 +606,6 @@ uint32_t counter;
 		}
 	}
 }
-*/
 #if 0
 void SDL_Delay(int ms)
 {

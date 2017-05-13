@@ -1,7 +1,7 @@
 
-#include <stdio.h>
-#include <stdint.h>
-#include "vm_file.h"
+#include "nx.h"
+//#include <stdio.h>
+//#include <stdint.h>
 #include "niku.fdh"
 
 /*
@@ -9,17 +9,29 @@
 	to decrypt each instance, for a total of 20 bytes.
 */
 
+#ifdef __SDLSHIM__
+
+#include "vm_file.h"
+
+#define FILE VMFILE
+#define fileopen vm_fileopen
+#define fread vm_fread
+#define fwrite vm_fwrite
+#define fclose vm_fclose
+
+#endif
+
 // load the contents of 290.rec and store in value_out. Returns 0 on success.
 // If there is no such file or an error occurs, writes 0 to value_out.
 bool niku_load(uint32_t *value_out)
 {
-VMFILE *fp;
+FILE *fp;
 uint8_t buffer[20];
 uint32_t *result = (uint32_t *)buffer;
 int i, j;
 
 	const char *fname = getfname();
-	fp = vm_fileopen(fname, "rb");
+	fp = fileopen(fname, "rb");
 	if (!fp)
 	{
 		stat("niku_load: couldn't open file '%s'", fname);
@@ -27,8 +39,8 @@ int i, j;
 		return 1;
 	}
 	
-	vm_fread(buffer, 20, 1, fp);
-	vm_fclose(fp);
+	fread(buffer, 20, 1, fp);
+	fclose(fp);
 	
 	for(i=0;i<4;i++)
 	{
@@ -88,15 +100,15 @@ uint32_t *buf_dword = (uint32_t *)buf_byte;
 	}
 	
 	const char *fname = getfname();
-	VMFILE *fp = vm_fileopen(fname, "wb");
+	FILE *fp = fileopen(fname, "wb");
 	if (!fp)
 	{
 		staterr("niku_save: failed to open '%s'", fname);
 		return 1;
 	}
 	
-	vm_fwrite(buf_byte, 20, 1, fp);
-	vm_fclose(fp);
+	fwrite(buf_byte, 20, 1, fp);
+	fclose(fp);
 	
 	stat("niku_save: wrote value 0x%08x", value);
 	return 0;
@@ -113,6 +125,15 @@ static const char *getfname()
 	return "290.rec";
 }
 
+#ifdef __SDLSHIM__
+
+#undef FILE
+#undef fileopen
+#undef fread
+#undef fwrite
+#undef fclose
+
+#endif
 
 
 

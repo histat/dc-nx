@@ -114,12 +114,12 @@ NXDC.BIN: nxdc.elf
 1ST_READ.BIN: NXDC.BIN
 	scramble $< $@
 
-dist: 1ST_READ.BIN
+dist: 1ST_READ.BIN IP.BIN
 
 distclean:
-	rm -f 1ST_READ.BIN NXDC.BIN IP.BIN dump nxdc.strip.elf nxdc.elf
+	rm -f 1ST_READ.BIN NXDC.BIN IP.BIN ip.txt dump nxdc.strip.elf nxdc.elf
 
-NXDCVER=1.0.0.1
+NXDCVER=1001
 
 ip.txt: ip.txt.in
 	ver=V$(NXDCVER); \
@@ -127,4 +127,5 @@ ip.txt: ip.txt.in
 
 IP.BIN: ip.txt
 	makeip ip.txt IP.BIN
+
 

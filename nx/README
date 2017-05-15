@@ -14,32 +14,28 @@ Original NXEngine website http://nxengine.sourceforge.net
 
 Installation
 ------------
-windows user try ready to burn iso
 
-unix user try burn script
+try shell script master.sh
+
+NOTE:
 you should to install cdrkit
 
-unzip data.zip
+extract data.zip ,wav.zip and plain files
 
-ubzip raw.zip
-
-unzip binary
-
-IP.BIN data raw
-
-put 1st_read.bin data
+put 1ST_READ.BIN in data
 
 before excute the script 
-edit dev_option
+edit dev_option line in master.sh
 
 type 
 $ wodim --devices
 
-example
+replace device name with the result
+
+example:
 dev_option="/dev/sg4"
 
-finary 
-$ sh burm.sh
+$ sh master.sh
 
 Controls
 --------

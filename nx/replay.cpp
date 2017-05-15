@@ -17,7 +17,6 @@ extern int flipacceltime;
 
 #ifdef __SDLSHIM__
 
-
 bool Replay::LoadHeader(const char *fname, ReplayHeader *hdr)
 {
 }
@@ -58,12 +57,10 @@ void Replay::run()
 
 bool Replay::end_playback()
 {
-	return 0;
 }
 
 bool Replay::end_record()
 {
-	return 0;
 }
 
 void Replay::GetSlotInfo(int slotno, ReplaySlotInfo *slot)
@@ -76,9 +73,7 @@ void Replay::FramesToTime(int framecount, char *buffer)
 
 const char *GetReplayName(int slotno, char *buffer)
 {
-	if (!buffer) buffer = GetStaticStr();
-	sprintf(buffer, "replay/rep%d.dat", slotno);
-	return buffer;
+	return "no file";
 }
 
 #else

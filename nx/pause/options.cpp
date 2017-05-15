@@ -129,7 +129,9 @@ Dialog *dlg = opt.dlg;
 	
 	dlg->AddItem("Resolution: ", _res_change, _res_get);
 	dlg->AddItem("Controls", EnterControlsMenu);
+#ifndef __SDLSHIM__
 	dlg->AddItem("Replay", EnterReplayMenu);
+#endif
 	
 	dlg->AddSeparator();
 	

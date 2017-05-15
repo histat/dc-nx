@@ -221,17 +221,6 @@ void SDL_WarpMouse(uint16_t x, uint16_t y)
 
 void SDL_WM_SetCaption(const char *title, const char *icon)
 {
-	extern char vmu_title[];
-	int i;
-	char *wtitle = vmu_title;
-
-	for(i=0;i<32;i++)
-	{
-		wtitle[i] = title[i];
-		if (!title[i]) break;
-	}
-
-	wtitle[i] = '\0';
 }
 
 uint8_t SDL_GetAppState(void)

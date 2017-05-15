@@ -7,7 +7,6 @@
 #define MAX_VMU_SIZE (128 * 1024)
 
 int vm_file;
-char vmu_title[32];
 
 static bool vmu_avail[4*2];
 

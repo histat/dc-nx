@@ -8,10 +8,56 @@
 #include <dc/vmu_pkg.h>
 #include <dc/vmufs.h>
 #include "cave_icon.h"
+#include "icon_data_2bpp.h"
 
 #define MAX_VMU_SIZE 128 * 1024
 
+uint8 lcd_icon[48*32 /8];
+
 int vm_file;
+
+static void conv_lcd_icon(unsigned char *bit, const unsigned char *in)
+{
+  unsigned short *src = (unsigned short *)in;
+  unsigned char *dst = bit + (48/8) * 32;
+
+  for (int i=0; i<16; i++) {
+    unsigned char v;
+    unsigned int b = *src++;
+
+    *--dst = 0xff;
+    *--dst = 0xff;
+    for (int j= 0; j<16/8; j++) {
+      v = 0;
+      for (int x=0; x<8; x++) {
+	      v <<= 1;
+	      v |= (b & 1)?1:0;
+	      b >>= 1;
+      }
+      *--dst = v;
+    }
+    *--dst = 0xff;
+    *--dst = 0xff;
+  }
+}
+
+void init_lcd()
+{
+    conv_lcd_icon(lcd_icon, icon_data_2bpp);
+
+    /*
+     maple_device_t * dev;
+     int i=0;
+
+     while((dev = maple_enum_type(i++, MAPLE_FUNC_LCD))) {
+       vmu_draw_lcd(dev, lcd_icon);
+     }
+    */
+}
+
+static void clearlcd()
+{
+}
 
 bool vmfile_search(const char *fname, int *vm)
 {
@@ -29,6 +75,12 @@ bool vmfile_search(const char *fname, int *vm)
     }
 
     if (vmufs_read(dev, fname, (void **)&pkg_buf, &pkg_size) < 0) {
+      continue;
+    }
+
+    vmu_pkg_parse(pkg_buf, &pkg);
+    if(strcmp(pkg.app_id, "NXEngine")) {
+      free(pkg_buf);
       continue;
     }
 
@@ -71,7 +123,7 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
     }
 
     if (dev->info.functions & MAPLE_FUNC_LCD) {
-      //vmu_draw_lcd(dev, lcd_icon);
+      vmu_draw_lcd(dev, lcd_icon);
     }
 
     memset(&pkg, 0, sizeof(struct vmu_pkg));
@@ -99,6 +151,9 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 
     free(pkg_buf);
 
+    clearlcd();
+    vmu_draw_lcd(dev, lcd_icon);
+
     return true;
 }
 
@@ -119,7 +174,7 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
     }
 
     if (dev->info.functions & MAPLE_FUNC_LCD) {
-      //vmu_draw_lcd(dev, lcd_icon);
+      vmu_draw_lcd(dev, lcd_icon);
     }
 
     if (vmufs_read(dev, filename, (void **)&pkg_buf, &pkg_size) < 0) {

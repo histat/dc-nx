@@ -7,6 +7,9 @@
 #include "audio.h"
 #include "watchdog.h"
 
+extern void init_lcd();
+
+
 uint16_t *vram = NULL;
 void *screen_tx[SCREEN_BUFFER_SIZE] = {NULL};
 
@@ -130,6 +133,8 @@ int init_hardware()
 
 
   audio_init();
+
+  init_lcd();
 
 #ifndef NOSERIAL
   wdPause();

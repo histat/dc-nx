@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <endian.h>
+//#include <endian.h>
+#include "../shim.h"
 
 #include "../common/basics.h"
 #include "org.h"
@@ -30,7 +31,7 @@ static stNoteChannel note_channel[16];
 
 static stSong song;
 
-static int cache_ahead_time = 2000;		// approximate number of ms to cache ahead (is rounded to a # of beats)
+static int cache_ahead_time = (int)(1000 * 0.25);		// approximate number of ms to cache ahead (is rounded to a # of beats)
 
 static int buffer_beats;				// # of beats to cache ahead in each buffer
 static int buffer_samples;				// how many samples are in each outbuffer

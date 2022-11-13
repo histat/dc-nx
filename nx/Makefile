@@ -113,6 +113,7 @@ data: dist
 
 iso: data
 	cdi4dc INPUT.ISO TEST.CDI
+	$(RM) INPUT.ISO
 
 emu:
 	/mnt/c/opt/demul/demul.exe -run=dc -image=TEST.CDI

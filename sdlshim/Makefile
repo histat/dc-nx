@@ -32,8 +32,8 @@ sdlshim: $(OBJS)
 
 include $(KOS_BASE)/Makefile.rules
 
-NXDC.BIN: sdlshim.elf
-	sh-elf-objcopy -S -R .stack -O binary $< $@
+NXDC.BIN: sdlshim
+	sh-elf-objcopy -S -R .stack -O binary sdlshim.elf $@
 
 1ST_READ.BIN: NXDC.BIN
 	/opt/toolchains/dc/kos/utils/scramble/scramble $< $@
@@ -41,7 +41,7 @@ NXDC.BIN: sdlshim.elf
 dist: 1ST_READ.BIN IP.BIN
 
 distclean:
-	rm -f 1ST_READ.BIN NXDC.BIN IP.BIN ip.txt dump nxdc.elf
+	rm -f 1ST_READ.BIN NXDC.BIN IP.BIN ip.txt nxdc.elf
 
 clean:
 	$(RM) $(OBJS) sdlshim.elf
@@ -61,6 +61,7 @@ data: dist
 
 iso: data
 	cdi4dc INPUT.ISO TEST.CDI
+	$(RM) INPUT.ISO
 
 emu:
 	/mnt/c/opt/demul/demul.exe -run=dc -image=TEST.CDI
@@ -74,3 +75,9 @@ ip.txt: ../nx/ip.txt.in
 IP.BIN: ip.txt
 	/opt/toolchains/dc/kos/utils/makeip/makeip ip.txt IP.BIN
 
+# convert hey.png -colors 2 hey.pbm
+icon_data_2bpp:
+	echo 'static unsigned char icon_data_2bpp[] = {' >> $@.tmp
+	hexdump -v -s 9 -e '16/1 "0x%02x, " "\n"' \
+	hey.pbm >> $@.tmp
+	echo '		0 };' >> $@.tmp

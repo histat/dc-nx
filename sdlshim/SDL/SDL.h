@@ -62,8 +62,6 @@ FILE *SDLS_fopen(const char *filename, const char *mode);
 int SDL_main(int argc, char *argv[]);
 #define main	SDL_main
 
-#define MAXPATHLEN 255
-
 void set_console_visible(bool enable);
 
 #endif

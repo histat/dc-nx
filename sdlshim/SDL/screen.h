@@ -2,27 +2,27 @@
 #ifndef _SCREEN_H
 #define _SCREEN_H
 
-struct SDL_Rect
+typedef struct
 {
 	int16_t x, y;
 	uint16_t w, h;
-};
+} SDL_Rect;
 
-struct SDL_Color
+typedef struct
 {
   uint8_t r;
   uint8_t g;
   uint8_t b;
   uint8_t unused;
-};
+} SDL_Color;
 
-struct SDL_Palette
+typedef struct
 {
   int ncolors;
   SDL_Color *colors;
-};
+} SDL_Palette;
 
-struct SDL_PixelFormat
+typedef struct
 {
     SDL_Palette *palette;
 	uint8_t BitsPerPixel;
@@ -30,9 +30,9 @@ struct SDL_PixelFormat
 	uint8_t Rloss, Gloss, Bloss, Aloss;
 	uint8_t Rshift, Gshift, Bshift, Ashift;
 	uint32_t Rmask, Gmask, Bmask, Amask;
-};
+} SDL_PixelFormat;
 
-struct SDL_Surface
+typedef struct
 {
     uint32_t flags;
 	uint16_t *pixels;
@@ -44,7 +44,7 @@ struct SDL_Surface
 	
 	bool use_colorkey;
 	bool free_pixels;
-};
+} SDL_Surface;
 
 #define SDL_SWSURFACE       0x00000000  /* Not used */
 #define SDL_SRCALPHA        0x00010000
@@ -60,7 +60,6 @@ struct SDL_Surface
 #define SDL_ASYNCBLIT       0x08000000  /* Not used */
 #define SDL_RLEACCELOK      0x08000000  /* Not used */
 #define SDL_HWACCEL         0x08000000  /* Not used */
-
 
 extern "C"
 {

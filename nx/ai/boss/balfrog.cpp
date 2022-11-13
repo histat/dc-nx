@@ -3,6 +3,10 @@
 #include "balfrog.h"
 #include "balfrog.fdh"
 
+#ifdef STATE_READY
+#undef STATE_READY
+#endif
+
 enum Frames
 {
 	FRAME_STAND				= 0,

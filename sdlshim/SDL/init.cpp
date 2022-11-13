@@ -1,5 +1,4 @@
 
-#include <ronin/ronin.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "SDL.h"
@@ -24,7 +23,7 @@ void SDL_Quit(void)
 		SDLS_EventQuit();
 		SDLS_CloseScreen();
 		console_close();
-		ronin_close();
+		close_hardware();
 	}
 
 #ifdef NOSERIAL
@@ -38,26 +37,15 @@ void c------------------------------() {}
 
 int main(int argc, char *argv[])
 {
-#ifndef NOSERIAL
-	serial_init(57600);
-	usleep(20000);
-	printf("Serial OK\n");
-#endif
+  if (init_hardware()) return 1;
+  if (SDLS_EventInit()) return 1;
+  if (console_init()) return 1;
 
-	cdfs_init();
-	maple_init();
-	dc_setup_ta();
-	init_arm();
+  SDL_main(argc, argv);
 
-	if (SDLS_EventInit()) return 1;
-	if (ronin_init()) return 1;
-	if (console_init()) return 1;
-	
-	SDL_main(argc, argv);
+  SDL_Quit();
 
-	SDL_Quit();
-
-	return 0;
+  return 0;
 }
 
 

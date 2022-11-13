@@ -3,6 +3,10 @@
 #include "YesNoPrompt.h"
 #include "YesNoPrompt.fdh"
 
+#ifdef STATE_WAIT
+#undef STATE_WAIT
+#endif
+
 enum
 {
 	STATE_APPEAR,

@@ -4,10 +4,150 @@
 #include "screen.h"
 #include "screen.fdh"
 
+#include <kos.h>
+#include "libsh4.h"
+#include "npvr_vertex.h"
+#include "profile.h"
+#include "watchdog.h"
+
+struct polygon_list {
+  unsigned int cmd;
+  unsigned int mode1;
+  unsigned int mode2;
+  unsigned int texture;
+  float alpha, red, green, blue; /* used with intensity type colour */
+};
+
+#define TA_CMD_POLYGON                    0x80000000
+#define TA_CMD_MODIFIER                   0x80000000
+#define TA_CMD_SPRITE			  0xa0000000
+#define TA_CMD_POLYGON_TYPE_OPAQUE        (0<<24)
+#define TA_CMD_MODIFIER_TYPE_OPAQUE       (1<<24)
+#define TA_CMD_POLYGON_TYPE_TRANSPARENT   (2<<24)
+#define TA_CMD_MODIFIER_TYPE_TRANSPARENT  (3<<24)
+#define TA_CMD_POLYGON_TYPE_PUNCHTHRU     (4<<24)
+#define TA_CMD_POLYGON_SUBLIST            0x00800000
+#define TA_CMD_POLYGON_STRIPLENGTH_1      (0<<18)
+#define TA_CMD_POLYGON_STRIPLENGTH_2      (1<<18)
+#define TA_CMD_POLYGON_STRIPLENGTH_4      (2<<18)
+#define TA_CMD_POLYGON_STRIPLENGTH_6      (3<<18)
+#define TA_CMD_POLYGON_USER_CLIP_INSIDE   0x00020000
+#define TA_CMD_POLYGON_USER_CLIP_OUTSIDE  0x00030000
+#define TA_CMD_POLYGON_AFFECTED_BY_MODIFIER  0x00000080
+#define TA_CMD_POLYGON_CHEAP_SHADOW_MODIFIER 0x00000000
+#define TA_CMD_POLYGON_NORMAL_MODIFIER       0x00000040
+#define TA_CMD_POLYGON_PACKED_COLOUR      (0<<4)
+#define TA_CMD_POLYGON_FLOAT_COLOUR       (1<<4)
+#define TA_CMD_POLYGON_INTENSITY          (2<<4)
+#define TA_CMD_POLYGON_PREVFACE_INTENSITY (3<<4)
+#define TA_CMD_POLYGON_TEXTURED           0x00000008
+#define TA_CMD_POLYGON_SPECULAR_HIGHLIGHT 0x00000004
+#define TA_CMD_POLYGON_GOURAUD_SHADING    0x00000002
+#define TA_CMD_POLYGON_16BIT_UV           0x00000001
+
+#define TA_POLYMODE1_Z_NEVER        (0<<29)
+#define TA_POLYMODE1_Z_LESS         (1<<29)
+#define TA_POLYMODE1_Z_EQUAL        (2<<29)
+#define TA_POLYMODE1_Z_LESSEQUAL    (3<<29)
+#define TA_POLYMODE1_Z_GREATER      (4<<29)
+#define TA_POLYMODE1_Z_NOTEQUAL     (5<<29)
+#define TA_POLYMODE1_Z_GREATEREQUAL (6<<29)
+#define TA_POLYMODE1_Z_ALWAYS       (7<<29)
+#define TA_POLYMODE1_CULL_SMALL     (1<<27)
+#define TA_POLYMODE1_CULL_CCW       (2<<27)
+#define TA_POLYMODE1_CULL_CW        (3<<27)
+#define TA_POLYMODE1_NO_Z_UPDATE    0x04000000
+
+#define TA_POLYMODE2_BLEND_SRC_ALPHA    (0x80<<24)
+#define TA_POLYMODE2_BLEND_SRC          (0x20<<24)
+#define TA_POLYMODE2_BLEND_SRC_INVALPHA (0xa0<<24)
+#define TA_POLYMODE2_BLEND_DST_ALPHA    (0x10<<24)
+#define TA_POLYMODE2_BLEND_DST          (0x04<<24)
+#define TA_POLYMODE2_BLEND_DST_INVALPHA (0x14<<24)
+
+#define TA_POLYMODE2_BLEND_DEFAULT  TA_POLYMODE2_BLEND_SRC
+
+#define TA_POLYMODE2_FOG_TABLE      (0<<22)
+#define TA_POLYMODE2_FOG_VERTEX     (1<<22)
+#define TA_POLYMODE2_FOG_DISABLED   (2<<22)
+#define TA_POLYMODE2_FOG_TABLE2     (3<<22)
+#define TA_POLYMODE2_CLAMP_COLOURS  0x00200000
+#define TA_POLYMODE2_ENABLE_ALPHA   0x00100000
+#define TA_POLYMODE2_DISABLE_TEXTURE_TRANSPARENCY 0x00080000
+#define TA_POLYMODE2_TEXTURE_FLIP_U   0x00040000
+#define TA_POLYMODE2_TEXTURE_FLIP_V   0x00020000
+#define TA_POLYMODE2_TEXTURE_CLAMP_U  0x00010000
+#define TA_POLYMODE2_TEXTURE_CLAMP_V  0x00008000
+#define TA_POLYMODE2_TRILINEAR_FILTER 0x00004000
+#define TA_POLYMODE2_BILINEAR_FILTER  0x00002000
+#define TA_POLYMODE2_MIPMAP_D_0_25    (1<<8)
+#define TA_POLYMODE2_MIPMAP_D_0_50    (2<<8)
+#define TA_POLYMODE2_MIPMAP_D_0_75    (3<<8)
+#define TA_POLYMODE2_MIPMAP_D_1_00    (4<<8)
+#define TA_POLYMODE2_MIPMAP_D_1_25    (5<<8)
+#define TA_POLYMODE2_MIPMAP_D_1_50    (6<<8)
+#define TA_POLYMODE2_MIPMAP_D_1_75    (7<<8)
+#define TA_POLYMODE2_MIPMAP_D_2_00    (8<<8)
+#define TA_POLYMODE2_MIPMAP_D_2_25    (9<<8)
+#define TA_POLYMODE2_MIPMAP_D_2_50    (10<<8)
+#define TA_POLYMODE2_MIPMAP_D_2_75    (11<<8)
+#define TA_POLYMODE2_MIPMAP_D_3_00    (12<<8)
+#define TA_POLYMODE2_MIPMAP_D_3_25    (13<<8)
+#define TA_POLYMODE2_MIPMAP_D_3_50    (14<<8)
+#define TA_POLYMODE2_MIPMAP_D_3_75    (15<<8)
+#define TA_POLYMODE2_TEXTURE_REPLACE  (0<<6)
+#define TA_POLYMODE2_TEXTURE_MODULATE (1<<6)
+#define TA_POLYMODE2_TEXTURE_DECAL    (2<<6)
+#define TA_POLYMODE2_TEXTURE_MODULATE_ALPHA (3<<6)
+#define TA_POLYMODE2_U_SIZE_8         (0<<3)
+#define TA_POLYMODE2_U_SIZE_16        (1<<3)
+#define TA_POLYMODE2_U_SIZE_32        (2<<3)
+#define TA_POLYMODE2_U_SIZE_64        (3<<3)
+#define TA_POLYMODE2_U_SIZE_128       (4<<3)
+#define TA_POLYMODE2_U_SIZE_256       (5<<3)
+#define TA_POLYMODE2_U_SIZE_512       (6<<3)
+#define TA_POLYMODE2_U_SIZE_1024      (7<<3)
+#define TA_POLYMODE2_V_SIZE_8         (0<<0)
+#define TA_POLYMODE2_V_SIZE_16        (1<<0)
+#define TA_POLYMODE2_V_SIZE_32        (2<<0)
+#define TA_POLYMODE2_V_SIZE_64        (3<<0)
+#define TA_POLYMODE2_V_SIZE_128       (4<<0)
+#define TA_POLYMODE2_V_SIZE_256       (5<<0)
+#define TA_POLYMODE2_V_SIZE_512       (6<<0)
+#define TA_POLYMODE2_V_SIZE_1024      (7<<0)
+
+#define TA_TEXTUREMODE_MIPMAP       0x80000000
+#define TA_TEXTUREMODE_VQ_COMPRESSION 0x40000000
+#define TA_TEXTUREMODE_ARGB1555     (0<<27)
+#define TA_TEXTUREMODE_RGB565       (1<<27)
+#define TA_TEXTUREMODE_ARGB4444     (2<<27)
+#define TA_TEXTUREMODE_YUV422       (3<<27)
+#define TA_TEXTUREMODE_BUMPMAP      (4<<27)
+#define TA_TEXTUREMODE_CLUT4        (5<<27)
+#define TA_TEXTUREMODE_CLUT8        (6<<27)
+#define TA_TEXTUREMODE_CLUTBANK8(n) ((n)<<25) /* 0-3  */
+#define TA_TEXTUREMODE_CLUTBANK4(n) ((n)<<21) /* 0-63 */
+#define TA_TEXTUREMODE_TWIDDLED     0x00000000
+#define TA_TEXTUREMODE_NON_TWIDDLED 0x04000000
+#define TA_TEXTUREMODE_STRIDE	    (1<<25)
+#define TA_TEXTUREMODE_ADDRESS(a)   ((((unsigned long)(void*)(a))&0x7fffff)>>3)
+
+struct packed_colour_vertex_list  {
+  unsigned int cmd;
+  float x, y, z, u, v;
+  unsigned int colour, ocolour;
+};
+
+#define TA_CMD_VERTEX     0xE0000000
+#define TA_CMD_VERTEX_EOS 0xF0000000  /* end of strip */
+
 #define GET_PIXEL_ADDR(SURFACE, X, Y)	\
 	((uint16_t *)(((uint8_t *)SURFACE->pixels) + ((Y) * SURFACE->pitch) + ((X) * 2)))
 
-static struct SDL_PixelFormat SDLS_StdFormat = { NULL, 16, 2 };
+static SDL_PixelFormat SDLS_StdFormat = { NULL, 16, 2 ,
+						 0,0,0,0,
+						 11,6,0,
+						 0xff,0xff,0xff};
 SDL_Surface *SDLS_VRAMSurface = NULL;
 static SDL_Surface _default;
 
@@ -59,8 +199,8 @@ static void tex_memcpy(void *dst, void *src, unsigned int n)
 	unsigned int *d = (unsigned int *)(void *) \
 		(0xe0000000 | (((unsigned long)dst) & 0x03ffffc0));
 	
-	QACR0 = ((0xa4000000>>26)<<2)&0x1c;
-	QACR1 = ((0xa4000000>>26)<<2)&0x1c;
+	QACR0 = 0xa4;
+	QACR1 = 0xa4;
 
 	n >>= 6;
 
@@ -90,23 +230,6 @@ static void tex_memcpy(void *dst, void *src, unsigned int n)
 	}
 }
 
-void commit_dummy_transpoly()
-{
-	struct polygon_list mypoly;
-
-	mypoly.cmd =
-		TA_CMD_POLYGON|TA_CMD_POLYGON_TYPE_TRANSPARENT|TA_CMD_POLYGON_SUBLIST|
-		TA_CMD_POLYGON_STRIPLENGTH_2|TA_CMD_POLYGON_PACKED_COLOUR;
-	mypoly.mode1 = TA_POLYMODE1_Z_ALWAYS|TA_POLYMODE1_NO_Z_UPDATE;
-	mypoly.mode2 =
-		TA_POLYMODE2_BLEND_SRC_ALPHA|TA_POLYMODE2_BLEND_DST_INVALPHA|
-		TA_POLYMODE2_FOG_DISABLED|TA_POLYMODE2_ENABLE_ALPHA;
-	mypoly.texture = 0;
-	mypoly.red = mypoly.green = mypoly.blue = mypoly.alpha = 0;
-	ta_commit_list(&mypoly);
-}
-
-
 void update_polygon()
 {
 	struct polygon_list mypoly;
@@ -117,47 +240,49 @@ void update_polygon()
 		TA_CMD_POLYGON_STRIPLENGTH_2|TA_CMD_POLYGON_TEXTURED|TA_CMD_POLYGON_PACKED_COLOUR;
 	mypoly.mode1 = TA_POLYMODE1_Z_ALWAYS|TA_POLYMODE1_NO_Z_UPDATE;
 	mypoly.mode2 =
-		TA_POLYMODE2_BLEND_SRC|TA_POLYMODE2_FOG_DISABLED|TA_POLYMODE2_TEXTURE_REPLACE|
+		TA_POLYMODE2_BLEND_DEFAULT|TA_POLYMODE2_FOG_DISABLED|TA_POLYMODE2_TEXTURE_REPLACE|
 		TA_POLYMODE2_U_SIZE_1024|TA_POLYMODE2_V_SIZE_1024;
 	mypoly.texture =
 		TA_TEXTUREMODE_RGB565|TA_TEXTUREMODE_STRIDE|TA_TEXTUREMODE_NON_TWIDDLED|
 		TA_TEXTUREMODE_ADDRESS(screen_tx[screen_buffer]);
 	mypoly.alpha = mypoly.red = mypoly.green = mypoly.blue = 1.0;
-	
-	ta_begin_frame();
-	ta_commit_list(&mypoly);
-  
-	myvertex.cmd = TA_CMD_VERTEX;
-	myvertex.colour = 0;
-	myvertex.ocolour = 0;
-	
-	myvertex.x = _screen_x;
-	myvertex.y = _screen_y;
-	myvertex.z = 0.5;
-	myvertex.u = 0.0;
-	myvertex.v = 0.0;
-	ta_commit_list(&myvertex);
-	
-	myvertex.y += _screen_h;
-	myvertex.v = SCREEN_HEIGHT * (1.0/1024);
-	ta_commit_list(&myvertex);
-	
-	myvertex.x += _screen_w;
-	myvertex.y = _screen_y;
-	myvertex.u = SCREEN_WIDTH * (1.0/1024);
-	myvertex.v = 0.0;
-	ta_commit_list(&myvertex);
 
-	myvertex.y += _screen_h;
-	myvertex.v = SCREEN_HEIGHT * (1.0/1024);
-	myvertex.cmd |= TA_CMD_VERTEX_EOS;
-	ta_commit_list(&myvertex);
-	
-	ta_commit_end();
-	
-	commit_dummy_transpoly();
-	
-	ta_commit_frame();
+	pvr_scene_begin();
+	pvr_list_begin(PVR_LIST_OP_POLY);
+
+	void *sq = sqPrepare((void*)PVR_TA_INPUT);
+	sqCopy32(sq, &mypoly);
+
+
+	pvr_vertex32 *v = (pvr_vertex32*)sq + 32;
+
+	float x = _screen_x;
+	float y = _screen_y;
+	int w = _screen_w;
+	int h = _screen_h;
+
+	pv_set_pos(v, x, y, 1.0);
+	pv_set_uv(v, 0.0, 0.0);
+	pv_set_cmd_submit_vertex(v);
+	v++;
+
+	pv_set_pos(v, x, y + h, 1.0);
+	pv_set_uv(v, 0.0, SCREEN_HEIGHT * (1.0/1024));
+	pv_set_cmd_submit_vertex(v);
+	v++;
+
+	pv_set_pos(v, x + w, y, 1.0);
+	pv_set_uv(v, SCREEN_WIDTH * (1.0/1024), 0.0);
+	pv_set_cmd_submit_vertex(v);
+	v++;
+
+	pv_set_pos(v, x + w, y + h, 1.0);
+	pv_set_uv(v, SCREEN_WIDTH * (1.0/1024), SCREEN_HEIGHT * (1.0/1024));
+	pv_set_cmd_submit_vertex_eos(v);
+
+	pvr_list_finish();
+	pvr_scene_finish();
+
 }
 
 // -----
@@ -191,7 +316,7 @@ SDL_Surface *SDL_SetVideoMode(int width, int height, int bitsperpixel, uint32_t 
 	sfc->cliprect.y = 0;
 	sfc->cliprect.w = sfc->w;
 	sfc->cliprect.h = sfc->h;
-	
+
 	return SDLS_VRAMSurface;
 }
 

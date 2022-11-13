@@ -1,33 +1,20 @@
-ronindir = ../libronin
+DEBUG = 0
 
-RELEASE_BUILD = 1
+INCLUDES = -I $(KOS_PORTS)/include/zlib -I../sdlshim -I../sdlshim/SDL
+CFLAGS = $(KOS_CFLAGS) -Os $(INCLUDES) $(DEFINES) -Wreturn-type -Wunused-variable -Wno-multichar
+CXXFLAGS = $(KOS_CXXFLAGS)
+LDFLAGS =
+LIBS	= -lz -lm -lstdc++
 
-AS = sh-elf-as -little
-CC = sh-elf-gcc -ml -m4-single-only
-CXX = sh-elf-g++ -ml -m4-single-only
-LD = sh-elf-ld -EL
-RM = rm -f
+TARGET := nxdc-debug.elf
 
-DEFINES = -DUSE_ARM
-ifeq "$(RELEASE_BUILD)" "1"
-DEFINES += -DNOSERIAL 
-else
-DEFINES += -D__SDCARD__
+ifeq ($(DEBUG), 0)
+CFLAGS += -DNOSERIAL
+TARGET := nxdc-release.elf
 endif
-INCLUDES = -I$(ronindir)/include -I../sdlshim -I../sdlshim/SDL -I../libsd
-CFLAGS = -Wall -Os $(INCLUDES) $(DEFINES) -Wreturn-type -Wunused-variable -Wno-multichar
-CXXFLAGS = $(CFLAGS) -fno-exceptions
-LDFLAGS = -Wl,-Ttext,0x8c010000 -nostartfiles $(ronindir)/lib/crt0.o
-
-ifeq "$(RELEASE_BUILD)" "1"
-LIBS	=-lstdc++ -L$(ronindir)/lib -lronin-noserial -lz -lm
-else
-LIBS	=-lstdc++ -L$(ronindir)/lib -lronin -lz -lm -L../libsd -lsd
-endif
-
 
 ASSRC := ../sdlshim/asm.s
-CSRC :=
+CSRC := ../sdlshim/audio.c ../sdlshim/aica.bin.c ../sdlshim/libpspvram/valloc.c ../sdlshim/watchdog.c ../sdlshim/profile.c
 CPPSRC := \
 	main.cpp game.cpp object.cpp ObjManager.cpp map.cpp \
 	TextBox/TextBox.cpp TextBox/YesNoPrompt.cpp TextBox/ItemImage.cpp \
@@ -76,7 +63,7 @@ CPPSRC := \
 	common/FileBuffer.cpp common/InitList.cpp common/BList.cpp \
 	common/StringList.cpp common/DBuffer.cpp common/DString.cpp \
 	common/bufio.cpp common/misc.cpp \
-	../sdlshim/ronin.cpp ../sdlshim/dcevent.cpp \
+	../sdlshim/shim.cpp ../sdlshim/dcevent.cpp \
 	../sdlshim/console.cpp ../sdlshim/vm_file.cpp \
 	../sdlshim/file.cpp ../sdlshim/vmu.cpp ../sdlshim/scrnsave.cpp \
 	../sdlshim/SDL/init.cpp ../sdlshim/SDL/screen.cpp \
@@ -91,41 +78,50 @@ CPPOBJ    = $(patsubst %.cpp, %.o, $(CPPSRC))
 
 OBJS = $(CPPOBJ) $(ASOBJ) $(COBJ)
 
-all : nxdc.elf
+all : $(TARGET)
 
-nxdc.elf: $(OBJS) 
-	$(CXX) -o $@ $(LDFLAGS) $(OBJS) $(LIBS) 
+$(TARGET): $(OBJS)
+	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) $(LDFLAGS) -o $(TARGET) $(KOS_START) \
+	$(OBJS) $(LIBS) $(KOS_LIBS)
+
+include $(KOS_BASE)/Makefile.rules
 
 clean:
-	$(RM) $(OBJS) nxdc.elf
+	$(RM) $(OBJS) $(TARGET)
 
-nxdc.strip.elf: nxdc.elf
-	sh-elf-strip -o $@ $<
+addr:
+	sh-elf-addr2line -e $(TARGET) $(ARG)
 
-run: nxdc.strip.elf
-	ipupload.pike < $<
+run: $(TARGET)
+	$(KOS_LOADER) -x $< -i DATA.ISO
 
-dump: nxdc.elf
-	sh-elf-objdump -D $< > dump
 
-NXDC.BIN: nxdc.elf
+NXDC.BIN: $(TARGET)
 	sh-elf-objcopy -S -R .stack -O binary $< $@
 
 1ST_READ.BIN: NXDC.BIN
-	scramble $< $@
+	/opt/toolchains/dc/kos/utils/scramble/scramble $< $@
 
 dist: 1ST_READ.BIN IP.BIN
 
 distclean:
-	rm -f 1ST_READ.BIN NXDC.BIN IP.BIN ip.txt dump nxdc.strip.elf nxdc.elf
+	rm -f 1ST_READ.BIN NXDC.BIN IP.BIN ip.txt $(TARGET)
 
-NXDCVER=1001
+data: dist
+	cp 1ST_READ.BIN ../data/
+	mkisofs -C 0,11702 -G IP.BIN -U -D -V "NXEngine" -p "Pixel, Caitlin, histat" -o INPUT.ISO ../data
+
+iso: data
+	cdi4dc INPUT.ISO TEST.CDI
+
+emu:
+	/mnt/c/opt/demul/demul.exe -run=dc -image=TEST.CDI
+
+NXDCVER = 1.000
 
 ip.txt: ip.txt.in
 	ver=V$(NXDCVER); \
 	sed -e 's/[@]VERSION[@]/'"$$ver"/ -e 's/[@]DATE[@]/$(shell date '+%Y%m%d')/' < $< > $@ 
 
 IP.BIN: ip.txt
-	makeip ip.txt IP.BIN
-
-
+	/opt/toolchains/dc/kos/utils/makeip/makeip ip.txt IP.BIN

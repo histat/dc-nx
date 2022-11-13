@@ -6,14 +6,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include <ronin/ronin.h>
+#include <stdbool.h>
+
+#include <kos.h>
 
 #include "common/DBuffer.h"
 #include "common/BList.h"
 #include "SDL/SDL.h"
 
-bool ronin_init();
-void ronin_close();
+int init_hardware();
+void close_hardware();
 void update_audio();
 extern void *screen_tx[];
 
@@ -29,5 +31,11 @@ extern uint16_t *vram;
 #define SCREEN_CHARS_HEIGHT	(SCREEN_HEIGHT/FONT_HEIGHT)
 
 #define SCREEN_BUFFER_SIZE 4
+
+
+#define RING_BUFFER_SAMPLES 44100
+#define SAMPLES_TO_BYTES(n) ((n)<<1)
+
+extern FILE *SDLS_fopen(const char *fname, const char *mode);
 
 #endif

@@ -112,11 +112,17 @@ bool freshstart;
 		set_console_visible(false);
 	#endif
 	
-	//speed_test();
-	//return 1;
+		//speed_test();
+		//return 1;
+#ifndef NOSERIAL
+	wdResume();
+#endif
 	
 	while(game.running)
 	{
+		#ifndef NOSERIAL
+			wdPet();
+		#endif
 		// SSS/SPS persists across stage transitions until explicitly
 		// stopped, or you die & reload. It seems a bit risky to me,
 		// but that's the spec.

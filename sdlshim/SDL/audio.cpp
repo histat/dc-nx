@@ -2,45 +2,49 @@
 #ifndef USE_ARM
 
 #include "../shim.h"
+#include "../audio.h"
 #include "audio.fdh"
-#include <ronin/soundcommon.h>
-#include <ronin/gddrive.h>
-
 
 #define ADJUST_VOLUME(s, v)		(s = ((s*v) / SDL_MIX_MAXVOLUME))
 
-
-EXTERN_C void *memcpy4s(void *s1, const void *s2, unsigned int n);
-
 #define AUDIO_SIZE (RING_BUFFER_SAMPLES>>3)
-signed short tmp_sound_buffer[AUDIO_SIZE] __attribute__((aligned (32)));
+static signed short buffer[AUDIO_SIZE] __attribute__((aligned (32)));
 
 
 static void (*dc_callback)(void *userdata, uint8_t *stream, int len) = NULL;
 
-static uint8_t dsstreamevent;
-static uint32_t dsstreambytes;
+#define SAMPLERATE 22050
+#define BUFSIZE (AUDIO_SIZE / 2)
+
+static bool enable_sound;
+
+void start_sound() {
+  enable_sound = true;
+}
+
+void stop_sound() {
+  enable_sound = false;
+}
+
+static kthread_t * sndthd = NULL;
+static void *sndfill(void *arg);
+void update_audio();
 
 int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
 	stop_sound();
-	do_sound_command(CMD_SET_BUFFER(3));
-	do_sound_command(CMD_SET_STEREO(1));
-	do_sound_command(CMD_SET_FREQ_EXP(FREQ_22050_EXP));
-
-	
-	obtained->freq = read_sound_int(&SOUNDSTATUS->freq);
+	obtained->freq = 22050;
 	obtained->format = AUDIO_S16;
 	obtained->channels = 2;
 
-	dsstreambytes = read_sound_int(&SOUNDSTATUS->ring_length) / 2;
-	obtained->samples = dsstreambytes;
+	obtained->samples = BUFSIZE;
 	//obtained->samples = desired->samples;
 	obtained->size = (obtained->samples * 2);
 	//obtained->callback = desired->callback;
 	dc_callback = desired->callback;
 
-	dsstreamevent = 0;
+	audio_register_ringbuffer(AUDIO_FORMAT_16BIT, obtained->freq, BUFSIZE);
+	sndthd = thd_create(0, &sndfill, NULL);
 
 	return 0;
 }
@@ -98,30 +102,36 @@ void SDL_MixAudio(uint8_t *dst, const uint8_t *src, uint32_t len, int volume)
 	}
 }
 
+static void *sndfill(void *arg)
+{
+  while (1) {
+    update_audio();
+  }
+
+  return NULL;
+}
+
 void update_audio()
 {
-    int n = read_sound_int(&SOUNDSTATUS->samplepos);
-    int pos;
+    uint32_t *samples = (uint32_t *)buffer;
+    memset(buffer, 0, sizeof(buffer));
 
-    if (n >= dsstreambytes) {
-	
-      if (dsstreamevent == 0) return;
-	
-	  dsstreamevent = 0;
-	  pos = 0;
-    } else {
+    if (enable_sound)
+      (*dc_callback)(NULL, (uint8_t *)samples, 2*SAMPLES_TO_BYTES(BUFSIZE));
 
-      if (dsstreamevent == 1) return;
+    int numsamples = BUFSIZE;
 
-	  dsstreamevent = 1;
-	  pos = dsstreambytes;
+    while (numsamples > 0) {
+      unsigned int actual_written = audio_write_stereo_data(samples, numsamples);
+
+      if (actual_written < numsamples) {
+	numsamples -= actual_written;
+	samples += actual_written;
+	thd_sleep(10);
+      } else {
+	numsamples = 0;
+      }
     }
-    
-    memset(tmp_sound_buffer, 0, sizeof(tmp_sound_buffer));
-
-    (*dc_callback)(NULL, (uint8_t *)tmp_sound_buffer, 2*SAMPLES_TO_BYTES(dsstreambytes));
-	
-    memcpy4s(RING_BUF + pos, tmp_sound_buffer, SAMPLES_TO_BYTES(dsstreambytes));
 }
 
 #endif

@@ -4,14 +4,15 @@
 
 #include "shim.h"
 
-//#include <stdio.h>
-//#include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include "../common/basics.h"
 #include "sound/sslib.h"
 #include "sound/org.h"
 #include "sound/pxt.h"
+#include "watchdog.h"
 
 
 extern int random(int min, int max);
@@ -20,30 +21,6 @@ extern void testblit(void);
 
 static bool quitting = false;
 
-#if 0
-int SDL_main(int argc, char *argv[])
-{
-	stat("Entering main loop");
-	testblit();
-
-	while(!quitting)
-	{
-		SDL_Event pie;
-		if (SDL_PollEvent(&pie))
-		{
-			stat("Got event %d", pie.type);
-			quitting = true;
-
-			stop_cdda();
-		}
-		
-		SDL_Delay(10);
-	}
-	
-	return 0;
-}
-
-
 void testblit(void)
 {
 SDL_Surface *screen, *image;
@@ -51,9 +28,9 @@ SDL_Surface *screen, *image;
 	screen = SDL_SetVideoMode(320, 240, 16, SDL_SWSURFACE);
 	if (!screen) return;
 	
-	//image = SDL_LoadBMP("data/MyChar.pbm");
+	image = SDL_LoadBMP("data/MyChar.pbm");
 	//image = SDL_LoadBMP("data/ItemImage.pbm");
-	image = SDL_LoadBMP("data/TextBox.pbm");
+	//image = SDL_LoadBMP("data/TextBox.pbm");
 	if (!image) return;
 	
 	stat("Blitting...");
@@ -67,7 +44,7 @@ SDL_Surface *screen, *image;
 	SDL_Rect dstrect;
 	dstrect.x = 5;
 	dstrect.y = 5;
-#if 0	
+#if 1
 	SDL_BlitSurface(image, &srcrect, screen, &dstrect);
 #else
 	SDL_BlitSurface(image, NULL, screen, NULL);
@@ -108,11 +85,36 @@ uint32_t color = SDL_MapRGB(screen->format, 255, 0, 255);
 	rect.x = x2 * SCALE;
 	SDL_FillRect(screen, &rect, color);
 }
+
+#if 0
+int SDL_main(int argc, char *argv[])
+{
+	stat("Entering main loop");
+	testblit();
+
+#ifndef NOSERIAL
+	wdResume();
 #endif
+	while(!quitting)
+	{
+		#ifndef NOSERIAL
+			wdPet();
+		#endif
 
+		SDL_Event pie;
+		if (SDL_PollEvent(&pie))
+		{
+			stat("Got event %d", pie.type);
+			quitting = true;
+		}
 
+		SDL_Delay(10);
+	}
 
-#if 1
+	return 0;
+}
+#else
+
 static const char *org_dir = "org/";
 static const char *pxt_dir = "pxt/";
 static const char *sndcache = "sndcache.pcm";
@@ -186,10 +188,19 @@ int SDL_main(int argc, char *argv[])
 		return 1;
 	}
 
+	testblit();
+
 	music(19);
+
+#ifndef NOSERIAL
+	wdResume();
+#endif
 
 	while(!quitting)
 	{
+		#ifndef NOSERIAL
+			wdPet();
+		#endif
 
 		org_run();
 		

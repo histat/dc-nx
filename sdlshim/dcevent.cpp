@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <string.h>
-#include <ronin/maple.h>
-#include <ronin/dc_time.h>
+
+#include <kos.h>
+#include <dc/maple.h>
+#include <dc/maple/controller.h>
+#include <dc/maple/keyboard.h>
+#include <dc/maple/mouse.h>
 #include "dcevent.h"
 
 
@@ -50,18 +54,20 @@ static JoyState joy2state;
 static KeyState  keystate;
 static MouseState  mousestate;
 
-static void handleController(struct mapledev *pad, int Cnt)
+static void handleController(maple_device_t *dev, int Cnt)
 {
 	Event ev;
 
 	JoyState& state = (Cnt == 0) ? joy1state : joy2state;
-  
-	state.joyx = pad->cond.controller.joyx-128;
-	state.joyy = pad->cond.controller.joyy-128;
-	state.rtrigger = pad->cond.controller.rtrigger;
-	state.ltrigger = pad->cond.controller.ltrigger;
 
-	unsigned short button = ~pad->cond.controller.buttons & 0xffff;
+	cont_cond_t *pad = (cont_cond_t *)maple_dev_status(dev);
+  
+	state.joyx = pad->joyx;
+	state.joyy = pad->joyy;
+	state.rtrigger = pad->rtrig;
+	state.ltrigger = pad->ltrig;
+
+	unsigned short button = pad->buttons & 0xffff;
 	button |= (state.rtrigger?1:0)<<12 | (state.ltrigger?1:0)<<13;
 
 	if (button == 0x060e) {
@@ -102,12 +108,14 @@ static void handleController(struct mapledev *pad, int Cnt)
 	}
 }
 
-static void handleKeyboard(struct mapledev *pad)
+static void handleKeyboard(maple_device_t *dev)
 {
 	Event ev;
 	KeyState& state = keystate;
 
-	unsigned char shift = pad->cond.kbd.shift;
+	kbd_cond_t *pad = (kbd_cond_t *)maple_dev_status(dev);
+
+	unsigned char shift = pad->modifiers;
 	int diff = (shift^state.shift)&0xff;
   
 	if (diff) {
@@ -128,7 +136,7 @@ static void handleKeyboard(struct mapledev *pad)
 	unsigned char *end;
 
   
-	newkey = pad->cond.kbd.key;
+	newkey = pad->keys;
 
 	for (int i=0; i<6; ++i, ++newkey) {
 		if ((*newkey >= 2) && (*newkey <= 0x9f)) {
@@ -156,8 +164,8 @@ static void handleKeyboard(struct mapledev *pad)
   
 	for (int i=0; i<6; ++i, ++oldkey) {
 
-		begin = &pad->cond.kbd.key[0];
-		end = &pad->cond.kbd.key[6];
+		begin = &pad->keys[0];
+		end = &pad->keys[6];
 
 		while (begin != end) {
 			if (*begin == *oldkey)
@@ -173,18 +181,20 @@ static void handleKeyboard(struct mapledev *pad)
 		}
 	}
   
-	memcpy(state.key, pad->cond.kbd.key, sizeof(state.key));
+	memcpy(state.key, pad->keys, sizeof(state.key));
 }
 
-void handleMouse(struct mapledev *pad)
+void handleMouse(maple_device_t *dev)
 {
 	Event ev;
 
 	MouseState& state = mousestate;
 
-	state.axis1 = pad->cond.mouse.axis1;
-	state.axis2 = pad->cond.mouse.axis2;
-	state.axis3 = pad->cond.mouse.axis3;
+	mouse_cond_t *pad = (mouse_cond_t *)maple_dev_status(dev);
+
+	state.axis1 = pad->dx;
+	state.axis2 = pad->dy;
+	state.axis3 = pad->dz;
 
 	if (state.axis1 || state.axis2) {
 		ev.type = EVENT_MOUSEMOTION;
@@ -193,12 +203,12 @@ void handleMouse(struct mapledev *pad)
 		event->push(ev);
 	}
 
-	pad->cond.mouse.axis1 = 0;
-	pad->cond.mouse.axis2 = 0;
-	pad->cond.mouse.axis3 = 0;
+	pad->dx = 0;
+	pad->dy = 0;
+	pad->dz = 0;
 
   
-	int button = ~pad->cond.mouse.buttons;
+	int button = ~pad->buttons;
 	int diff = (button ^ state.button) & 0xff;
   
 	if (diff) {
@@ -213,42 +223,35 @@ void handleMouse(struct mapledev *pad)
 	}
 }
 
-void handleInput(struct mapledev *pad)
+void handleInput()
 {
 	int  JoyCount = 0;
 	int  KeyboardCount = 0;
 	int  MouseCount = 0;
+	maple_device_t *dev;
 
-	for (int i=0; i<4; ++i, ++pad) {
+	for (int i=0; i<4; ++i) {
+	  dev = maple_enum_dev(i, 0);
+	  if(!dev) continue;
     
-		if (pad->func & MAPLE_FUNC_CONTROLLER) {
-			if (JoyCount < 2) {
-				handleController(pad, JoyCount);
-			}
-			++JoyCount;
-		} else if ((pad->func & MAPLE_FUNC_KEYBOARD) && !KeyboardCount) {
-      
-			handleKeyboard(pad);
-			++KeyboardCount;
-		} else if ((pad->func & MAPLE_FUNC_MOUSE) && !MouseCount) {
-      
-			handleMouse(pad);
-			++MouseCount;
-		}
+	  if (dev->info.functions & MAPLE_FUNC_CONTROLLER) {
+	    if (JoyCount < 2) {
+	      handleController(dev, JoyCount);
+	    }
+	    ++JoyCount;
+	  } else if ((dev->info.functions & MAPLE_FUNC_KEYBOARD) && !KeyboardCount) {
+	    handleKeyboard(dev);
+	    ++KeyboardCount;
+	  } else if ((dev->info.functions & MAPLE_FUNC_MOUSE) && !MouseCount) {
+	    handleMouse(dev);
+	    ++MouseCount;
+	  }
 	}
 }
 
 bool PollEvent(Event& ev)
 {
-	static  unsigned int tick = 0;
-	unsigned int  tm = Timer() - tick;
-	if (tm >= USEC_TO_TIMER(1000000/60)) {
-		int mask = getimask();
-		setimask(15);
-		handleInput(locked_get_pads());
-		setimask(mask);
-		tick += tm;
-	}
+	handleInput();
   
 	if (event->empty())
 		return false;

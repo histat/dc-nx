@@ -24,25 +24,7 @@ typedef unsigned short			ushort;
 
 
 /* Shorthand type formats */
-typedef	int8_t			int8;
-typedef uint8_t			uint8;
-typedef volatile int8_t		vint8;
-typedef volatile uint8_t	vuint8;
-
-typedef	int16_t			int16;
-typedef uint16_t 		uint16;
-typedef volatile int16_t	vint16;
-typedef volatile uint16_t	vuint16;
-
-typedef	int32_t			int32;
-typedef uint32_t		uint32;
-typedef volatile int32_t	vint32;
-typedef volatile uint32_t	vuint32;
-
-typedef	int64_t			int64;
-typedef uint64_t		uint64;
-typedef volatile int64_t	vint64;
-typedef volatile uint64_t	vuint64;
+#include <kos.h>
 
 typedef volatile long		vlong;
 typedef volatile int		vint;

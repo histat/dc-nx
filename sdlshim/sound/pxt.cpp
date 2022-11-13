@@ -1308,13 +1308,8 @@ static void SaveEnvVertice(FILE *fp, stPXEnvelope *env, int v)
 #include <stdlib.h>
 #include <string.h>
 #include "pxt.h"
-#include <ronin/soundcommon.h>
-#include <ronin/sound.h>
-#include "arm/sound_pxt.h"
-
-EXTERN_C void *memcpy4(void *s1, const void *s2, unsigned int n);
-
 #include "pxt.fdh"
+
 FILE *SDLS_fopen(const char *fname, const char *mode);
 
 
@@ -1492,18 +1487,6 @@ stPXSound snd;
 	return 0;
 }
 
-static int spu_membase = SPU_BASE_ADDR;
-
-static int spu_malloc( int n )
-{
-	int ret = spu_membase;
-	n = (n+3)&~3;
-	spu_membase = (spu_membase + n);
-//	printf( "membase 0x%x\n", spu_membase );
-	return (0xa0800000 + ret);
-}
-
-
 void pxt_PrepareToPlay(stPXSound *snd, int slot)
 {
 int value;
@@ -1522,7 +1505,6 @@ int malc_size;
 	
 	//printf("%s: 0x%x\n",__func__, spu_buf);
 
-#if 0
 	for(i=ap=0;i<snd->final_size;i++)
 	{
 		value = buffer[i];
@@ -1530,7 +1512,6 @@ int malc_size;
 		
 		outbuffer[ap++] = value;
 	}
-#endif
 
 	memcpy4((void*)spu_buf, (void*)buffer, malc_size);
 
@@ -1538,6 +1519,9 @@ int malc_size;
 	//sound_fx[slot].buffer = outbuffer;
 	sound_fx[slot].buffer = spu_buf;
 	sound_fx[slot].len = snd->final_size;
+
+	audio_register_sound(int format, unsigned int samplerate, void *data, unsigned int num_samples);
+
 	//lprintf("pxt ready to play in slot %d\n", slot);
 //	free(outbuffer);
 }
@@ -1553,40 +1537,9 @@ int pxt_Play(int chan, int slot, char loop)
 	int c,i;
 	int pos;
 
-	if (chan < 0) {
-		
-		c = PXT_NUM_CHANNELS;
-
-		for(i=0; i<PXT_NUM_CHANNELS;i++) {
-		  
-			do_sound_command(CMD_EXPANSION(CMD_SET_FREEPOS(i)));
-
-			pos = read_sound_int(&PXT_STATUS->samplepos);
-		  
-			if ( pos == 0) {
-				c = i;
-				break;
-			}
-		}
-	} else {
-		c = chan;
-	}
-	
-	if (c >= PXT_NUM_CHANNELS) {
-		return -1;
-	}
-
-	while((*((volatile int *)(void *)0xa05f688c))&32);
-	PXT_BUFFER(c)->buffer = buf;
-	PXT_BUFFER(c)->len = len;
-	while((*((volatile int *)(void *)0xa05f688c))&32);
-
 	sound_fx[i].channel = c;
 
 //	printf("slot = 0x%x channel 0x%x len 0x%x\n",slot, c, len);
-
-	do_sound_command(CMD_EXPANSION(CMD_SET_PLAYCHAN(c)));
-
 
 	return 0;
 }
@@ -1599,7 +1552,7 @@ void pxt_Stop(int slot)
 
 	chan = sound_fx[slot].channel;
 	
-	do_sound_command(CMD_EXPANSION(CMD_SET_PAUSECHAN(chan)));
+	audio_stop_registered_sound(chan);
 
 	sound_fx[slot].channel = -1;
 }
@@ -1611,18 +1564,14 @@ char pxt_IsPlaying(int slot)
 //	printf("%s: slot 0x%x\n",__func__, slot);
 
 	chan = sound_fx[slot].channel;
-	
-	do_sound_command(CMD_EXPANSION(CMD_SET_FREEPOS(chan)));
 
-	pos = read_sound_int(&PXT_STATUS->samplepos);
-	return ((pos > 0)? 1:0);
+	pos = audio_sound_instance_is_playing(chan);
+
+	return (pos);
 }
 
 void pxt_freeSoundFX(void)
 {
-
-	do_sound_command(CMD_EXPANSION(MODE_PAUSE));
-
 }
 
 #endif

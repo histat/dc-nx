@@ -99,10 +99,6 @@ int SDL_PollEvent(SDL_Event *event)
 {
     Event ev;
 
-#ifndef USE_ARM
-	update_audio();
-#endif
-
     if (PollEvent(ev)) {
 
 	switch(ev.type) {

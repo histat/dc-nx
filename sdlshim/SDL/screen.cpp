@@ -233,7 +233,6 @@ static void tex_memcpy(void *dst, void *src, unsigned int n)
 void update_polygon()
 {
 	struct polygon_list mypoly;
-	struct packed_colour_vertex_list myvertex;
 
 	mypoly.cmd =
 		TA_CMD_POLYGON|TA_CMD_POLYGON_TYPE_OPAQUE|TA_CMD_POLYGON_SUBLIST|

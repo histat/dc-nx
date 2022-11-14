@@ -16,14 +16,14 @@ static void (*dc_callback)(void *userdata, uint8_t *stream, int len) = NULL;
 #define SAMPLERATE 22050
 #define BUFSIZE (AUDIO_SIZE / 2)
 
-static bool enable_sound;
+static volatile int paused = 0;
 
 void start_sound() {
-  enable_sound = true;
+  paused = 0;
 }
 
 void stop_sound() {
-  enable_sound = false;
+  paused = 1;
 }
 
 static kthread_t * sndthd = NULL;
@@ -104,11 +104,13 @@ void SDL_MixAudio(uint8_t *dst, const uint8_t *src, uint32_t len, int volume)
 
 static void *sndfill(void *arg)
 {
-  while (1) {
-    update_audio();
-  }
+  (void*)arg;
 
-  return NULL;
+  while (1) {
+    if (!paused) {
+      update_audio();
+    }
+  }
 }
 
 void update_audio()
@@ -116,8 +118,7 @@ void update_audio()
     uint32_t *samples = (uint32_t *)buffer;
     memset(buffer, 0, sizeof(buffer));
 
-    if (enable_sound)
-      (*dc_callback)(NULL, (uint8_t *)samples, 2*SAMPLES_TO_BYTES(BUFSIZE));
+    (*dc_callback)(NULL, (uint8_t *)samples, 2*SAMPLES_TO_BYTES(BUFSIZE));
 
     int numsamples = BUFSIZE;
 

@@ -105,13 +105,11 @@ int SDL_PollEvent(SDL_Event *event)
 	case EVENT_JOYBUTTONDOWN:
 	{
 	    int sdlk = joy_to_sdlk(ev.jbutton.button);
-	    
+
 	    if (sdlk != SDLK_UNKNOWN)
 	    {
 		event->type = SDL_KEYDOWN;
 		event->key.keysym.sym = sdlk;
-		event->key.keysym.scancode = 0;
-
 		return 1;
 	    }
 	}
@@ -120,13 +118,11 @@ int SDL_PollEvent(SDL_Event *event)
 	case EVENT_JOYBUTTONUP:
 	{
 	    int sdlk = joy_to_sdlk(ev.jbutton.button);
-	    
+
 	    if (sdlk != SDLK_UNKNOWN)
 	    {
 		event->type = SDL_KEYUP;
 		event->key.keysym.sym = sdlk;
-		event->key.keysym.scancode = 0;
-
 		return 1;
 	    }
 	}
@@ -145,8 +141,6 @@ int SDL_PollEvent(SDL_Event *event)
 	    {
 		event->type = SDL_KEYDOWN;
 		event->key.keysym.sym = sdlk;
-		event->key.keysym.scancode = 0;
-
 		return 1;
 	    }
 	    
@@ -161,10 +155,13 @@ int SDL_PollEvent(SDL_Event *event)
 	    {
 		event->type = SDL_KEYUP;
 		event->key.keysym.sym = sdlk;
-		event->key.keysym.scancode = 0;
-
 		return 1;
 	    }
+	}
+	break;
+
+	case EVENT_JOYAXISMOTION:
+	{
 	}
 	break;
 

@@ -1,8 +1,7 @@
-
 #ifdef USE_ARM
 
 #include "shim.h"
-#include <ronin/gddrive.h>
+#include <kos.h>
 
 
 static int last_track;
@@ -27,7 +26,8 @@ int org_init(const char *wavetable_fname, const char *drum_pxt_dir, int org_volu
 	enable_cdda = false;
 
 	int first,last;
-	struct TOC *toc = cdfs_gettoc();
+	CDROM_TOC toc;
+	cdrom_read_toc(&toc, 0);
 
 	if (toc) {
 
@@ -106,7 +106,7 @@ char org_load(char *fname)
 
 			stat("song tarck = %d\n", track);
 
-			play_cdda_tracks(track, track, 15);
+			cdrom_cdda_play(track, track, 15, CD_CDDA);
 
 			last_track = track;
 

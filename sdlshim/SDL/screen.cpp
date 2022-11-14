@@ -189,44 +189,42 @@ static void set_scaling()
 	_screen_h = SCREEN_HEIGHT * _y_scale;
 }
 
-
-#define QACR0 (*(volatile unsigned int *)(void *)0xff000038)
-#define QACR1 (*(volatile unsigned int *)(void *)0xff00003c)
-
-static void tex_memcpy(void *dst, void *src, unsigned int n)
+static void tex_memcpy64(void *dst, void *src, unsigned int n)
 {
 	unsigned int *s = (unsigned int *)src;
 	unsigned int *d = (unsigned int *)(void *) \
 		(0xe0000000 | (((unsigned long)dst) & 0x03ffffc0));
-	
-	QACR0 = 0xa4;
-	QACR1 = 0xa4;
+
+	unsigned int *sq = (unsigned int *)0xff000038;
+	sq[0] = sq[1] = 0xa4;
 
 	n >>= 6;
 
+	asm("pref @%0" : : "r" (s));
+
 	while (n--) {
-		d[0] = *s++;
-		d[1] = *s++;
-		d[2] = *s++;
-		d[3] = *s++;
-		asm("pref @%0" : : "r" (s+16));
-		d[4] = *s++;
-		d[5] = *s++;
-		d[6] = *s++;
-		d[7] = *s++;
-		asm("pref @%0" : : "r" (d));
-		d += 8;
-		d[0] = *s++;
-		d[1] = *s++;
-		d[2] = *s++;
-		d[3] = *s++;
-		asm("pref @%0" : : "r" (s+16));
-		d[4] = *s++;
-		d[5] = *s++;
-		d[6] = *s++;
-		d[7] = *s++;
-		asm("pref @%0" : : "r" (d));
-		d += 8;
+	  asm("pref @%0" : : "r" (s+8));
+	  d[0] = *s++;
+	  d[1] = *s++;
+	  d[2] = *s++;
+	  d[3] = *s++;
+	  d[4] = *s++;
+	  d[5] = *s++;
+	  d[6] = *s++;
+	  d[7] = *s++;
+	  asm("pref @%0" : : "r" (d));
+	  d += 8;
+	  asm("pref @%0" : : "r" (s+8));
+	  d[0] = *s++;
+	  d[1] = *s++;
+	  d[2] = *s++;
+	  d[3] = *s++;
+	  d[4] = *s++;
+	  d[5] = *s++;
+	  d[6] = *s++;
+	  d[7] = *s++;
+	  asm("pref @%0" : : "r" (d));
+	  d += 8;
 	}
 }
 
@@ -330,7 +328,7 @@ void SDL_Flip(SDL_Surface *sfc)
     unsigned short *dst = (unsigned short *)screen_tx[screen_buffer];
     unsigned short *src = sfc->pixels;
     
-    tex_memcpy(dst, src, VRAM_SIZE);
+    tex_memcpy64(dst, src, VRAM_SIZE);
     
     update_polygon();
 }

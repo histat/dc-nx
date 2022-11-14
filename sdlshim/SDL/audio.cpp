@@ -20,10 +20,12 @@ static volatile int paused = 0;
 
 void start_sound() {
   paused = 0;
+  audio_register_ringbuffer(AUDIO_FORMAT_16BIT, SAMPLERATE, BUFSIZE);
 }
 
 void stop_sound() {
   paused = 1;
+  audio_unregister_ringbuffer();
 }
 
 static kthread_t * sndthd = NULL;
@@ -33,7 +35,7 @@ void update_audio();
 int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
 	stop_sound();
-	obtained->freq = 22050;
+	obtained->freq = SAMPLERATE;
 	obtained->format = AUDIO_S16;
 	obtained->channels = 2;
 
@@ -43,7 +45,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 	//obtained->callback = desired->callback;
 	dc_callback = desired->callback;
 
-	audio_register_ringbuffer(AUDIO_FORMAT_16BIT, obtained->freq, BUFSIZE);
+	//audio_register_ringbuffer(AUDIO_FORMAT_16BIT, obtained->freq, BUFSIZE);
 	sndthd = thd_create(0, &sndfill, NULL);
 
 	return 0;

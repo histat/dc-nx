@@ -79,5 +79,5 @@ IP.BIN: ip.txt
 icon_data_2bpp:
 	echo 'static unsigned char icon_data_2bpp[] = {' >> $@.tmp
 	hexdump -v -s 9 -e '16/1 "0x%02x, " "\n"' \
-	hey.pbm >> $@.tmp
+	in.pbm >> $@.tmp
 	echo '		0 };' >> $@.tmp

@@ -10,25 +10,37 @@
 #include "cave_icon.h"
 #include "icon_data_2bpp.h"
 
-#define MAX_VMU_SIZE 128 * 1024
-
-uint8 lcd_icon[48*32 /8];
+#define LCD_SIZE (48 * 32 / 8)
+uint8 hey_icon[LCD_SIZE];
+uint8 z_icon[LCD_SIZE];
 
 int vm_file;
 
-static void conv_lcd_icon(unsigned char *bit, const unsigned char *in)
+static void clearlcd(uint8 *bit, int on)
 {
-  unsigned short *src = (unsigned short *)in;
-  unsigned char *dst = bit + (48/8) * 32;
+  if(on)
+    memset(bit, 0xff, LCD_SIZE);
+  else
+    memset(bit, 0, LCD_SIZE);
+}
 
-  for (int i=0; i<16; i++) {
+static void conv_lcd_icon(unsigned char *bit, const unsigned char *in, int w, int h)
+{
+  unsigned char *src = (unsigned char *)in;
+  unsigned char *dst = bit + (48 * 32 / 8);
+  int offset = (w/8 < 2)? 1:2;
+
+  dst -= ((32 - h) / 2) * 6;
+
+  for (int i=0; i<h; i++) {
     unsigned char v;
-    unsigned int b = *src++;
+    unsigned int b;
 
-    *--dst = 0xff;
-    *--dst = 0xff;
-    for (int j= 0; j<16/8; j++) {
+    dst -= offset;
+
+    for (int j= 0; j<w/8; j++) {
       v = 0;
+      b = *src++;
       for (int x=0; x<8; x++) {
 	      v <<= 1;
 	      v |= (b & 1)?1:0;
@@ -36,28 +48,28 @@ static void conv_lcd_icon(unsigned char *bit, const unsigned char *in)
       }
       *--dst = v;
     }
-    *--dst = 0xff;
-    *--dst = 0xff;
+    dst -= ((6-offset)-w/8);
   }
 }
 
 void init_lcd()
 {
-    conv_lcd_icon(lcd_icon, icon_data_2bpp);
+  clearlcd(hey_icon, 1);
+  conv_lcd_icon(hey_icon, hey_icon_2bpp, 16, 16);
 
-    /*
+  clearlcd(z_icon, 1);
+  conv_lcd_icon(z_icon, z_icon_2bpp, 32, 8);
+
+  /*
      maple_device_t * dev;
      int i=0;
 
      while((dev = maple_enum_type(i++, MAPLE_FUNC_LCD))) {
-       vmu_draw_lcd(dev, lcd_icon);
+       vmu_draw_lcd(dev, hey_icon);
      }
-    */
+  */
 }
 
-static void clearlcd()
-{
-}
 
 bool vmfile_search(const char *fname, int *vm)
 {
@@ -123,7 +135,7 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
     }
 
     if (dev->info.functions & MAPLE_FUNC_LCD) {
-      vmu_draw_lcd(dev, lcd_icon);
+      vmu_draw_lcd(dev, z_icon);
     }
 
     memset(&pkg, 0, sizeof(struct vmu_pkg));
@@ -151,8 +163,9 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
 
     free(pkg_buf);
 
-    clearlcd();
-    vmu_draw_lcd(dev, lcd_icon);
+    if (dev->info.functions & MAPLE_FUNC_LCD) {
+      vmu_draw_lcd(dev, hey_icon);
+    }
 
     return true;
 }
@@ -174,7 +187,7 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
     }
 
     if (dev->info.functions & MAPLE_FUNC_LCD) {
-      vmu_draw_lcd(dev, lcd_icon);
+      vmu_draw_lcd(dev, z_icon);
     }
 
     if (vmufs_read(dev, filename, (void **)&pkg_buf, &pkg_size) < 0) {
@@ -189,6 +202,10 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
     *buf_len = len;
 
     free(pkg_buf);
+
+    if (dev->info.functions & MAPLE_FUNC_LCD) {
+      vmu_draw_lcd(dev, hey_icon);
+    }
 
     return true;
 }

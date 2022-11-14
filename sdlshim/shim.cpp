@@ -101,7 +101,7 @@ int init_hardware()
 {
   int i;
   pvr_init_params_t pvr_params = {
-    { PVR_BINSIZE_16, PVR_BINSIZE_0, PVR_BINSIZE_16, PVR_BINSIZE_0, PVR_BINSIZE_0 },
+    { PVR_BINSIZE_16, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0 },
     (int)(512 * 1024),
     0,	//dma
     0,	//fsaa

@@ -25,10 +25,6 @@ void SDL_Quit(void)
 		console_close();
 		close_hardware();
 	}
-
-#ifdef NOSERIAL
-	exit(1);
-#endif
 }
 
 /*
@@ -41,11 +37,7 @@ int main(int argc, char *argv[])
   if (SDLS_EventInit()) return 1;
   if (console_init()) return 1;
 
-  SDL_main(argc, argv);
-
-  SDL_Quit();
-
-  return 0;
+  return SDL_main(argc, argv);
 }
 
 

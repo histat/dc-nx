@@ -286,10 +286,14 @@ void update_polygon()
 
 SDL_Surface *SDL_SetVideoMode(int width, int height, int bitsperpixel, uint32_t flags)
 {
+#if 0
 	if (flags & SDL_FULLSCREEN)
 		_fullscreen = true;
 	else
 		_fullscreen = false;
+#else
+	_fullscreen = true;
+#endif
 	
 	set_scaling();
 

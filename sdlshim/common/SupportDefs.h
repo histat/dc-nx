@@ -24,6 +24,8 @@ typedef unsigned short			ushort;
 
 
 /* Shorthand type formats */
+#include <kos.h>
+
 typedef volatile long		vlong;
 typedef volatile int		vint;
 typedef volatile short		vshort;

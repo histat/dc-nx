@@ -2,14 +2,19 @@
 #include "../shim.h"
 
 #include "SDL.h"
-#include "dcevent.h"
+#include <dc/maple.h>
+#include <dc/maple/controller.h>
+
 #include "scrnsave.h"
 
-//static int last_keydown, last_keyup;
-//static int lastmx, lastmy;
-//static bool poll_again;
-//static BList queue;
 
+static int last_keydown, last_keyup;
+static int lastmx, lastmy;
+//static bool poll_again;
+static BList queue;
+
+static int joy_to_sdlk(int key);
+static int key_to_sdlk(int key);
 
 static const char *key_names[] =
 {
@@ -23,6 +28,244 @@ static const char *key_names[] =
 	"A btn", "B btn", "C btn", "X btn", "Y btn", "Z btn",
 	"R-trig", "L-trig"
 };
+
+bool SDLS_EventInit(void)
+{
+        last_keydown = last_keyup = SDLK_UNKNOWN;
+	return 0;
+}
+
+void SDLS_EventQuit(void)
+{
+        while(queue.CountItems())
+	  delete (SDL_Event *)queue.RemoveItem(queue.CountItems() - 1);
+}
+
+/*
+void c------------------------------() {}
+*/
+
+int SDL_PollEvent(SDL_Event *event)
+{
+	SDL_PumpEvents();
+	
+	if (event)
+	{
+	  SDL_Event *nextevt = (SDL_Event *)queue.RemoveItem((int32)0);
+		if (nextevt)
+		{
+			*event = *nextevt;
+			delete nextevt;
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+void SDL_PumpEvents()
+{
+}
+
+void SDL_PushEvent(SDL_Event *event)
+{
+	SDL_Event *evt = new SDL_Event;
+	*evt = *event;
+
+	queue.AddItem(evt);
+}
+
+
+const char *SDL_GetKeyName(SDLKey key)
+{
+	if (key >= 0 && key < SDLK_LAST)
+		return key_names[key];
+	
+	return NULL;
+}
+
+
+void SDL_WarpMouse(uint16_t x, uint16_t y)
+{
+SDL_Event event;
+
+	event.type = SDL_MOUSEMOTION;
+	event.motion.x = x;
+	event.motion.y = y;
+	event.motion.xrel = (x - lastmx);
+	event.motion.yrel = (y - lastmy);
+	lastmx = x;
+	lastmy = y;
+
+	SDL_PushEvent(&event);
+}
+
+
+void SDL_WM_SetCaption(const char *title, const char *icon)
+{
+}
+
+uint8_t SDL_GetAppState(void)
+{
+	return (SDL_APPACTIVE | SDL_APPINPUTFOCUS | SDL_APPMOUSEFOCUS);
+}
+
+/*
+void c------------------------------() {}
+*/
+#define SDL_HAT_CENTERED 0
+#define SDL_HAT_UP SDLK_UP
+#define SDL_HAT_DOWN SDLK_DOWN
+#define SDL_HAT_LEFT SDLK_LEFT
+#define SDL_HAT_RIGHT SDLK_RIGHT
+
+static const int sdl_buttons[] = {
+    CONT_A,
+    CONT_B,
+    CONT_X,
+    CONT_Y,
+    CONT_START,
+    CONT_C,
+    CONT_D,
+    CONT_Z,
+};
+
+static const int sdl_dpad[] = {
+    CONT_DPAD_UP,
+    CONT_DPAD_DOWN,
+    CONT_DPAD_LEFT,
+    CONT_DPAD_RIGHT,
+    CONT_DPAD2_UP,
+    CONT_DPAD2_DOWN,
+    CONT_DPAD2_LEFT,
+    CONT_DPAD2_RIGHT,
+};
+
+static cont_state_t joystick;
+
+void JoystickUpdate() {
+	maple_device_t *dev;
+    cont_state_t *state, *prev_state;
+	unsigned int buttons, i, changed;
+	SDL_Event event;
+
+	dev = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
+
+	if(!(state = (cont_state_t *)maple_dev_status(dev))) {
+	  return;
+	}
+
+	buttons = state->buttons;
+	prev_state = &joystick;
+	changed = buttons ^ prev_state->buttons;
+
+	for(i = 0; i < sizeof(sdl_dpad) / sizeof(sdl_dpad[0]); ++i) {
+		if(changed & sdl_dpad[i]) {
+		  event.type = (buttons & sdl_dpad[i]) ? SDL_KEYDOWN :SDL_KEYUP;
+		  event.key.keysym.sym = joy_to_sdlk(sdl_dpad[i]);
+		  event.key.keysym.scancode = 0;
+
+		  SDL_PushEvent(&event);
+		}
+	}
+
+	for(i = 0; i < sizeof(sdl_buttons) / sizeof(sdl_buttons[0]); ++i) {
+		if(changed & sdl_buttons[i]) {
+		  event.type = (buttons & sdl_buttons[i]) ? SDL_KEYDOWN :SDL_KEYUP;
+		  int sdlk = joy_to_sdlk(sdl_buttons[i]);
+
+		  event.key.keysym.sym = sdlk;
+		  event.key.keysym.scancode = 0;
+
+		  SDL_PushEvent(&event);
+		}
+	}
+	bool chaged = false;
+	if(state->joyx != prev_state->joyx || state->joyy != prev_state->joyy) {
+		event.motion.x = state->joyx;
+		event.motion.y = state->joyy;
+		event.motion.xrel = (event.motion.x - lastmx);
+		event.motion.yrel = (event.motion.y - lastmy);
+		chaged = true;
+	}
+
+	if(state->rtrig != prev_state->rtrig) {
+		if((state->rtrig - prev_state->rtrig) > 120)
+		  event.type = SDL_KEYDOWN;
+		else
+		  event.type = SDL_KEYUP;
+		event.key.keysym.sym = SDLK_RTRIG;
+		event.key.keysym.scancode = 0;
+
+		SDL_PushEvent(&event);
+
+	}
+	if(state->ltrig != prev_state->ltrig) {
+		 if((state->ltrig - prev_state->ltrig) > 120)
+		  event.type = SDL_KEYDOWN;
+		 else
+		  event.type = SDL_KEYUP;
+
+		event.key.keysym.sym = SDLK_LTRIG;
+		event.key.keysym.scancode = 0;
+
+		SDL_PushEvent(&event);
+
+	}
+
+	if(state->joy2x != prev_state->joy2x || state->joy2y != prev_state->joy2y) {
+		event.motion.x = state->joy2x;
+		event.motion.y = state->joy2y;
+		event.motion.xrel = (event.motion.x - lastmx);
+		event.motion.yrel = (event.motion.y - lastmy);
+		chaged = true;
+	}
+	if(chaged) {
+	  event.type = SDL_MOUSEMOTION;
+	  SDL_PushEvent(&event);
+
+	  lastmx = event.motion.x;
+	  lastmy = event.motion.y;
+	}
+
+	joystick = *state;
+}
+
+static void keyboard_update(void) {
+    static kbd_state_t old_state;
+    kbd_state_t	*state;
+    maple_device_t *dev;
+    //int shiftkeys;
+    //SDL_keysym keysym;
+    int i;
+    SDL_Event event;
+
+    if(!(dev = maple_enum_type(0, MAPLE_FUNC_KEYBOARD)))
+        return;
+
+    state = (kbd_state_t*)maple_dev_status(dev);
+
+    if(!state)
+        return;
+
+    for(i = 0; i < 255; ++i) {
+        if(state->matrix[i] != old_state.matrix[i]) {
+	  int key = key_to_sdlk(i);
+            if(key != SDLK_UNKNOWN) {
+	      //keysym.sym = key;
+		event.type = state->matrix[i] ? SDL_KEYDOWN :SDL_KEYUP;
+
+		event.key.keysym.sym = key;
+
+		event.key.keysym.scancode = 0;
+
+		SDL_PushEvent(&event);
+            }
+        }
+    }
+
+    old_state = *state;
+}
 
 
 static int sdl_func[12] ={
@@ -49,21 +292,19 @@ static int sdl_key[4] ={
 static int joy_to_sdlk(int key)
 {
 	switch (key) {
-	case JOY_UP: return SDLK_UP;
-	case JOY_DOWN: return SDLK_DOWN;
-	case JOY_RIGHT: return SDLK_RIGHT;
-	case JOY_LEFT: return SDLK_LEFT;
-	case JOY_RTRIGGER: return SDLK_RTRIG;
-	case JOY_LTRIGGER: return SDLK_LTRIG;
-	case JOY_A: return SDLK_BTN_A;
-	case JOY_B: return SDLK_BTN_B;
-	case JOY_C: return SDLK_BTN_C;		
-	case JOY_X: return SDLK_BTN_X;
-	case JOY_Y: return SDLK_BTN_Y;
-	case JOY_Z: return SDLK_BTN_Z;
-	case JOY_START: return SDLK_F3; //fixed for menu
+	case CONT_DPAD_UP:case CONT_DPAD2_UP: return SDLK_UP;
+	case CONT_DPAD_DOWN: case CONT_DPAD2_DOWN: return SDLK_DOWN;
+	case CONT_DPAD_RIGHT: case CONT_DPAD2_RIGHT: return SDLK_RIGHT;
+	case CONT_DPAD_LEFT: case CONT_DPAD2_LEFT: return SDLK_LEFT;
+	case CONT_A: return SDLK_BTN_A;
+	case CONT_B: return SDLK_BTN_B;
+	case CONT_C: return SDLK_BTN_C;
+	case CONT_X: return SDLK_BTN_X;
+	case CONT_Y: return SDLK_BTN_Y;
+	case CONT_Z: return SDLK_BTN_Z;
+	case CONT_START: return SDLK_F3; //fixed for menu
 	}
-	
+
 	return SDLK_UNKNOWN;
 }
 
@@ -82,146 +323,8 @@ static int key_to_sdlk(int key)
 	return SDLK_UNKNOWN;
 }
 
-bool SDLS_EventInit(void)
+void handleInput()
 {
-	return 0;
+  JoystickUpdate();
+  keyboard_update();
 }
-
-void SDLS_EventQuit(void)
-{
-}
-
-/*
-void c------------------------------() {}
-*/
-
-int SDL_PollEvent(SDL_Event *event)
-{
-    Event ev;
-
-    if (PollEvent(ev)) {
-
-	switch(ev.type) {
-	case EVENT_JOYBUTTONDOWN:
-	{
-	    int sdlk = joy_to_sdlk(ev.jbutton.button);
-
-	    if (sdlk != SDLK_UNKNOWN)
-	    {
-		event->type = SDL_KEYDOWN;
-		event->key.keysym.sym = sdlk;
-		return 1;
-	    }
-	}
-	break;
-
-	case EVENT_JOYBUTTONUP:
-	{
-	    int sdlk = joy_to_sdlk(ev.jbutton.button);
-
-	    if (sdlk != SDLK_UNKNOWN)
-	    {
-		event->type = SDL_KEYUP;
-		event->key.keysym.sym = sdlk;
-		return 1;
-	    }
-	}
-	break;
-	
-	case EVENT_KEYDOWN:
-	{
-	    int sdlk = key_to_sdlk(ev.key.keycode);
-
-#if !defined(NOSERIAL) && defined(__SDCARD__)
-			if(ev.key.keycode == 0x46)
-				screensave();
-#endif
-	    
-	    if (sdlk != SDLK_UNKNOWN)
-	    {
-		event->type = SDL_KEYDOWN;
-		event->key.keysym.sym = sdlk;
-		return 1;
-	    }
-	    
-	}
-	break;
-	
-	case EVENT_KEYUP:
-	{
-	    int sdlk = key_to_sdlk(ev.key.keycode);
-	    
-	    if (sdlk != SDLK_UNKNOWN)
-	    {
-		event->type = SDL_KEYUP;
-		event->key.keysym.sym = sdlk;
-		return 1;
-	    }
-	}
-	break;
-
-	case EVENT_JOYAXISMOTION:
-	{
-	}
-	break;
-
-	case EVENT_MOUSEMOTION:
-	{
-	}
-	break;
-	    
-	case EVENT_MOUSEBUTTONDOWN:
-	{
-	}
-	break;
-	    
-	case EVENT_MOUSEBUTTONUP:
-	{
-	}
-	break;
-	
-	case EVENT_QUIT:
-	{
-	    event->type = SDL_QUIT;
-
-	    return 1;
-	}
-	break;
-	}
-    }
-
-	return 0;
-}
-
-void SDL_PushEvent(SDL_Event *event)
-{
-}
-
-
-const char *SDL_GetKeyName(SDLKey key)
-{
-	if (key >= 0 && key < SDLK_LAST)
-		return key_names[key];
-	
-	return NULL;
-}
-
-
-void SDL_WarpMouse(uint16_t x, uint16_t y)
-{
-}
-
-
-void SDL_WM_SetCaption(const char *title, const char *icon)
-{
-}
-
-uint8_t SDL_GetAppState(void)
-{
-	return (SDL_APPACTIVE | SDL_APPINPUTFOCUS | SDL_APPMOUSEFOCUS);
-}
-
-/*
-void c------------------------------() {}
-*/
-

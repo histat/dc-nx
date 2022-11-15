@@ -10,10 +10,10 @@ CSRC := audio.c aica.bin.c libpspvram/valloc.c watchdog.c profile.c
 
 CPPSRC := \
 	main.cpp shim.o console.cpp file.cpp \
-	vmu.cpp vm_file.cpp dcevent.cpp \
+	vmu.cpp vm_file.cpp \
 	SDL/init.cpp SDL/screen.cpp \
 	SDL/bmploader.cpp SDL/event.cpp SDL/audio.cpp SDL/misc.cpp \
-	common/misc.cpp  \
+	common/misc.cpp  common/BList.cpp \
 	sound/sslib.cpp sound/org.cpp sound/pxt.cpp
 
 
@@ -24,16 +24,18 @@ CPPOBJ    = $(patsubst %.cpp, %.o, $(CPPSRC))
 
 OBJS = $(CPPOBJ) $(ASOBJ) $(COBJ)
 
+TARGET = sdlshim.elf
+
 all : sdlshim
 
 sdlshim: $(OBJS)
-	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) $(LDFLAGS) -o sdlshim.elf $(KOS_START) \
+	$(KOS_CC) $(KOS_CFLAGS) $(KOS_LDFLAGS) $(LDFLAGS) -o $(TARGET) $(KOS_START) \
 	$(OBJS) $(LIBS) $(KOS_LIBS)
 
 include $(KOS_BASE)/Makefile.rules
 
 NXDC.BIN: sdlshim
-	sh-elf-objcopy -S -R .stack -O binary sdlshim.elf $@
+	sh-elf-objcopy -S -R .stack -O binary $(TARGET) $@
 
 1ST_READ.BIN: NXDC.BIN
 	/opt/toolchains/dc/kos/utils/scramble/scramble $< $@
@@ -44,7 +46,7 @@ distclean:
 	rm -f 1ST_READ.BIN NXDC.BIN IP.BIN ip.txt nxdc.elf
 
 clean:
-	$(RM) $(OBJS) sdlshim.elf
+	$(RM) $(OBJS) $(TARGET)
 
 strip:
 	sh-elf-strip $(TARGET) -o $(TARGET)

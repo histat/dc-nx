@@ -38,4 +38,6 @@ extern uint16_t *vram;
 
 extern FILE *SDLS_fopen(const char *fname, const char *mode);
 
+extern void cursor_run(void);
+
 #endif

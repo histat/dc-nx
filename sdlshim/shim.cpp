@@ -5,15 +5,19 @@
 #include "libpspvram/valloc.h"
 #include <../hardware/pvr/pvr_internal.h>
 #include "audio.h"
+//#include "dcevent.h"
 #include "watchdog.h"
 
 extern void init_lcd();
-
+extern void handleInput();
 
 uint16_t *vram = NULL;
 void *screen_tx[SCREEN_BUFFER_SIZE] = {NULL};
 
 static unsigned char dc_screen[VRAM_SIZE] __attribute__((aligned (32)));
+
+static kthread_t * evthd = NULL;
+static void * event(void *arg);
 
 extern "C" {
 
@@ -136,6 +140,8 @@ int init_hardware()
 
   init_lcd();
 
+  evthd = thd_create(0, &event, NULL);
+
 #ifndef NOSERIAL
   wdPause();
 #endif
@@ -145,4 +151,13 @@ int init_hardware()
 void close_hardware()
 {
   audio_free();
+}
+
+static void * event(void *arg) {
+  (void)arg;
+
+  while(1)  {
+    handleInput();
+    thd_sleep(10);
+  }
 }

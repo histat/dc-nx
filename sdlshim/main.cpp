@@ -16,14 +16,14 @@
 
 
 extern int random(int min, int max);
-extern void test();
 extern void testblit(void);
 
 static bool quitting = false;
 
+SDL_Surface *screen;
 void testblit(void)
 {
-SDL_Surface *screen, *image;
+SDL_Surface *image;
 
 	screen = SDL_SetVideoMode(320, 240, 16, SDL_SWSURFACE);
 	if (!screen) return;
@@ -49,7 +49,7 @@ SDL_Surface *screen, *image;
 #else
 	SDL_BlitSurface(image, NULL, screen, NULL);
 #endif
-	SDL_Flip(screen);
+	//SDL_Flip(screen);
 	
 	//SDL_FillRect(screen, &srcrect, SDL_MapRGB(screen->format, 255, 0, 255));
 	
@@ -86,9 +86,11 @@ uint32_t color = SDL_MapRGB(screen->format, 255, 0, 255);
 	SDL_FillRect(screen, &rect, color);
 }
 
-#if 0
+#if 1
 int SDL_main(int argc, char *argv[])
 {
+	set_console_visible(true);
+
 	stat("Entering main loop");
 	testblit();
 
@@ -104,12 +106,17 @@ int SDL_main(int argc, char *argv[])
 		SDL_Event pie;
 		if (SDL_PollEvent(&pie))
 		{
-			stat("Got event %d", pie.type);
-			quitting = true;
+		  //stat("Got event %d", pie.type);
+		  stat("Got key %d", pie.key.keysym.sym);
+			if(pie.key.keysym.sym == SDLK_F3)
+			  quitting = true;
 		}
 
 		SDL_Delay(10);
+		cursor_run();
+		SDL_Flip(screen);
 	}
+	
 
 	return 0;
 }
@@ -171,6 +178,7 @@ void test()
 int SDL_main(int argc, char *argv[])
 {
 	int i = 1;
+	set_console_visible(true);
 
 	stat("Entering main loop");
 
@@ -223,6 +231,8 @@ int SDL_main(int argc, char *argv[])
 		}
 
 		SDL_Delay(10);
+		cursor_run();
+		SDL_Flip(screen);
 	}
 
 	pxt_freeSoundFX();

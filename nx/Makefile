@@ -56,16 +56,16 @@ CPPSRC := \
 	graphics/tileset.cpp graphics/font.cpp graphics/safemode.cpp \
 	graphics/palette.cpp \
 	sound/sound.cpp ../sdlshim/sound/sslib.cpp ../sdlshim/sound/org.cpp \
-	../sdlshim/sound/pxt.cpp ../sdlshim/sound/cdda.cpp \
+	../sdlshim/sound/pxt.cpp \
 	siflib/sif.cpp siflib/sifloader.cpp siflib/sectSprites.cpp \
 	siflib/sectStringArray.cpp \
 	autogen/AssignSprites.cpp autogen/objnames.cpp stagedata.cpp \
 	common/FileBuffer.cpp common/InitList.cpp common/BList.cpp \
 	common/StringList.cpp common/DBuffer.cpp common/DString.cpp \
 	common/bufio.cpp common/misc.cpp \
-	../sdlshim/shim.cpp ../sdlshim/dcevent.cpp \
-	../sdlshim/console.cpp ../sdlshim/vm_file.cpp \
-	../sdlshim/file.cpp ../sdlshim/vmu.cpp ../sdlshim/scrnsave.cpp \
+	../sdlshim/shim.cpp ../sdlshim/console.cpp \
+	../sdlshim/vmu.cpp ../sdlshim/vm_file.cpp \
+	../sdlshim/file.cpp ../sdlshim/scrnsave.cpp \
 	../sdlshim/SDL/init.cpp ../sdlshim/SDL/screen.cpp \
 	../sdlshim/SDL/bmploader.cpp ../sdlshim/SDL/event.cpp \
 	../sdlshim/SDL/audio.cpp ../sdlshim/SDL/misc.cpp

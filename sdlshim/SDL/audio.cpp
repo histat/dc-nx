@@ -116,9 +116,7 @@ void update_audio()
     uint32_t *samples = (uint32_t *)buffer;
     memset(buffer, 0, sizeof(buffer));
 
-    //if (!paused) {
-      (*dc_callback)(NULL, (uint8_t *)samples, 2*SAMPLES_TO_BYTES(BUFSIZE));
-      //}
+    (*dc_callback)(NULL, (uint8_t *)samples, 2*SAMPLES_TO_BYTES(BUFSIZE));
 
     int numsamples = BUFSIZE;
 

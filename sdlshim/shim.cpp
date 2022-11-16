@@ -16,9 +16,6 @@ void *screen_tx[SCREEN_BUFFER_SIZE] = {NULL};
 
 static unsigned char dc_screen[VRAM_SIZE] __attribute__((aligned (32)));
 
-static kthread_t * evthd = NULL;
-static void * event(void *arg);
-
 extern "C" {
 
 static pvr_ptr_t pvr_mem_base;
@@ -121,7 +118,7 @@ int init_hardware()
   _audio_init();
 
   pvr_mem_base = (pvr_ptr_t)(PVR_RAM_INT_BASE + pvr_state.texture_base);
-  //pvr_mem_base = 0xa4000000;
+
 #ifndef NOSERIAL
   printf("reset pvr_mem_base at 0x%4x ", pvr_mem_base);
 #endif
@@ -140,24 +137,16 @@ int init_hardware()
 
   init_lcd();
 
-  evthd = thd_create(0, &event, NULL);
-
 #ifndef NOSERIAL
   wdPause();
 #endif
+
   return 0;
 }
 
 void close_hardware()
 {
   audio_free();
-}
 
-static void * event(void *arg) {
-  (void)arg;
-
-  while(1)  {
-    handleInput();
-    thd_sleep(10);
-  }
+  arch_set_exit_path(ARCH_EXIT_MENU);
 }

@@ -2,8 +2,7 @@
 #include "../shim.h"
 
 #include "SDL.h"
-#include <dc/maple.h>
-#include <dc/maple/controller.h>
+#include <kos.h>
 
 #include "scrnsave.h"
 
@@ -12,6 +11,9 @@ static int last_keydown, last_keyup;
 static int lastmx, lastmy;
 //static bool poll_again;
 static BList queue;
+
+static kthread_t * evthd = NULL;
+static void * event(void *arg);
 
 static int joy_to_sdlk(int key)
 {
@@ -87,6 +89,8 @@ static const char *key_names[] =
 bool SDLS_EventInit(void)
 {
         last_keydown = last_keyup = SDLK_UNKNOWN;
+
+	evthd = thd_create(0, &event, NULL);
 	return 0;
 }
 
@@ -94,6 +98,8 @@ void SDLS_EventQuit(void)
 {
         while(queue.CountItems())
 	  delete (SDL_Event *)queue.RemoveItem(queue.CountItems() - 1);
+
+	thd_destroy(evthd);
 }
 
 /*
@@ -337,4 +343,14 @@ void handleInput()
 {
   JoystickUpdate();
   keyboard_update();
+}
+
+
+static void * event(void *arg) {
+  (void)arg;
+
+  while(1)  {
+    handleInput();
+    thd_sleep(10);
+  }
 }

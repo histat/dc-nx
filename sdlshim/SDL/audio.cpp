@@ -68,6 +68,7 @@ void SDL_UnlockAudio(void)
 void SDL_CloseAudio(void)
 {
     stop_sound();
+    thd_destroy(sndthd);
 }
 
 /*

@@ -22,6 +22,7 @@ void SDL_Quit(void)
 		
 		SDLS_EventQuit();
 		SDLS_CloseScreen();
+		SDL_CloseAudio();
 		console_close();
 		close_hardware();
 	}

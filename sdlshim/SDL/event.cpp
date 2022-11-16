@@ -13,18 +13,73 @@ static int lastmx, lastmy;
 //static bool poll_again;
 static BList queue;
 
-static int joy_to_sdlk(int key);
-static int key_to_sdlk(int key);
+static int joy_to_sdlk(int key)
+{
+	switch (key) {
+	case CONT_DPAD_UP:case CONT_DPAD2_UP: return SDLK_UP;
+	case CONT_DPAD_DOWN: case CONT_DPAD2_DOWN: return SDLK_DOWN;
+	case CONT_DPAD_RIGHT: case CONT_DPAD2_RIGHT: return SDLK_RIGHT;
+	case CONT_DPAD_LEFT: case CONT_DPAD2_LEFT: return SDLK_LEFT;
+	case CONT_A: return SDLK_BTN_A;
+	case CONT_B: return SDLK_BTN_B;
+	case CONT_C: return SDLK_BTN_C;
+	case CONT_X: return SDLK_BTN_X;
+	case CONT_Y: return SDLK_BTN_Y;
+	case CONT_Z: return SDLK_BTN_Z;
+	case CONT_START: return SDLK_F3; //fixed for menu
+	}
+
+	return SDLK_UNKNOWN;
+}
+
+const static unsigned short sdl_shift[] = {
+    SDLK_LCTRL,SDLK_LSHIFT,SDLK_LALT,SDLK_UNKNOWN,
+    SDLK_RCTRL,SDLK_RSHIFT,SDLK_RALT,SDLK_UNKNOWN,
+};
+
+const static unsigned short sdl_key[]= {
+    SDLK_UNKNOWN, SDLK_UNKNOWN, SDLK_UNKNOWN, SDLK_UNKNOWN,
+    /*4*/
+    SDLK_a, SDLK_b, SDLK_c, SDLK_d, SDLK_e, SDLK_f, SDLK_g, SDLK_h,
+    SDLK_i, SDLK_j, SDLK_k, SDLK_l, SDLK_m, SDLK_n, SDLK_o, SDLK_p,
+    SDLK_q, SDLK_r, SDLK_s, SDLK_t, SDLK_u, SDLK_v, SDLK_w, SDLK_x,
+    SDLK_y,SDLK_z,
+    /*1e*/
+    SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7,
+    SDLK_8, SDLK_9, SDLK_0,
+    /*28*/	SDLK_RETURN, SDLK_ESCAPE, SDLK_BACKSPACE, SDLK_TAB, SDLK_SPACE, SDLK_MINUS, SDLK_PLUS, SDLK_LEFTBRACKET,
+    SDLK_RIGHTBRACKET, SDLK_BACKSLASH , SDLK_UNKNOWN, SDLK_SEMICOLON, SDLK_QUOTE,
+    /*35*/
+     SDLK_UNKNOWN, SDLK_COMMA, SDLK_PERIOD, SDLK_SLASH, SDLK_CAPSLOCK,
+
+    /*3a*/
+    SDLK_F1, SDLK_F2, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_F6, SDLK_F7, SDLK_F8, SDLK_F9, SDLK_F10, SDLK_F11, SDLK_F12,
+
+    /*46*/
+    SDLK_PRINT, SDLK_SCROLLOCK, SDLK_PAUSE, SDLK_INSERT, SDLK_HOME, SDLK_PAGEUP, SDLK_DELETE, SDLK_END, SDLK_PAGEDOWN,
+    /*4f*/
+    SDLK_RIGHT, SDLK_LEFT, SDLK_DOWN, SDLK_UP,
+    /*53*/
+    SDLK_NUMLOCK, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY, SDLK_KP_MINUS, SDLK_KP_PLUS, SDLK_KP_ENTER,
+    SDLK_KP1, SDLK_KP2, SDLK_KP3, SDLK_KP4, SDLK_KP5, SDLK_KP6,
+    /*5f*/
+    SDLK_KP7, SDLK_KP8, SDLK_KP9, SDLK_KP0, SDLK_KP_PERIOD, SDLK_UNKNOWN
+};
 
 static const char *key_names[] =
 {
 	NULL,
-	"up", "down", "right", "left",
-	"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
 	"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
 	"p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-	"esc", "space",
+	"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+	"Enter", "esc", "<-", "Tab", "[  ]", "-","=","{","}",
+	"\\", ";", "'",
+	"<", ">", "?", "Caps",
 	"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
+	"Prt", "scr", "Pause", "Ins", "Home", "PagUp", "del", "end", "PgDn",
+	"right", "left", "down", "up",
+	"Lock", "[/]", "[*]", "[-]", "[+]", "[ent]",
+	"[1]", "[2]", "[3]", "[4]", "[5]", "[6]", "[7]", "[8]", "[9]", "[0]", "[.]",
 	"A btn", "B btn", "C btn", "X btn", "Y btn", "Z btn",
 	"R-trig", "L-trig"
 };
@@ -113,11 +168,6 @@ uint8_t SDL_GetAppState(void)
 /*
 void c------------------------------() {}
 */
-#define SDL_HAT_CENTERED 0
-#define SDL_HAT_UP SDLK_UP
-#define SDL_HAT_DOWN SDLK_DOWN
-#define SDL_HAT_LEFT SDLK_LEFT
-#define SDL_HAT_RIGHT SDLK_RIGHT
 
 static const int sdl_buttons[] = {
     CONT_A,
@@ -186,31 +236,38 @@ void JoystickUpdate() {
 		event.motion.y = state->joyy;
 		event.motion.xrel = (event.motion.x - lastmx);
 		event.motion.yrel = (event.motion.y - lastmy);
-		chaged = true;
+		//chaged = true;
 	}
 
 	if(state->rtrig != prev_state->rtrig) {
-		if((state->rtrig - prev_state->rtrig) > 120)
-		  event.type = SDL_KEYDOWN;
-		else
-		  event.type = SDL_KEYUP;
-		event.key.keysym.sym = SDLK_RTRIG;
-		event.key.keysym.scancode = 0;
+	  if ((state->rtrig - prev_state->rtrig) > 128) {
+	    event.type = SDL_KEYDOWN;
+	    event.key.keysym.sym = SDLK_RTRIG;
+	    event.key.keysym.scancode = 0;
 
-		SDL_PushEvent(&event);
+	    SDL_PushEvent(&event);
+	  } else if(state->rtrig == 0) {
+	    event.type = SDL_KEYUP;
+	    event.key.keysym.sym = SDLK_RTRIG;
+	    event.key.keysym.scancode = 0;
 
+	    SDL_PushEvent(&event);
+	  }
 	}
 	if(state->ltrig != prev_state->ltrig) {
-		 if((state->ltrig - prev_state->ltrig) > 120)
-		  event.type = SDL_KEYDOWN;
-		 else
-		  event.type = SDL_KEYUP;
+	  if((state->ltrig - prev_state->ltrig) > 128) {
+	    event.type = SDL_KEYDOWN;
+	    event.key.keysym.sym = SDLK_LTRIG;
+	    event.key.keysym.scancode = 0;
 
-		event.key.keysym.sym = SDLK_LTRIG;
-		event.key.keysym.scancode = 0;
+	    SDL_PushEvent(&event);
+	  }  else if(state->ltrig == 0) {
+	      event.type = SDL_KEYUP;
+	      event.key.keysym.sym = SDLK_LTRIG;
+	      event.key.keysym.scancode = 0;
 
-		SDL_PushEvent(&event);
-
+	      SDL_PushEvent(&event);
+	  }
 	}
 
 	if(state->joy2x != prev_state->joy2x || state->joy2y != prev_state->joy2y) {
@@ -218,7 +275,7 @@ void JoystickUpdate() {
 		event.motion.y = state->joy2y;
 		event.motion.xrel = (event.motion.x - lastmx);
 		event.motion.yrel = (event.motion.y - lastmy);
-		chaged = true;
+		//chaged = true;
 	}
 	if(chaged) {
 	  event.type = SDL_MOUSEMOTION;
@@ -235,8 +292,7 @@ static void keyboard_update(void) {
     static kbd_state_t old_state;
     kbd_state_t	*state;
     maple_device_t *dev;
-    //int shiftkeys;
-    //SDL_keysym keysym;
+    int shiftkeys;
     int i;
     SDL_Event event;
 
@@ -248,11 +304,20 @@ static void keyboard_update(void) {
     if(!state)
         return;
 
-    for(i = 0; i < 255; ++i) {
+    shiftkeys = state->shift_keys ^ old_state.shift_keys;
+    for(i = 0; i < sizeof(sdl_shift); ++i) {
+        if((shiftkeys >> i) & 1) {
+	    event.type = ((state->shift_keys >> i) & 1) ? SDL_KEYDOWN :SDL_KEYUP;
+	    event.key.keysym.sym = sdl_shift[i];
+	    event.key.keysym.scancode = 0;
+	    SDL_PushEvent(&event);
+        }
+    }
+
+    for(i = 0; i < sizeof(sdl_key)/sizeof(sdl_key[0]); ++i) {
         if(state->matrix[i] != old_state.matrix[i]) {
-	  int key = key_to_sdlk(i);
+	  int key = sdl_key[i];
             if(key != SDLK_UNKNOWN) {
-	      //keysym.sym = key;
 		event.type = state->matrix[i] ? SDL_KEYDOWN :SDL_KEYUP;
 
 		event.key.keysym.sym = key;
@@ -267,61 +332,6 @@ static void keyboard_update(void) {
     old_state = *state;
 }
 
-
-static int sdl_func[12] ={
-	SDLK_F1, SDLK_F2, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_F6, SDLK_F7, SDLK_F8,SDLK_F9,
-	SDLK_F10, SDLK_F11, SDLK_F12
-};
-
-static int sdl_num[10] ={
-	SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7,
-	SDLK_8, SDLK_9, SDLK_0
-};
-
-static int sdl_alph[26] ={
-	SDLK_a, SDLK_b, SDLK_c, SDLK_d, SDLK_e, SDLK_f, SDLK_g, SDLK_h,
-	SDLK_i, SDLK_j, SDLK_k, SDLK_l, SDLK_m, SDLK_n, SDLK_o, SDLK_p,
-	SDLK_q, SDLK_r, SDLK_s, SDLK_t, SDLK_u, SDLK_v, SDLK_w, SDLK_x,
-	SDLK_y,	SDLK_z
-};
-
-static int sdl_key[4] ={
-	SDLK_RIGHT, SDLK_LEFT, SDLK_DOWN, SDLK_UP
-};
-
-static int joy_to_sdlk(int key)
-{
-	switch (key) {
-	case CONT_DPAD_UP:case CONT_DPAD2_UP: return SDLK_UP;
-	case CONT_DPAD_DOWN: case CONT_DPAD2_DOWN: return SDLK_DOWN;
-	case CONT_DPAD_RIGHT: case CONT_DPAD2_RIGHT: return SDLK_RIGHT;
-	case CONT_DPAD_LEFT: case CONT_DPAD2_LEFT: return SDLK_LEFT;
-	case CONT_A: return SDLK_BTN_A;
-	case CONT_B: return SDLK_BTN_B;
-	case CONT_C: return SDLK_BTN_C;
-	case CONT_X: return SDLK_BTN_X;
-	case CONT_Y: return SDLK_BTN_Y;
-	case CONT_Z: return SDLK_BTN_Z;
-	case CONT_START: return SDLK_F3; //fixed for menu
-	}
-
-	return SDLK_UNKNOWN;
-}
-
-static int key_to_sdlk(int key)
-{
-	switch (key) {
-	case 0x04 ... 0x1d:	return sdl_alph[key - 0x04];
-	case 0x1e ... 0x27:	return sdl_num[key - 0x1e];
-	case 0x4f ... 0x52:	return sdl_key[key - 0x4f];
-	case 0x59 ... 0x62:	return sdl_num[key - 0x59];
-	case 0x29: return SDLK_ESCAPE;
-	case 0x2c: return SDLK_SPACE;
-	case 0x3a ... 0x45:	return sdl_func[key - 0x3a];
-	}
-
-	return SDLK_UNKNOWN;
-}
 
 void handleInput()
 {

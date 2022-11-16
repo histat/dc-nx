@@ -86,7 +86,7 @@ uint32_t color = SDL_MapRGB(screen->format, 255, 0, 255);
 	SDL_FillRect(screen, &rect, color);
 }
 
-#if 1
+#if 0
 int SDL_main(int argc, char *argv[])
 {
 	set_console_visible(true);
@@ -169,10 +169,6 @@ void music(int songno)
 	org_stop();
 
 	start_track(songno);
-}
-
-void test()
-{
 }
 
 int SDL_main(int argc, char *argv[])

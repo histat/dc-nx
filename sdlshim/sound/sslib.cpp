@@ -1,5 +1,4 @@
-
-#ifndef USE_ARM
+#ifndef ENABLE_CDDA
 
 // Sound System
 // more or less, my own version of SDL_mixer

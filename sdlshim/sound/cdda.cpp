@@ -1,4 +1,4 @@
-#ifdef USE_ARM
+#ifdef ENABLE_CDDA
 
 #include "shim.h"
 #include <kos.h>

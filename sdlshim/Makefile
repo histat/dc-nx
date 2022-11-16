@@ -1,4 +1,4 @@
-#DEFINES  = -DUSE_ARM
+DEFINES  = -DENABLE_AICA
 INCLUDES = -I $(KOS_PORTS)/include/zlib -ISDL -I.
 CFLAGS   = $(KOS_CFLAGS) $(INCLUDES) $(DEFINES) -Wreturn-type -Wunused-variable -Wno-multichar
 CXXFLAGS = $(KOS_CXXFLAGS)

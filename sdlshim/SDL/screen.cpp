@@ -132,14 +132,7 @@ struct polygon_list {
 #define TA_TEXTUREMODE_STRIDE	    (1<<25)
 #define TA_TEXTUREMODE_ADDRESS(a)   ((((unsigned long)(void*)(a))&0x7fffff)>>3)
 
-struct packed_colour_vertex_list  {
-  unsigned int cmd;
-  float x, y, z, u, v;
-  unsigned int colour, ocolour;
-};
 
-#define TA_CMD_VERTEX     0xE0000000
-#define TA_CMD_VERTEX_EOS 0xF0000000  /* end of strip */
 
 #define GET_PIXEL_ADDR(SURFACE, X, Y)	\
 	((uint16_t *)(((uint8_t *)SURFACE->pixels) + ((Y) * SURFACE->pitch) + ((X) * 2)))
@@ -171,10 +164,10 @@ static void set_scaling()
 	
 	if (!_fullscreen) {
 
-		_screen_x = 0;
-		_screen_y = 20;
+		_screen_x = 10;
+		_screen_y = 10;
 
-		_x_scale = FULL_SCREEN_W*1.0/320;;
+		_x_scale = (FULL_SCREEN_W - _screen_x*2)*1.0/320;
 		_y_scale = (FULL_SCREEN_H - _screen_y*2)*1.0/240;
 
 	} else {
@@ -286,14 +279,10 @@ void update_polygon()
 
 SDL_Surface *SDL_SetVideoMode(int width, int height, int bitsperpixel, uint32_t flags)
 {
-#if 0
 	if (flags & SDL_FULLSCREEN)
 		_fullscreen = true;
 	else
 		_fullscreen = false;
-#else
-	_fullscreen = true;
-#endif
 	
 	set_scaling();
 

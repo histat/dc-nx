@@ -1,5 +1,6 @@
 DEBUG = 0
 
+DEFINES  = -DENABLE_AICA
 INCLUDES = -I $(KOS_PORTS)/include/zlib -I../sdlshim -I../sdlshim/SDL
 CFLAGS = $(KOS_CFLAGS) -Os $(INCLUDES) $(DEFINES) -Wreturn-type -Wunused-variable -Wno-multichar
 CXXFLAGS = $(KOS_CXXFLAGS)

@@ -1,8 +1,7 @@
+#ifndef ENABLE_AICA
 
 // PXT sound file player
 // see bottom of file for info on how to use this module
-
-#ifndef USE_ARM
 
 #include <stdio.h>
 #include <math.h>			// for sin()
@@ -1310,6 +1309,8 @@ static void SaveEnvVertice(FILE *fp, stPXEnvelope *env, int v)
 #include "pxt.h"
 #include "pxt.fdh"
 
+#include "../sdlshim/audio.h"
+
 FILE *SDLS_fopen(const char *fname, const char *mode);
 
 
@@ -1493,18 +1494,15 @@ int value;
 int ap;
 int i;
 signed char *buffer = snd->final_buffer;
-//signed short *outbuffer;
+signed short *outbuffer;
 int malc_size;
 
 	// convert the buffer from 8-bit mono signed to 16-bit stereo signed
-	malc_size = (snd->final_size);
-	//outbuffer = (signed short *)malloc(malc_size);
+	malc_size = (snd->final_size * 2);
+	outbuffer = (signed short *)malloc(malc_size);
 	
-	printf("%s: slot = %d size = 0x%x\n", __func__, slot, malc_size);
-	int spu_buf = spu_malloc( malc_size );
+	//printf("%s: slot = %d size = 0x%x\n", __func__, slot, malc_size);
 	
-	//printf("%s: 0x%x\n",__func__, spu_buf);
-
 	for(i=ap=0;i<snd->final_size;i++)
 	{
 		value = buffer[i];
@@ -1513,17 +1511,11 @@ int malc_size;
 		outbuffer[ap++] = value;
 	}
 
-	memcpy4((void*)spu_buf, (void*)buffer, malc_size);
-
-
-	//sound_fx[slot].buffer = outbuffer;
-	sound_fx[slot].buffer = spu_buf;
-	sound_fx[slot].len = snd->final_size;
-
-	audio_register_sound(int format, unsigned int samplerate, void *data, unsigned int num_samples);
+ 	int c = audio_register_sound(AUDIO_FORMAT_16BIT, 22050, outbuffer, snd->final_size / 2);
+	sound_fx[slot].channel = c;
 
 	//lprintf("pxt ready to play in slot %d\n", slot);
-//	free(outbuffer);
+	free(outbuffer);
 }
 
 
@@ -1532,12 +1524,12 @@ int malc_size;
 // on error, returns -1.
 int pxt_Play(int chan, int slot, char loop)
 {
-	int buf = sound_fx[slot].buffer;
-	int len = sound_fx[slot].len;
 	int c,i;
 	int pos;
 
-	sound_fx[i].channel = c;
+	c = sound_fx[slot].channel;
+
+	audio_play_registered_sound(c, SPEAKER_LEFT | SPEAKER_RIGHT, 1.0f);
 
 //	printf("slot = 0x%x channel 0x%x len 0x%x\n",slot, c, len);
 
@@ -1546,28 +1538,28 @@ int pxt_Play(int chan, int slot, char loop)
 
 void pxt_Stop(int slot)
 {
-	int chan;
+	int c;
 
 //	printf("%s: slot 0x%x\n",__func__, slot);
 
-	chan = sound_fx[slot].channel;
+	c = sound_fx[slot].channel;
 	
-	audio_stop_registered_sound(chan);
+	audio_stop_registered_sound(c);
 
-	sound_fx[slot].channel = -1;
+	//sound_fx[slot].channel = -1;
 }
 
 char pxt_IsPlaying(int slot)
 {
-	int chan;
+	int c;
 	int pos;
 //	printf("%s: slot 0x%x\n",__func__, slot);
 
-	chan = sound_fx[slot].channel;
+	c = sound_fx[slot].channel;
 
-	pos = audio_sound_instance_is_playing(chan);
+	pos = audio_sound_instance_is_playing(c);
 
-	return (pos);
+	return (pos?1:0);
 }
 
 void pxt_freeSoundFX(void)

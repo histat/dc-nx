@@ -1,5 +1,5 @@
 
-#ifndef USE_ARM
+#ifndef ENABLE_CDDA
 
 #include "../shim.h"
 #include "../audio.h"

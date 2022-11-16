@@ -7,7 +7,7 @@
 #include <math.h>			// for sin()
 #include <stdlib.h>
 #include <string.h>
-#include <endian.h>
+//#include <endian.h>
 
 /*#include "../config.h"*/
 #include "pxt.h"
@@ -699,7 +699,7 @@ int malc_size;
 	{
 		value = buffer[i];
 		value *= 200;
-		value = htole16(value);
+		//value = htole16(value);
 		
 		outbuffer[ap++] = value;		// left ch
 		outbuffer[ap++] = value;		// right ch
@@ -1320,11 +1320,10 @@ FILE *SDLS_fopen(const char *fname, const char *mode);
 // the final sounds ready to play (after pxt_PrepareToPlay)
 static struct
 {
-	//int16_t *buffer;
-	int buffer;
+	int16_t *buffer;
 	int len;
 	int loops_left;
-	void (*DoneCallback)(int, int);
+  //void (*DoneCallback)(int, int);
 	int channel;
 } sound_fx[256];
 int load_top;
@@ -1511,11 +1510,11 @@ int malc_size;
 		outbuffer[ap++] = value;
 	}
 
- 	int c = audio_register_sound(AUDIO_FORMAT_16BIT, 22050, outbuffer, snd->final_size / 2);
-	sound_fx[slot].channel = c;
+	sound_fx[slot].buffer = outbuffer;
+	sound_fx[slot].len = snd->final_size;
 
 	//lprintf("pxt ready to play in slot %d\n", slot);
-	free(outbuffer);
+	//free(outbuffer);
 }
 
 
@@ -1524,11 +1523,21 @@ int malc_size;
 // on error, returns -1.
 int pxt_Play(int chan, int slot, char loop)
 {
-	int c,i;
-	int pos;
+  int c, i;
+	int16_t *buf = sound_fx[slot].buffer;
+	int len = sound_fx[slot].len;
 
-	c = sound_fx[slot].channel;
+	if (sound_fx[slot].channel < 0) {
+	  c = audio_register_sound(AUDIO_FORMAT_16BIT, 22050, buf, len);
+	} else {
+	  c = sound_fx[slot].channel;
+	}
 
+	if (c < 0) {
+	  return -1;
+	}
+
+	sound_fx[slot].channel = c;
 	audio_play_registered_sound(c, SPEAKER_LEFT | SPEAKER_RIGHT, 1.0f);
 
 //	printf("slot = 0x%x channel 0x%x len 0x%x\n",slot, c, len);
@@ -1539,21 +1548,17 @@ int pxt_Play(int chan, int slot, char loop)
 void pxt_Stop(int slot)
 {
 	int c;
-
-//	printf("%s: slot 0x%x\n",__func__, slot);
-
 	c = sound_fx[slot].channel;
-	
-	audio_stop_registered_sound(c);
 
-	//sound_fx[slot].channel = -1;
+	audio_unregister_sound(c);
+
+	sound_fx[slot].channel = -1;
 }
 
 char pxt_IsPlaying(int slot)
 {
 	int c;
 	int pos;
-//	printf("%s: slot 0x%x\n",__func__, slot);
 
 	c = sound_fx[slot].channel;
 

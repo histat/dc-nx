@@ -122,8 +122,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
     int ret;
 
 
-    vmufs_mutex_lock();
-
     free_bytes = 0;
 
     dev = maple_enum_type(unit, MAPLE_FUNC_MEMCARD);
@@ -133,7 +131,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
     }
 
     if (free_bytes < ((128+512+buf_len+511)/512)) {
-      vmufs_mutex_unlock();
       return false;
     }
 
@@ -159,7 +156,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
     ret = vmu_pkg_build(&pkg, &pkg_buf, &bufSize);
 
     if (ret < 0) {
-      vmufs_mutex_unlock();
       return false;
     }
 
@@ -171,7 +167,6 @@ bool save_to_vmu(int unit, const char *filename, const char *buf, int buf_len)
       vmu_draw_lcd(dev, hey_icon);
     }
 
-    vmufs_mutex_unlock();
     return true;
 }
 
@@ -185,12 +180,9 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
     uint8 *pkg_buf;
     int pkg_size;
 
-    vmufs_mutex_lock();
-
     dev = maple_enum_type(unit, MAPLE_FUNC_MEMCARD);
 
     if (!dev) {
-      vmufs_mutex_unlock();
       return false;
     }
 
@@ -199,7 +191,6 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
     }
 
     if (vmufs_read(dev, filename, (void **)&pkg_buf, &pkg_size) < 0) {
-      vmufs_mutex_unlock();
       return false;
     }
 
@@ -216,7 +207,6 @@ bool load_from_vmu(int unit, const char *filename, char *buf, int *buf_len)
       vmu_draw_lcd(dev, hey_icon);
     }
 
-    vmufs_mutex_unlock();
     return true;
 }
 

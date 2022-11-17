@@ -11,31 +11,9 @@ NxEngine is a complete open-source clone/rewrite of the Cave Story.
 Original NXEngine website http://nxengine.sourceforge.net 
 
 
-
-Installation
-------------
-
-try shell script master.sh
-
-NOTE:
-you should to install cdrkit
-
-extract data.zip ,wav.zip and plain files
-
-put 1ST_READ.BIN in data
-
-before excute the script 
-edit dev_option line in master.sh
-
-type 
-$ wodim --devices
-
-replace device name with the result
-
-example:
-dev_option="/dev/sg4"
-
-$ sh master.sh
+Burning
+-------
+you can burn with Image Burn
 
 Controls
 --------
@@ -61,15 +39,16 @@ S:	next wepon
 
 Credits
 -------
+- Cave Story
+  Studio Pixel
 
-- original NXEngine
+- NXEngine
 
 NXEngine by Caitlin Shaw (rogueeve)
 
 - Dreamcast Library
 
-Libronin - A Dreamcast development library
-by Marcus Comstedt, Peter Bortas and Per Hedbor
+KallistiOS - https://cadcdev.sourceforge.net/
 
 Contact
 -------

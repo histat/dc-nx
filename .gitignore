@@ -4,5 +4,4 @@
 *.bin
 ip.txt
 *.exe
-libronin
-
+*.CDI

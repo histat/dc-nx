@@ -2,10 +2,8 @@
 #include "scrnsave.h"
 #include <kos.h>
 #include "private.h"
-#include "libpspvram/valloc.h"
 #include <../hardware/pvr/pvr_internal.h>
 #include "audio.h"
-//#include "dcevent.h"
 #include "watchdog.h"
 
 extern void init_lcd();
@@ -17,14 +15,6 @@ void *screen_tx[SCREEN_BUFFER_SIZE] = {NULL};
 static unsigned char dc_screen[VRAM_SIZE] __attribute__((aligned (32)));
 
 extern "C" {
-
-static pvr_ptr_t pvr_mem_base;
-
-void *kospvrvramGetAddr()
-{
-  return (void *)pvr_mem_base;
-}
-
 
 int  arch_auto_init() {
     /* Initialize memory management */
@@ -100,16 +90,14 @@ void  arch_auto_shutdown() {
 //KOS_INIT_FLAGS(INIT_DEFAULT|INIT_QUIET);
 int init_hardware()
 {
-  int i;
   pvr_init_params_t pvr_params = {
-    { PVR_BINSIZE_16, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0 },
-    (int)(512 * 1024),
+    { PVR_BINSIZE_8, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0, PVR_BINSIZE_0 },
+    (int)(256 * 1024),
     0,	//dma
     0,	//fsaa
     0	//autosort disable
   };
   pvr_init (&pvr_params);
-  //pvr_set_bg_color(0,0,0.21);
 
 #ifndef NOSERIAL
   wdInit();
@@ -117,7 +105,7 @@ int init_hardware()
 
   _audio_init();
 
-  pvr_mem_base = (pvr_ptr_t)(PVR_RAM_INT_BASE + pvr_state.texture_base);
+  pvr_ptr_t pvr_mem_base = (pvr_ptr_t)(PVR_RAM_INT_BASE + pvr_state.texture_base);
 
 #ifndef NOSERIAL
   printf("reset pvr_mem_base at 0x%4x ", pvr_mem_base);
@@ -129,8 +117,10 @@ int init_hardware()
   
   *(volatile unsigned int*)(0xa05f80e4) = SCREEN_WIDTH >> 5; //for stride
   
-  for (int i=0; i<SCREEN_BUFFER_SIZE; i++)
-    screen_tx[i] = psp_valloc(VRAM_SIZE);
+  for (int i=0; i<SCREEN_BUFFER_SIZE; i++) {
+    screen_tx[i] = (void *)pvr_mem_base;
+    pvr_mem_base += VRAM_SIZE;
+  }
 
 
   audio_init();

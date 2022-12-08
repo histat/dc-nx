@@ -6,7 +6,7 @@ LDFLAGS = -s
 LIBS	= -lz -lm -lstdc++
 
 ASSRC := asm.s
-CSRC := audio.c aica.bin.c libpspvram/valloc.c watchdog.c profile.c
+CSRC := audio.c aica.bin.c watchdog.c profile.c
 
 CPPSRC := \
 	main.cpp shim.o console.cpp file.cpp \

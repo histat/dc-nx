@@ -15,7 +15,7 @@ TARGET := nxdc-release.elf
 endif
 
 ASSRC := ../sdlshim/asm.s
-CSRC := ../sdlshim/audio.c ../sdlshim/aica.bin.c ../sdlshim/libpspvram/valloc.c ../sdlshim/watchdog.c ../sdlshim/profile.c
+CSRC := ../sdlshim/audio.c ../sdlshim/aica.bin.c ../sdlshim/watchdog.c ../sdlshim/profile.c
 CPPSRC := \
 	main.cpp game.cpp object.cpp ObjManager.cpp map.cpp \
 	TextBox/TextBox.cpp TextBox/YesNoPrompt.cpp TextBox/ItemImage.cpp \

@@ -121,13 +121,15 @@ void update_audio()
 
     int numsamples = BUFSIZE;
 
+    int sleep_ms = (int)(1000.0 * ((float)BUFSIZE / (float)SAMPLERATE) * (1.0 / 4.0));
+
     while (numsamples > 0) {
       unsigned int actual_written = audio_write_stereo_data(samples, numsamples);
 
       if (actual_written < numsamples) {
 	numsamples -= actual_written;
 	samples += actual_written;
-	thd_sleep(10);
+	thd_sleep(sleep_ms);
       } else {
 	numsamples = 0;
       }

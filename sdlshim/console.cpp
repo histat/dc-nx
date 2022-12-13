@@ -268,8 +268,16 @@ void c------------------------------() {}
 
 void SetLogFilename(const char *fname)
 {
+#ifndef NOSERIAL
+  strcpy(logfilename, fname);
+#endif
 }
 
 void writelog(const char *buf, bool append_cr)
 {
+#ifndef NOSERIAL
+  fprintf(stderr, "%s",buf);
+  if(append_cr)
+    puts("\n");
+#endif
 }
